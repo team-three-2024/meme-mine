@@ -15,6 +15,7 @@ Web:
 - [ ] Make 3D Canary nodes interactive
 - [ ] Randomly distribute interactive nodes
   - Maybe only in the head
+- [ ] Implement something like the effect from https://threejs.org/examples/#webgl_video_kinect (Lauro's suggestion)
 
 3D model:
 
