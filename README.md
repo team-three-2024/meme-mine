@@ -1,6 +1,6 @@
 # 3D Kusama Canary Component
 
-![3D Canary Screenshot](./images/canary-001.png)
+![3D Canary Screenshot](./images/canary_001.png)
 
 A React component to render an interactive 3D Kusama Canary.
 
