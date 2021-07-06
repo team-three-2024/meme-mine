@@ -4,6 +4,21 @@
 
 A React component to render an interactive 3D Kusama Canary.
 
+## Developing
+
+Make sure you have latest stable Node.js installed (see `nvm`):
+
+    git clone git@github.com:KappaSigmaMu/canary-component.git
+    cd canary-component/
+    npm install
+
+Start development mode:
+
+    npm run start
+
+That should bring you to `http://localhost:3000` with a hot-reload React app.
+Edit files at `src/` to see live updates.
+
 ## Todo
 
 Web:
