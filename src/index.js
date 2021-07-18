@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import ThreeCanary from "./ThreeCanary";
+import ThreeCanary from "./lib/ThreeCanary";
 
 import "./styles.css";
 

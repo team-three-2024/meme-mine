@@ -93,8 +93,8 @@ class ThreeCanary extends Component {
             this.scene.add(this.canaryPointCloud);
           }
         })
-        
-        
+
+
       },
       xhr => {
         // console.log((xhr.loaded / xhr.total) * 100 + "% loaded");

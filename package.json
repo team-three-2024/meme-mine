@@ -3,19 +3,32 @@
   "version": "1.0.0",
   "description": "",
   "keywords": [],
-  "main": "src/index.js",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "files": [ "dist", "README.md" ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KappaSigmaMu/canary-component"
+  },
   "dependencies": {
-    "react": "16.5.2",
-    "react-dom": "16.5.2",
-    "react-scripts": "2.0.3",
     "three": "0.97.0",
     "three-obj-mtl-loader": "1.0.3",
     "three-orbitcontrols": "2.96.3"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@babel/cli": "^7.14.5",
+    "@babel/core": "^7.14.6",
+    "react": "16.5.2",
+    "react-dom": "16.5.2",
+    "react-scripts": "2.0.3"
+  },
+  "peerDependencies": {
+    "react": "16.5.2",
+    "react-dom": "16.5.2"
+  },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "rm -rf dist && NODE_ENV=production babel src/lib --out-dir dist --copy-files --ignore __tests__,spec.js,test.js,__snapshots__",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },

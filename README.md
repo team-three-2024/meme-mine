@@ -19,6 +19,10 @@ Start development mode:
 That should bring you to `http://localhost:3000` with a hot-reload React app.
 Edit files at `src/` to see live updates.
 
+## Production build
+
+    npm run build
+
 ## Todo
 
 Web:
