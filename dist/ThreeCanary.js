@@ -11,18 +11,12 @@ import OrbitControls from "three-orbitcontrols";
 var ThreeCanary = /*#__PURE__*/function (_Component) {
   _inherits(ThreeCanary, _Component);
 
-  function ThreeCanary() {
-    var _getPrototypeOf2;
-
+  function ThreeCanary(props) {
     var _this;
 
     _classCallCheck(this, ThreeCanary);
 
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(ThreeCanary)).call.apply(_getPrototypeOf2, [this].concat(args)));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(ThreeCanary).call(this, props));
 
     _this.start = function () {
       if (!_this.frameId) {
@@ -47,6 +41,7 @@ var ThreeCanary = /*#__PURE__*/function (_Component) {
       if (_this.renderer) _this.renderer.render(_this.scene, _this.camera);
     };
 
+    _this.objectUrl = props.objectUrl;
     return _this;
   }
 
@@ -126,7 +121,7 @@ var ThreeCanary = /*#__PURE__*/function (_Component) {
       var _this2 = this;
 
       var objLoader = new OBJLoader();
-      objLoader.load("./assets/canario_3d.obj", function (object) {
+      objLoader.load(this.objectUrl, function (object) {
         _this2.canaryMesh = object;
 
         _this2.canaryMesh.position.setY(-2);
