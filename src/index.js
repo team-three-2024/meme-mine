@@ -14,7 +14,7 @@ function App() {
         alignItems: "center"
       }}
     >
-      <ThreeCanary />
+      <ThreeCanary objectUrl={"/assets/canary.obj"} />
     </div>
   );
 }

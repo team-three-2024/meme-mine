@@ -4,6 +4,10 @@ import { OBJLoader } from "three-obj-mtl-loader";
 import OrbitControls from "three-orbitcontrols";
 
 class ThreeCanary extends Component {
+  constructor(props) {
+    super(props);
+    this.objectUrl = props.objectUrl;
+  }
 
   componentDidMount() {
     this.addScene();
@@ -68,7 +72,7 @@ class ThreeCanary extends Component {
   addModels() {
     var objLoader = new OBJLoader();
     objLoader.load(
-      "./assets/canario_3d.obj",
+      this.objectUrl,
       object => {
         this.canaryMesh = object;
         this.canaryMesh.position.setY(-2);
