@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import * as THREE from "three";
 import { OBJLoader } from "three-obj-mtl-loader";
-import OrbitControls from "three-orbitcontrols";
+// import OrbitControls from "three-orbitcontrols";
 
 class ThreeCanary extends Component {
   constructor(props) {
@@ -38,12 +38,21 @@ class ThreeCanary extends Component {
 
   addCamera() {
     this.camera = new THREE.PerspectiveCamera(40, this.width / this.height, 1, 3000);
-    this.camera.position.z = 30;
-    this.camera.position.y = 5;
+    this.camera.position.z = 5;
+    this.camera.position.y = 2;
+    this.camera.position.x = -2.5;
   }
 
   addControls() {
-    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+    // this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+    // Raycaster from camera to vertex pointer so we can interactive with 3D vertices
+    this.pointer = new THREE.Vector2();
+    this.raycaster = new THREE.Raycaster();
+    this.raycaster.params.Points.threshold = 0.1;
+    this.intersected = null;
+
+    // window.addEventListener("resize", this.onWindowResize);
+    document.addEventListener("pointermove", this.onPointerMove);
   }
 
   addLights() {
@@ -64,8 +73,7 @@ class ThreeCanary extends Component {
     this.canaryMtlMesh =  new THREE.PointsMaterial( { color: 0xe6007a });
     this.canaryMtlPoints = new THREE.PointsMaterial( {
       color: 0x8200f9,
-      size: 0.3,
-      sizeAttenuation: true
+      size: 0.1
     } );
   }
 
@@ -91,12 +99,13 @@ class ThreeCanary extends Component {
 
             // Create point clouds based on mesh
             var childGeometry = child.geometry.clone();
-            this.canaryPointCloud = new THREE.Points(childGeometry);
+            this.canaryPointCloud = new THREE.Points(childGeometry, this.canaryMtlPoints);
             this.canaryPointCloud.position.setY(-2);
             this.canaryPointCloud.rotation.y = Math.PI/4;
             this.canaryPointCloud.scale.set(4, 4, 4);
-            this.canaryPointCloud.material = this.canaryMtlPoints;
             this.scene.add(this.canaryPointCloud);
+
+            console.log("Creating point cloud", this.canaryPointCloud);
           }
         })
 
@@ -109,6 +118,22 @@ class ThreeCanary extends Component {
         console.log("Error while loading: " + error);
       }
     );
+  }
+
+  onPointerMove = (event) => {
+    event.preventDefault();
+    let x = (event.clientX / window.innerWidth) * 2 - 1;
+    let y = - (event.clientY / window.innerHeight) * 2 + 1;
+    console.log("pointer", event.clientX, event.clientY, x, y, this.width, this.height);
+    this.pointer.x = x;
+    this.pointer.y = y;
+  }
+
+  onWindowResize = () => {
+    this.camera.aspect = window.innerWidth / window.innerHeight;
+    this.camera.updateProjectionMatrix();
+
+    this.renderer.setSize( window.innerWidth, window.innerHeight );
   }
 
   componentWillUnmount() {
@@ -127,6 +152,39 @@ class ThreeCanary extends Component {
   }
 
   animate = () => {
+
+    // if (this.canaryMesh) this.canaryMesh.rotation.y += 0.01;
+    // if (this.canaryPointCloud) this.canaryPointCloud.rotation.y += 0.01;
+
+    this.raycaster.setFromCamera(this.pointer, this.camera);
+    if (this.canaryPointCloud) {
+      const intersections = this.raycaster.intersectObject(this.canaryPointCloud);
+      let intersection = ( intersections.length ) > 0 ? intersections[0] : null;
+      if (intersection !== null) {
+        console.log("intersection", intersection.index);
+      }
+    }
+
+    // const attributes = this.canaryPointCloud ? this.canaryPointCloud.geometry.attributes : null;
+
+    // if (this.intersections && this.intersections.length > 0) {
+    //   if (this.intersected != this.intersections[0].index) {
+    //     this.intersected = this.intersections[0].index;
+    //     console.log(this.intersected, attributes);
+
+    //     if (attributes && attributes.position) {
+    //       console.log("hey");
+    //       attributes.position.array[this.intersected] += 10;
+    //       attributes.position.needsUpdate = true;
+    //     }
+    //   }
+    // } else if (this.intersected !== null) {
+    //   if (attributes && attributes.position) {
+    //     attributes.position.array[this.intersected] -=10;
+    //     attributes.position.needsUpdate = true;
+    //     this.intersected = null;
+    //   }
+    // }
 
     this.renderScene();
     this.frameId = window.requestAnimationFrame(this.animate);
