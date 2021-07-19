@@ -35,6 +35,9 @@ Web:
 - [ ] Randomly distribute interactive nodes
   - Maybe only in the head
 - [ ] Implement something like the effect from https://threejs.org/examples/#webgl_video_kinect (Lauro's suggestion)
+- [ ] Create KSM NPM organization
+- [ ] Publish as NPM package
+- [ ] Read brand colors as input (so we can pass it along from `ksm-app`)
 
 3D model:
 
