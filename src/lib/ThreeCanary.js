@@ -18,6 +18,14 @@ class ThreeCanary extends Component {
     this.addMaterials();
     this.addModels();
 
+    // Add a cube to visualize intersection with pointer
+    const geometry = new THREE.BoxGeometry();
+    const material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+    const cube = new THREE.Mesh( geometry, material );
+    this.cube = cube;
+    this.cube.scale.set(0.05, 0.05, 0.05);
+    this.scene.add( cube );
+
     this.renderScene();
     this.start();
   }
@@ -26,6 +34,7 @@ class ThreeCanary extends Component {
     this.width = this.mount.clientWidth;
     this.height = this.mount.clientHeight;
     this.scene = new THREE.Scene();
+    this.clock = new THREE.Clock();
   }
 
   addRenderer() {
@@ -38,9 +47,9 @@ class ThreeCanary extends Component {
 
   addCamera() {
     this.camera = new THREE.PerspectiveCamera(40, this.width / this.height, 1, 3000);
-    this.camera.position.z = 5;
+    this.camera.position.z = 6;
     this.camera.position.y = 2;
-    this.camera.position.x = -2.5;
+    this.camera.position.x = -3;
   }
 
   addControls() {
@@ -48,7 +57,7 @@ class ThreeCanary extends Component {
     // Raycaster from camera to vertex pointer so we can interactive with 3D vertices
     this.pointer = new THREE.Vector2();
     this.raycaster = new THREE.Raycaster();
-    this.raycaster.params.Points.threshold = 0.1;
+    this.raycaster.params.Points.threshold = 0.05;
     this.intersected = null;
 
     // window.addEventListener("resize", this.onWindowResize);
@@ -122,11 +131,11 @@ class ThreeCanary extends Component {
 
   onPointerMove = (event) => {
     event.preventDefault();
-    let x = (event.clientX / window.innerWidth) * 2 - 1;
-    let y = - (event.clientY / window.innerHeight) * 2 + 1;
-    console.log("pointer", event.clientX, event.clientY, x, y, this.width, this.height);
-    this.pointer.x = x;
-    this.pointer.y = y;
+
+    // Raycasting have to discount bounding box of rendering canvas
+    const rect = this.renderer.domElement.getBoundingClientRect();
+    this.pointer.x = ( ( event.clientX - rect.left ) / ( rect.right - rect.left ) ) * 2 - 1;
+    this.pointer.y = - ( ( event.clientY - rect.top ) / ( rect.bottom - rect.top) ) * 2 + 1;
   }
 
   onWindowResize = () => {
@@ -152,39 +161,20 @@ class ThreeCanary extends Component {
   }
 
   animate = () => {
-
-    // if (this.canaryMesh) this.canaryMesh.rotation.y += 0.01;
-    // if (this.canaryPointCloud) this.canaryPointCloud.rotation.y += 0.01;
-
+    
     this.raycaster.setFromCamera(this.pointer, this.camera);
+
     if (this.canaryPointCloud) {
-      const intersections = this.raycaster.intersectObject(this.canaryPointCloud);
-      let intersection = ( intersections.length ) > 0 ? intersections[0] : null;
+      const intersects = this.raycaster.intersectObject(this.canaryPointCloud);
+      let intersection = ( intersects.length ) > 0 ? intersects[0] : null;
       if (intersection !== null) {
-        console.log("intersection", intersection.index);
+        console.log("intersection", intersection);
+        // intersection.object.material.color.set( 0xff0000 );
+        this.cube.position.copy(intersection.point);
+        // intersection.object.point.x;
       }
+
     }
-
-    // const attributes = this.canaryPointCloud ? this.canaryPointCloud.geometry.attributes : null;
-
-    // if (this.intersections && this.intersections.length > 0) {
-    //   if (this.intersected != this.intersections[0].index) {
-    //     this.intersected = this.intersections[0].index;
-    //     console.log(this.intersected, attributes);
-
-    //     if (attributes && attributes.position) {
-    //       console.log("hey");
-    //       attributes.position.array[this.intersected] += 10;
-    //       attributes.position.needsUpdate = true;
-    //     }
-    //   }
-    // } else if (this.intersected !== null) {
-    //   if (attributes && attributes.position) {
-    //     attributes.position.array[this.intersected] -=10;
-    //     attributes.position.needsUpdate = true;
-    //     this.intersected = null;
-    //   }
-    // }
 
     this.renderScene();
     this.frameId = window.requestAnimationFrame(this.animate);
