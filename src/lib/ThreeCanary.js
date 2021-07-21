@@ -76,6 +76,7 @@ class ThreeCanary extends Component {
       object => {
         this.canaryMesh = object;
         this.canaryMesh.position.setY(-2);
+        this.canaryMesh.rotation.y = Math.PI/4;
         this.canaryMesh.scale.set(4, 4, 4);
         this.scene.add(this.canaryMesh);
 
@@ -92,6 +93,7 @@ class ThreeCanary extends Component {
             var childGeometry = child.geometry.clone();
             this.canaryPointCloud = new THREE.Points(childGeometry);
             this.canaryPointCloud.position.setY(-2);
+            this.canaryPointCloud.rotation.y = Math.PI/4;
             this.canaryPointCloud.scale.set(4, 4, 4);
             this.canaryPointCloud.material = this.canaryMtlPoints;
             this.scene.add(this.canaryPointCloud);
@@ -125,9 +127,6 @@ class ThreeCanary extends Component {
   }
 
   animate = () => {
-
-    if (this.canaryMesh) this.canaryMesh.rotation.y += 0.01;
-    if (this.canaryPointCloud) this.canaryPointCloud.rotation.y += 0.01;
 
     this.renderScene();
     this.frameId = window.requestAnimationFrame(this.animate);
