@@ -4,10 +4,27 @@ import { Vector3 } from "three";
 import { OBJLoader } from "three-obj-mtl-loader";
 import OrbitControls from "three-orbitcontrols";
 
+// Generate a random integer between min and max
+const random = (min, max) => Math.floor(Math.random() * (max - min)) + min;
+
+// Generate N integer numbers (with no repetition) between mix and max
+const randomN = (min, max, n) => {
+  let numbers = [];
+  while (numbers.length < n) {
+    let num = random(min, max);
+    if (!numbers.includes(num)) {
+      numbers.push(num);
+    }
+  }
+  return numbers;
+}
+
 class ThreeCanary extends Component {
   constructor(props) {
     super(props);
     this.objectUrl = props.objectUrl;
+    this.propsOnNodeSelected = props.onNodeSelected;
+    this.propsNodes = props.nodes;
   }
 
   componentDidMount() {
@@ -51,17 +68,16 @@ class ThreeCanary extends Component {
     this.raycaster = new THREE.Raycaster();
     // this.raycaster.params.Points.threshold = 2;
     this.hoveredNodes = [];
+    this.hoveredNodesObjs = [];
+    this.clickedNodes = [];
+    this.selectedNode = null;
 
-    // Add a cube to visualize intersection with pointer
-    // const geometry = new THREE.BoxGeometry();
-    // const material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
-    // const cube = new THREE.Mesh( geometry, material );
-    // this.cube = cube;
-    // this.cube.scale.set(0.05, 0.05, 0.05);
-    // this.scene.add( cube );
-
-    // window.addEventListener("resize", this.onWindowResize);
+    window.addEventListener("resize", this.onWindowResize);
     document.addEventListener("pointermove", this.onPointerMove);
+
+    if (this.renderer) {
+      this.renderer.domElement.addEventListener("click", this.onNodeClicked, true);
+    }
   }
 
   addLights() {
@@ -88,6 +104,7 @@ class ThreeCanary extends Component {
 
   addModels() {
     var objLoader = new OBJLoader();
+
     objLoader.load(
       this.objectUrl,
       object => {
@@ -108,29 +125,39 @@ class ThreeCanary extends Component {
 
             // Create point clouds based on mesh
             var childGeometry = child.geometry.clone();
-            // this.canaryPointCloud = new THREE.Points(childGeometry, this.canaryMtlPoints);
-            // this.canaryPointCloud.position.setY(-2);
-            // this.canaryPointCloud.rotation.y = Math.PI/4;
-            // this.canaryPointCloud.scale.set(4, 4, 4);
-            // this.scene.add(this.canaryPointCloud);
-            // let pos = this.canaryPointCloud.geometry.attributes.position;
 
             // Create a group of meshes as a point cloud instead of points, to have
             // per-mesh control
             let pos = childGeometry.attributes.position;
+            let numMeshPoints = pos.count;
+
+            // Randomly select n mesh points to use as placement for propsNodes
+            this.propsNodesIndexes = randomN(0, numMeshPoints, this.propsNodes.length);
+
             this.canaryPointCloudGroup = new THREE.Group();
-            for (let i=0; i<pos.count; i+=1) {
+
+            for (let i=0; i<this.propsNodesIndexes.length; i+=1) {
+              let nodeIndex = this.propsNodesIndexes[i];
 
               let geometry = new THREE.BoxGeometry();
-              let material = new THREE.MeshBasicMaterial( { color: 0x0000ff } );
+              let mtlColor = "#ff0000";
+              if (this.propsNodes[i].color) {
+                mtlColor = this.propsNodes[i].color;
+              }
+              let material = new THREE.MeshBasicMaterial( { color: mtlColor } );
               material.wireframe = false;
               material.needsUpdate = true;
               let cube = new THREE.Mesh( geometry, material );
 
-              cube.position.copy(new Vector3(pos.getX(i), pos.getY(i), pos.getZ(i)));
+              cube.position.copy(new Vector3(pos.getX(nodeIndex), pos.getY(nodeIndex), pos.getZ(nodeIndex)));
               let _scale = Math.random()*100;
               cube.scale.set(_scale, _scale, _scale);
               this.canaryPointCloudGroup.add( cube );
+
+              // Map mesh ids to propsNodes
+              this.propsNodes[i].meshIndex = nodeIndex;
+              this.propsNodes[i].meshObj = cube;
+
             }
             this.canaryPointCloudGroup.position.setY(-2);
             this.canaryPointCloudGroup.rotation.y = Math.PI/4;
@@ -157,6 +184,34 @@ class ThreeCanary extends Component {
     const rect = this.renderer.domElement.getBoundingClientRect();
     this.pointer.x = ( ( event.clientX - rect.left ) / ( rect.right - rect.left ) ) * 2 - 1;
     this.pointer.y = - ( ( event.clientY - rect.top ) / ( rect.bottom - rect.top) ) * 2 + 1;
+  }
+
+  onNodeClicked = (event) => {
+
+    if (this.hoveredNodes) {
+
+      for (let i=0; i<this.hoveredNodesObjs.length; i+=1) {
+        if (this.selectedNode !== this.hoveredNodesObjs[i]) {
+          // If node is hovered and we click on it, put it on selectedNode
+          this.selectedNode = this.hoveredNodesObjs[i];
+
+          // Map clicked mesh to propsNodes and call props' callback function
+          for (let j=0; j<this.propsNodes.length; j+=1) {
+            if (this.propsNodes[j].meshObj === this.hoveredNodesObjs[i]) {
+              // Call callback function passing clicked props Nodes as argument
+              if (this.propsOnNodeSelected) {
+                this.propsOnNodeSelected(this.propsNodes[j]);
+              }
+            }
+          }
+        } else {
+          // If we click again in a node, remove from selectedNode
+          this.selectedNode = null;
+        }
+      }
+
+    }
+
   }
 
   onWindowResize = () => {
@@ -186,6 +241,7 @@ class ThreeCanary extends Component {
     this.raycaster.setFromCamera(this.pointer, this.camera);
 
     this.hoveredNodes = [];
+    this.hoveredNodesObjs = [];
     if (this.canaryPointCloudGroup) {
       const intersects = this.raycaster.intersectObject(this.canaryPointCloudGroup, true);
       if (intersects != null && intersects.length > 0) {
@@ -195,23 +251,41 @@ class ThreeCanary extends Component {
         }
       }
 
+      // Render hovered nodes
       for (let i=0; i<this.canaryPointCloudGroup.children.length; i+=1) {
 
         if (this.hoveredNodes.includes(this.canaryPointCloudGroup.children[i].id)) {
-          this.canaryPointCloudGroup.children[i].material.color.set( 0xffffff );
+          // Hovered node style
+          this.canaryPointCloudGroup.children[i].material.color.set( "#ffffff" );
           this.canaryPointCloudGroup.children[i].material.wireframe = true;
           this.canaryPointCloudGroup.children[i].scale.set(0.15, 0.15, 0.15);
           this.canaryPointCloudGroup.children[i].rotateX(Math.sin(this.frameId / 70)/20);
           this.canaryPointCloudGroup.children[i].rotateY(Math.sin(this.frameId / 100)/20);
           this.canaryPointCloudGroup.children[i].rotateZ(Math.sin(this.frameId / 80)/20);
-      
+          this.hoveredNodesObjs.push(this.canaryPointCloudGroup.children[i]);
         } else {
-          this.canaryPointCloudGroup.children[i].material.color.set( 0x0000ff );
+          // Default node style, from propsNodes' color
+          for (let j=0; j<this.propsNodes.length; j+=1) {
+            if (this.propsNodes[j].meshObj === this.canaryPointCloudGroup.children[i]) {
+              this.canaryPointCloudGroup.children[i].material.color.set( this.propsNodes[j].color );
+            }
+          }
           this.canaryPointCloudGroup.children[i].material.wireframe = false;
           this.canaryPointCloudGroup.children[i].scale.set(0.05, 0.05, 0.05);
         }
-        // this.canaryPointCloudGroup.children[i].position.y += Math.sin(this.frameId / 50) / 1000;
       }
+
+      // Render selected node
+      if (this.selectedNode) {
+        // Selected node style
+        this.selectedNode.material.color.set( "#00ffbb" );
+        this.selectedNode.material.wireframe = true;
+        this.selectedNode.scale.set(0.15, 0.15, 0.15);
+        this.selectedNode.rotateX(Math.sin(this.frameId / 70)/20);
+        this.selectedNode.rotateY(Math.sin(this.frameId / 100)/20);
+        this.selectedNode.rotateZ(Math.sin(this.frameId / 80)/20);
+      }
+
     }
 
     this.renderScene();
