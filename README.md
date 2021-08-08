@@ -31,8 +31,8 @@ Web:
 - [x] Refactor and move three.js experiments to this repos
 - [x] Make it a React component
 - [x] Check with Alan/Lauro what kind of data we get from Kusama
-- [ ] Make 3D Canary nodes interactive
-- [ ] Randomly distribute interactive nodes
+- [x] Make 3D Canary nodes interactive
+- [x] Randomly distribute interactive nodes
   - Maybe only in the head
 - [ ] Implement something like the effect from https://threejs.org/examples/#webgl_video_kinect (Lauro's suggestion)
 - [ ] Create KSM NPM organization
@@ -43,3 +43,4 @@ Web:
 
 - [ ] Clean up mesh vertices on feet
 - [ ] Add more vertices to legs
+- [ ] Test loading static/animated glTF files (glb, binary)
