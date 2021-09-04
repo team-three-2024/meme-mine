@@ -51,7 +51,7 @@ class App extends React.Component {
       }}
       >
         <ThreeCanary
-          objectUrl={"/assets/canary.obj"}
+          objectUrl={"/assets/canary.glb"}
           nodes={this.state.nodesData}
           onNodeSelected={this.onNodeSelected.bind(this)}
         />
