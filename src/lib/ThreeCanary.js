@@ -30,6 +30,7 @@ class ThreeCanary extends Component {
     this.objectUrl = props.objectUrl;
     this.propsOnNodeSelected = props.onNodeSelected;
     this.propsNodes = props.nodes;
+    this.brandPalette = [0x01ffff, 0xe6007a, 0xffffff, 0x000000];
   }
 
   componentDidMount() {
@@ -51,6 +52,8 @@ class ThreeCanary extends Component {
     this.height = this.mount.clientHeight;
     this.scene = new THREE.Scene();
     this.clock = new THREE.Clock();
+
+    // this.scene.fog = new THREE.Fog( this.brandPalette[0], 100, 200 );
   }
 
   addRenderer() {
@@ -108,9 +111,9 @@ class ThreeCanary extends Component {
 
   addLights() {
     const lights = [];
-    lights[0] = new THREE.PointLight(0xff0000, 5, 0);
-    lights[1] = new THREE.PointLight(0x00ff00, 5, 0);
-    lights[2] = new THREE.PointLight(0x0000ff, 5, 0);
+    lights[0] = new THREE.PointLight(this.brandPalette[0], 5, 0);
+    lights[1] = new THREE.PointLight(this.brandPalette[1], 5, 0);
+    lights[2] = new THREE.PointLight(this.brandPalette[2], 5, 0);
     lights[0].position.set(5, 0, 0);
     lights[1].position.set(-5, 0, 0);
     lights[2].position.set(0, 5, 0);
@@ -132,7 +135,11 @@ class ThreeCanary extends Component {
 
   addMaterials() {
     // TODO: Move to brand color pallet
-    this.canaryMtlMesh =  new THREE.PointsMaterial( { color: 0xe6007a });
+    this.canaryMtlMesh =  new THREE.PointsMaterial( {
+      color: this.brandPalette[0],
+      size: 15,
+      vertexColors: true
+    });
     // this.canaryMtlPoints = new THREE.PointsMaterial( {
     //   color: 0x8200f9,
     //   size: 0.1
@@ -259,7 +266,7 @@ class ThreeCanary extends Component {
               let nodeIndex = this.propsNodesIndexes[i];
 
               let geometry = new THREE.BoxGeometry();
-              let mtlColor = "#ff0000";
+              let mtlColor = this.brandPalette[0];
               if (this.propsNodes[i].color) {
                 mtlColor = this.propsNodes[i].color;
               }
@@ -381,7 +388,7 @@ class ThreeCanary extends Component {
 
         if (this.hoveredNodes.includes(this.canaryPointCloudGroup.children[i].id)) {
           // Hovered node style
-          this.canaryPointCloudGroup.children[i].material.color.set( "#ffffff" );
+          this.canaryPointCloudGroup.children[i].material.color.set( this.brandPalette[2] );
           this.canaryPointCloudGroup.children[i].material.wireframe = true;
           this.canaryPointCloudGroup.children[i].scale.set(0.15, 0.15, 0.15);
           this.canaryPointCloudGroup.children[i].rotateX(Math.sin(this.frameId / 70)/20);
@@ -403,7 +410,7 @@ class ThreeCanary extends Component {
       // Render selected node
       if (this.selectedNode) {
         // Selected node style
-        this.selectedNode.material.color.set( "#00ffbb" );
+        this.selectedNode.material.color.set( this.brandPalette[1] );
         this.selectedNode.material.wireframe = true;
         this.selectedNode.scale.set(0.15, 0.15, 0.15);
         this.selectedNode.rotateX(Math.sin(this.frameId / 70)/20);
