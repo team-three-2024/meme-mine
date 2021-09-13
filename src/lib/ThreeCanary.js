@@ -5,6 +5,10 @@ import * as THREE from "three";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+
 // Generate a random integer between min and max
 const random = (min, max) => Math.floor(Math.random() * (max - min)) + min;
 
@@ -32,6 +36,7 @@ class ThreeCanary extends Component {
     this.addScene();
     this.addRenderer();
     this.addCamera();
+    this.addEffects();
     this.addControls();
     this.addLights();
     this.addMaterials();
@@ -62,6 +67,26 @@ class ThreeCanary extends Component {
     this.camera.position.y = 5;
   }
 
+  addEffects() {
+    const renderScene = new RenderPass(this.scene, this.camera);
+
+    const bloomPass = new UnrealBloomPass(
+      new THREE.Vector2(this.mount.offsetWidth, this.mount.offsetHeight),
+      1.5,
+      0.4,
+      0.85
+    );
+    bloomPass.threshold = 0;
+    bloomPass.strength = 0.6;
+
+    const composer = new EffectComposer(this.renderer);
+    composer.setPixelRatio(2);
+    composer.addPass(renderScene);
+    composer.addPass(bloomPass);
+
+    this.composer = composer;
+  }
+
   addControls() {
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     // Raycaster from camera to vertex pointer so we can interactive with 3D vertices
@@ -82,16 +107,27 @@ class ThreeCanary extends Component {
   }
 
   addLights() {
-    var lights = [];
-    lights[0] = new THREE.PointLight(0xff00ff, 1, 0);
-    lights[1] = new THREE.PointLight(0xffffff, 1, 0);
-    lights[2] = new THREE.PointLight(0xffffff, 1, 0);
-    lights[0].position.set(0, 0, 0);
-    lights[1].position.set(0, 0, 0);
-    lights[2].position.set(0, 0, 0);
+    const lights = [];
+    lights[0] = new THREE.PointLight(0xff0000, 5, 0);
+    lights[1] = new THREE.PointLight(0x00ff00, 5, 0);
+    lights[2] = new THREE.PointLight(0x0000ff, 5, 0);
+    lights[0].position.set(5, 0, 0);
+    lights[1].position.set(-5, 0, 0);
+    lights[2].position.set(0, 5, 0);
+    this.lights = lights;
+
     this.scene.add(lights[0]);
     this.scene.add(lights[1]);
     this.scene.add(lights[2]);
+
+    // this.scene.add( new THREE.PointLightHelper( lights[0], 3 ) );
+    // this.scene.add( new THREE.PointLightHelper( lights[1], 3 ) );
+    // this.scene.add( new THREE.PointLightHelper( lights[2], 3 ) );
+
+    const gridHelper = new THREE.GridHelper( 400, 40, 0x0000ff, 0x808080 );
+    gridHelper.position.y = 0;
+    gridHelper.position.x = 0;
+    // this.scene.add( gridHelper );
   }
 
   addMaterials() {
@@ -118,26 +154,93 @@ class ThreeCanary extends Component {
 
         const object = gltf.scene.children[0];
 
+        object.geometry.computeTangents();
+
         if (!object) {
           throw new Error(
             "Loaded model contains no objects!"
           );
         }
 
+        const uniforms = {
+          "time": {
+            value: 0.2
+          }
+        };
+        this.uniforms = uniforms;
+        const vertexShader = `
+          varying vec2 vUv;
+
+          void main()	{
+    
+            vUv = uv;
+    
+            gl_Position = vec4( position, 1.0 );
+    
+          }
+        `;
+        const fragmentShader = `
+          varying vec2 vUv;
+
+          uniform float time;
+    
+          void main()	{
+    
+            vec2 p = - 1.0 + 2.0 * vUv;
+            float a = time * 40.0;
+            float d, e, f, g = 1.0 / 40.0 ,h ,i ,r ,q;
+    
+            e = 400.0 * ( p.x * 0.5 + 0.5 );
+            f = 400.0 * ( p.y * 0.5 + 0.5 );
+            i = 200.0 + sin( e * g + a / 150.0 ) * 20.0;
+            d = 200.0 + cos( f * g / 2.0 ) * 18.0 + cos( e * g ) * 7.0;
+            r = sqrt( pow( abs( i - e ), 2.0 ) + pow( abs( d - f ), 2.0 ) );
+            q = f / r;
+            e = ( r * cos( q ) ) - a / 2.0;
+            f = ( r * sin( q ) ) - a / 2.0;
+            d = sin( e * g ) * 176.0 + sin( e * g ) * 164.0 + r;
+            h = ( ( f + d ) + a / 2.0 ) * g;
+            i = cos( h + r * p.x / 1.3 ) * ( e + e + a ) + cos( q * g * 6.0 ) * ( r + h / 3.0 );
+            h = sin( f * g ) * 144.0 - sin( e * g ) * 212.0 * p.x;
+            h = ( h + ( f - e ) * q + sin( r - ( a + h ) / 7.0 ) * 10.0 + i / 4.0 ) * g;
+            i += cos( h * 2.3 * sin( a / 350.0 - q ) ) * 184.0 * sin( q - ( r * 4.3 + a / 12.0 ) * g ) + tan( r * g + h ) * 184.0 * cos( r * g + h );
+            i = mod( i / 5.6, 256.0 ) / 64.0;
+            if ( i < 0.0 ) i += 4.0;
+            if ( i >= 2.0 ) i = 4.0 - i;
+            d = r / 350.0;
+            d += sin( d * d * 8.0 ) * 0.52;
+            f = ( sin( a * g ) + 1.0 ) / 2.0;
+            gl_FragColor = vec4( vec3( f * i / 1.6, i / 2.0 + d / 13.0, i ) * d * p.x + vec3( i / 1.3 + d / 8.0, i / 2.0 + d / 18.0, i ) * d * ( 1.0 - p.x ), 1.0 );
+    
+          }
+        `;
+
+        const shaderMaterial = new THREE.ShaderMaterial( {
+
+          uniforms: uniforms,
+          vertexShader: vertexShader,
+          fragmentShader: fragmentShader,
+          alphaTest: 1.0,
+          transparent: true
+
+        } );
+
+
+        this.canaryMesh = new THREE.Mesh( object.geometry, shaderMaterial);
         this.canaryMesh = object;
         this.canaryMesh.position.setY(-2);
         this.canaryMesh.rotation.z = Math.PI/4;
         this.canaryMesh.scale.set(4, 4, 4);
-        this.scene.add(this.canaryMesh);
 
+        // this.canaryMesh.material = shaderMaterial;
+        this.canaryMesh.material.wireframe = true;
+        this.canaryMesh.needsUpdate = true;
+        this.canaryMesh.material.transparent = true;
+        this.scene.add(this.canaryMesh);
+        
         // It's a group, traverse it
-        this.canaryMesh.traverse((child) => {
+        object.traverse((child) => {
           if (child.isMesh) {
-            // Set material to mesh (eg wireframe)
-            child.material = this.canaryMtlMesh;
-            child.material.wireframe = true;
-            child.material.needsUpdate = true;
-            child.material.transparent = true;
 
             // Create point clouds based on mesh
             var childGeometry = child.geometry.clone();
@@ -254,6 +357,12 @@ class ThreeCanary extends Component {
 
   animate = () => {
     
+    const delta = this.clock.getDelta();
+
+    // Change shader params
+    if (this.uniforms)
+      this.uniforms[ "time" ].value += delta * 5;
+
     this.raycaster.setFromCamera(this.pointer, this.camera);
 
     this.hoveredNodes = [];
@@ -300,12 +409,23 @@ class ThreeCanary extends Component {
         this.selectedNode.rotateX(Math.sin(this.frameId / 70)/20);
         this.selectedNode.rotateY(Math.sin(this.frameId / 100)/20);
         this.selectedNode.rotateZ(Math.sin(this.frameId / 80)/20);
-      }
+      }      
 
+    }
+
+    if (this.lights) {
+      for (let i=0; i<this.lights.length; i+=1) {
+        const time = -performance.now() * 0.0003;
+        this.lights[i].position.x = Math.sin( time * 1.7 ) * 3 * (i+1);
+        this.lights[i].position.y = Math.cos( time * 1.5 ) * 4 * (i+1);
+        this.lights[i].position.z = Math.cos( time * 1.3 ) * 3 * (i+1);
+      }
     }
 
     this.renderScene();
     this.frameId = window.requestAnimationFrame(this.animate);
+
+    this.composer.render();
   }
 
   renderScene = () => {
