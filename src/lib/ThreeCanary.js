@@ -1,8 +1,9 @@
 import React, { Component } from "react";
+
 import * as THREE from "three";
-import { Vector3 } from "three";
-import { OBJLoader } from "three-obj-mtl-loader";
-import OrbitControls from "three-orbitcontrols";
+
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 // Generate a random integer between min and max
 const random = (min, max) => Math.floor(Math.random() * (max - min)) + min;
@@ -72,7 +73,7 @@ class ThreeCanary extends Component {
     this.clickedNodes = [];
     this.selectedNode = null;
 
-    window.addEventListener("resize", this.onWindowResize);
+    // window.addEventListener("resize", this.onWindowResize);
     document.addEventListener("pointermove", this.onPointerMove);
 
     if (this.renderer) {
@@ -103,14 +104,29 @@ class ThreeCanary extends Component {
   }
 
   addModels() {
-    var objLoader = new OBJLoader();
+    const gltfLoader = new GLTFLoader()
 
-    objLoader.load(
+    gltfLoader.load(
       this.objectUrl,
-      object => {
+      gltf => {
+        
+        if (!gltf.scene) {
+          throw new Error(
+            "Loaded model contains no scene!"
+          );
+        }
+
+        const object = gltf.scene.children[0];
+
+        if (!object) {
+          throw new Error(
+            "Loaded model contains no objects!"
+          );
+        }
+
         this.canaryMesh = object;
         this.canaryMesh.position.setY(-2);
-        this.canaryMesh.rotation.y = Math.PI/4;
+        this.canaryMesh.rotation.z = Math.PI/4;
         this.canaryMesh.scale.set(4, 4, 4);
         this.scene.add(this.canaryMesh);
 
@@ -149,7 +165,7 @@ class ThreeCanary extends Component {
               material.needsUpdate = true;
               let cube = new THREE.Mesh( geometry, material );
 
-              cube.position.copy(new Vector3(pos.getX(nodeIndex), pos.getY(nodeIndex), pos.getZ(nodeIndex)));
+              cube.position.copy(new THREE.Vector3(pos.getX(nodeIndex), -pos.getZ(nodeIndex), pos.getY(nodeIndex)));
               let _scale = Math.random()*100;
               cube.scale.set(_scale, _scale, _scale);
               this.canaryPointCloudGroup.add( cube );
@@ -160,7 +176,7 @@ class ThreeCanary extends Component {
 
             }
             this.canaryPointCloudGroup.position.setY(-2);
-            this.canaryPointCloudGroup.rotation.y = Math.PI/4;
+            this.canaryPointCloudGroup.rotation.y = -Math.PI/4;
             this.canaryPointCloudGroup.scale.set(4, 4, 4);
             this.scene.add( this.canaryPointCloudGroup );
           }
@@ -169,7 +185,7 @@ class ThreeCanary extends Component {
 
       },
       xhr => {
-        // console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+        console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
       },
       error => {
         console.log("Error while loading: " + error);

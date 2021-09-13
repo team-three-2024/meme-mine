@@ -34,10 +34,14 @@ Web:
 - [x] Make 3D Canary nodes interactive
 - [x] Randomly distribute interactive nodes
   - Maybe only in the head
-- [ ] Implement something like the effect from https://threejs.org/examples/#webgl_video_kinect (Lauro's suggestion)
+- Styling
+  - [ ] Read brand colors as input (so we can pass it along from `ksm-app`)
+  - [ ] Implement something like the effect from https://threejs.org/examples/#webgl_video_kinect (Lauro's suggestion)
+  - [ ] Add back shaders for styling vertices and meshes
+  - [ ] Interpolate points between different shapes (sphare, cube, etc)
+  - [ ] Animate points
 - [ ] Create KSM NPM organization
 - [ ] Publish as NPM package
-- [ ] Read brand colors as input (so we can pass it along from `ksm-app`)
 
 3D model:
 
