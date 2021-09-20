@@ -17,7 +17,7 @@ const nodesDataFactory = (n) => {
     data.push({
       "id": Math.floor(Math.random()*100),
       "name": choose(["Arthur C. Clarke", "Douglas Adams", "Isaac Asimov"]),
-      "color": choose(["#0000ff", "#ff0000"])
+      "color": choose(["#e6007a"])
     })
   }
   return data;
