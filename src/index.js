@@ -29,7 +29,7 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      nodesData: nodesDataFactory(50),
+      nodesData: nodesDataFactory(1500),
       nodeSelected: null
     };
   }
