@@ -48,3 +48,8 @@ Web:
 - [ ] Clean up mesh vertices on feet
 - [ ] Add more vertices to legs
 - [ ] Test loading static/animated glTF files (glb, binary)
+
+- Use spheres instead of cubes on nodes
+- User smaller nodes
+- Try to interpolate between flying model and static model
+- Add better interaction to nodes

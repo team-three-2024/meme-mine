@@ -17,7 +17,7 @@ const nodesDataFactory = (n) => {
     data.push({
       "id": Math.floor(Math.random()*100),
       "name": choose(["Arthur C. Clarke", "Douglas Adams", "Isaac Asimov"]),
-      "color": choose(["#0000ff", "#ff0000"])
+      "color": choose(["#e6007a"])
     })
   }
   return data;
@@ -29,7 +29,7 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      nodesData: nodesDataFactory(50),
+      nodesData: nodesDataFactory(1500),
       nodeSelected: null
     };
   }
@@ -54,6 +54,7 @@ class App extends React.Component {
           objectUrl={"/assets/canary.glb"}
           nodes={this.state.nodesData}
           onNodeSelected={this.onNodeSelected.bind(this)}
+          debug={true}
         />
         <div
           className="Info"
