@@ -10,6 +10,8 @@ import { GlitchPass } from "three/examples/jsm/postprocessing/GlitchPass.js";
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 
+import Stats from 'three/examples/jsm/libs/stats.module.js';
+
 // Generate a random integer between min and max
 const random = (min, max) => Math.floor(Math.random() * (max - min)) + min;
 
@@ -58,6 +60,12 @@ class ThreeCanary extends Component {
     this.propsNodes = props.nodes;
     this.brandPalette = [0x01ffff, 0xe6007a, 0xffffff, 0x000000];
 
+    console.log(this.isDebug, props.debug)
+    this.isDebug = false;
+    if (props.debug) {
+      this.isDebug = true;
+    }
+
     this.glitchRunning = false;
   }
 
@@ -91,6 +99,11 @@ class ThreeCanary extends Component {
     this.renderer.setSize(this.width, this.height);
     this.renderer.setPixelRatio( window.devicePixelRatio );
     this.mount.appendChild(this.renderer.domElement);
+
+    if (this.isDebug) {
+      this.stats = new Stats();
+      this.mount.appendChild(this.stats.dom);
+    }
   }
 
   addCamera() {
@@ -176,7 +189,6 @@ class ThreeCanary extends Component {
   }
 
   addMaterials() {
-    // TODO: Move to brand color pallet
     this.canaryMtlMesh =  new THREE.PointsMaterial( {
       color: this.brandPalette[0],
       size: 15,
@@ -301,7 +313,7 @@ class ThreeCanary extends Component {
 
         // line.position.x = 4;
         // group.add( line );
-        this.scene.add( line );
+        // this.scene.add( line );
 
         // It's a group, traverse it
         object.traverse((child) => {
@@ -553,6 +565,9 @@ class ThreeCanary extends Component {
     this.starsGeometry.setAttribute("position", new THREE.Float32BufferAttribute(tempStarsArray, 3));
 
     this.composer.render();
+
+    if (this.isDebug)
+      this.stats.update()
   }
 
   renderScene = () => {
