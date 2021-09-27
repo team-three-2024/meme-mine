@@ -122,8 +122,8 @@ class ThreeCanary extends Component {
       0.4,
       0.85
     );
-    bloomPass.threshold = 0.1;
-    bloomPass.strength = 0.8;
+    bloomPass.threshold = 0;
+    bloomPass.strength = 2;
     bloomPass.radius = 0.4;
 
     const glitchPass = new GlitchPass();
