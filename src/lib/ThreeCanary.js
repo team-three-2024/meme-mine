@@ -508,7 +508,7 @@ class ThreeCanary extends Component {
           // Hovered node style
           this.canaryPointCloudGroup.children[i].material.color.set( this.brandPalette[2] );
           this.canaryPointCloudGroup.children[i].material.wireframe = false;
-          const s = 0.1;
+          const s = 0.2;
           this.canaryPointCloudGroup.children[i].scale.set(s, s, s);
           this.canaryPointCloudGroup.children[i].rotateX(Math.sin(this.frameId / 70)/20);
           this.canaryPointCloudGroup.children[i].rotateY(Math.sin(this.frameId / 100)/20);
