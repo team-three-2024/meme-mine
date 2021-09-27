@@ -27,9 +27,9 @@ const randomN = (min, max, n) => {
 
 class Star {
   setup(color) {
-    const pixelRatio = 2;
+    const pixelRatio = 1;
 
-    this.r = Math.random() * 12 + 3;
+    this.r = Math.random() * 30 + 3;
     this.phi = Math.random() * Math.PI * 2;
     this.theta = Math.random() * Math.PI;
     this.v = new THREE.Vector2().random().subScalar(0.5).multiplyScalar(0.0007);
@@ -38,7 +38,7 @@ class Star {
     this.y = this.r * Math.cos(this.phi);
     this.z = this.r * Math.sin(this.phi) * Math.cos(this.theta);
 
-    this.size = Math.random() * 4 + 0.5 * pixelRatio;
+    this.size = Math.random() * 3 + 0.5 * pixelRatio;
     this.color = color;
   }
   update() {
@@ -70,56 +70,8 @@ class ThreeCanary extends Component {
     this.addLights();
     this.addMaterials();
     this.addModels();
+    this.addGalaxy();
 
-    const stars = [];
-    const galaxyGeometryVertices = [];
-    const galaxyGeometryColors = [];
-    const galaxyGeometrySizes = [];
-
-    let galaxyColors = [
-      new THREE.Color("#f9fbf2").multiplyScalar(0.8),
-      new THREE.Color("#ffede1").multiplyScalar(0.8),
-      new THREE.Color("#05c7f2").multiplyScalar(0.8),
-      new THREE.Color("#0597f2").multiplyScalar(0.8),
-      new THREE.Color("#0476d9").multiplyScalar(0.8)
-    ];
-
-    const sparklesMaterial = new THREE.PointsMaterial( {
-      color: this.brandPalette[1],
-      size: 15,
-      blending: THREE.AdditiveBlending,
-      transparent: true,
-      sizeAttenuation: false,
-      opacity: 0.1
-    } );
-
-    for (let i = 0; i < 5000; i++) {
-      const star = new Star();
-      star.setup(galaxyColors[Math.floor(Math.random() * galaxyColors.length)]);
-      galaxyGeometryVertices.push(star.x, star.y, star.z);
-      galaxyGeometryColors.push(star.color.r, star.color.g, star.color.b);
-      galaxyGeometrySizes.push(star.size);
-      stars.push(star);
-    }
-    const starsGeometry = new THREE.SphereGeometry( 10, 10, 10 );
-    this.starsGeometry = starsGeometry;
-    // starsGeometry.scale(20,2,2);
-    // const starsGeometry = new THREE.BufferGeometry();
-    // starsGeometry.setAttribute(
-    //   "size",
-    //   new THREE.Float32BufferAttribute(galaxyGeometrySizes, 1)
-    // );
-    // starsGeometry.setAttribute(
-    //   "color",
-    //   new THREE.Float32BufferAttribute(galaxyGeometryColors, 3)
-    // );
-    this.galaxyPoints = new THREE.Points(starsGeometry, sparklesMaterial);
-    
-    this.galaxyPoints.scale.set(2, 1, 1);
-    this.stars = stars;
-    this.scene.add(this.galaxyPoints);
-
-    
     this.renderScene();
     this.start();
   }
@@ -130,7 +82,7 @@ class ThreeCanary extends Component {
     this.scene = new THREE.Scene();
     this.clock = new THREE.Clock();
 
-    // this.scene.fog = new THREE.Fog( this.brandPalette[0], 100, 200 );
+    this.scene.fog = new THREE.Fog( this.brandPalette[1], 20, 100 );
   }
 
   addRenderer() {
@@ -185,7 +137,7 @@ class ThreeCanary extends Component {
     this.clickedNodes = [];
     this.selectedNode = null;
 
-    // window.addEventListener("resize", this.onWindowResize);
+    window.addEventListener("resize", this.onWindowResize);
     document.addEventListener("pointermove", this.onPointerMove);
 
     if (this.renderer) {
@@ -216,11 +168,11 @@ class ThreeCanary extends Component {
     // this.scene.add( new THREE.PointLightHelper( lights[1], 3 ) );
     // this.scene.add( new THREE.PointLightHelper( lights[2], 3 ) );
 
-    // const gridHelper = new THREE.GridHelper( 400, 40, 0x222222, 0x222222 );
-    // gridHelper.position.y = -3;
-    // gridHelper.position.x = 0;
-    // gridHelper.position.z = 0;
-    // this.scene.add( gridHelper );
+    const gridHelper = new THREE.GridHelper( 400, 40, 0x222222, 0x222222 );
+    gridHelper.position.y = -3;
+    gridHelper.position.x = 0;
+    gridHelper.position.z = 0;
+    this.scene.add( gridHelper );
   }
 
   addMaterials() {
@@ -371,7 +323,7 @@ class ThreeCanary extends Component {
             for (let i=0; i<this.propsNodesIndexes.length; i+=1) {
               let nodeIndex = this.propsNodesIndexes[i];
 
-              let geometry = new THREE.BoxGeometry( 1.5, 1.5, 1.5 );
+              let geometry = new THREE.SphereGeometry( 0.25 );
               let mtlColor = this.brandPalette[0];
               if (this.propsNodes[i].color) {
                 mtlColor = this.propsNodes[i].color;
@@ -407,6 +359,47 @@ class ThreeCanary extends Component {
         console.log("Error while loading: " + error);
       }
     );
+  }
+
+  addGalaxy() {
+    const stars = [];
+    const galaxyGeometryVertices = [];
+    const galaxyGeometryColors = [];
+    const galaxyGeometrySizes = [];
+
+    let galaxyColors = [
+      new THREE.Color("#f9fbf2").multiplyScalar(0.8),
+      new THREE.Color("#ffede1").multiplyScalar(0.8),
+      new THREE.Color("#05c7f2").multiplyScalar(0.8),
+      new THREE.Color("#0597f2").multiplyScalar(0.8),
+      new THREE.Color("#0476d9").multiplyScalar(0.8)
+    ];
+
+    const sparklesMaterial = new THREE.PointsMaterial( {
+      color: this.brandPalette[0],
+      size: 15,
+      blending: THREE.AdditiveBlending,
+      transparent: true,
+      sizeAttenuation: false,
+      opacity: 0.02
+    } );
+
+    for (let i = 0; i < 200; i++) {
+      const star = new Star();
+      star.setup(galaxyColors[Math.floor(Math.random() * galaxyColors.length)]);
+      galaxyGeometryVertices.push(star.x, star.y, star.z);
+      galaxyGeometryColors.push(star.color.r, star.color.g, star.color.b);
+      galaxyGeometrySizes.push(star.size);
+      stars.push(star);
+    }
+    const starsGeometry = new THREE.SphereGeometry( 1 );
+    this.starsGeometry = starsGeometry;
+
+    this.galaxyPoints = new THREE.Points(starsGeometry, sparklesMaterial);
+    
+    this.galaxyPoints.scale.set(2, 2, 2);
+    this.stars = stars;
+    this.scene.add(this.galaxyPoints);
   }
 
   onPointerMove = (event) => {
@@ -451,6 +444,7 @@ class ThreeCanary extends Component {
     this.camera.updateProjectionMatrix();
 
     this.renderer.setSize( window.innerWidth, window.innerHeight );
+    this.renderer.setPixelRatio( window.devicePixelRatio );
   }
 
   componentWillUnmount() {
@@ -474,7 +468,7 @@ class ThreeCanary extends Component {
     const time = -performance.now() * 0.0005;
 
 
-    this.galaxyPoints.rotation.y += 0.005;
+    this.galaxyPoints.rotation.y += 0.002;
     // Change shader params
     if (this.uniforms)
       this.uniforms[ "time" ].value += delta * 5;
@@ -542,11 +536,11 @@ class ThreeCanary extends Component {
     this.renderScene();
     this.frameId = window.requestAnimationFrame(this.animate);
 
-    if (this.frameId%120 === 0) {
+    if (this.frameId%220 === 0) {
       this.glitchEffect.enabled = true;
     }
 
-    if (this.frameId%160 === 0) {
+    if (this.frameId%230 === 0) {
       this.glitchEffect.enabled = false;
     }
 
