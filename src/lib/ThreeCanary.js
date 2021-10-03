@@ -71,8 +71,9 @@ class ThreeCanary extends Component {
 
   componentDidMount() {
     this.addScene();
-    this.addRenderer();
     this.addCamera();
+    this.addRenderer();
+    
     this.addEffects();
     this.addControls();
     this.addLights();
@@ -90,14 +91,23 @@ class ThreeCanary extends Component {
     this.scene = new THREE.Scene();
     this.clock = new THREE.Clock();
 
-    this.scene.fog = new THREE.Fog( this.brandPalette[1], 20, 100 );
+    // this.scene.fog = new THREE.Fog( this.brandPalette[1], 20, 100 );
   }
 
   addRenderer() {
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
-    this.renderer.setClearColor("#000000");
-    this.renderer.setSize(this.width, this.height);
+    this.renderer.setClearColor("#212529");
+    // this.renderer.setClearColor("#000000");
+    // this.renderer.setSize(this.width, this.height);
     this.renderer.setPixelRatio( window.devicePixelRatio );
+
+    this.camera.aspect = window.innerWidth / window.innerHeight;
+    this.camera.updateProjectionMatrix();
+
+    this.renderer.setSize( window.innerWidth, window.innerHeight );
+    this.renderer.setPixelRatio( window.devicePixelRatio );
+
+
     this.mount.appendChild(this.renderer.domElement);
 
     if (this.isDebug) {
@@ -108,8 +118,8 @@ class ThreeCanary extends Component {
 
   addCamera() {
     this.camera = new THREE.PerspectiveCamera(40, this.width / this.height, 1, 3000);
-    this.camera.position.z = 12;
-    this.camera.position.y = 10;
+    this.camera.position.z = 4;
+    this.camera.position.y = 8;
     this.camera.position.x = 20;
   }
 
@@ -122,9 +132,9 @@ class ThreeCanary extends Component {
       0.4,
       0.85
     );
-    bloomPass.threshold = 0;
-    bloomPass.strength = 2;
-    bloomPass.radius = 0.4;
+    bloomPass.threshold = 0.2;
+    bloomPass.strength = 1.3;
+    bloomPass.radius = 0.5;
 
     const glitchPass = new GlitchPass();
     this.glitchEffect = glitchPass;
@@ -174,14 +184,14 @@ class ThreeCanary extends Component {
     this.scene.add(lights[0]);
     this.scene.add(lights[1]);
 
-    this.scene.add( new THREE.AmbientLight( 0x404040 ) );
+    // this.scene.add( new THREE.AmbientLight( 0x404040 ) );
     // this.scene.add(lights[2]);
 
     // this.scene.add( new THREE.PointLightHelper( lights[0], 3 ) );
     // this.scene.add( new THREE.PointLightHelper( lights[1], 3 ) );
     // this.scene.add( new THREE.PointLightHelper( lights[2], 3 ) );
 
-    const gridHelper = new THREE.GridHelper( 400, 40, 0x222222, 0x222222 );
+    const gridHelper = new THREE.GridHelper( 400, 40, 0x222222, 0x444444 );
     gridHelper.position.y = -3;
     gridHelper.position.x = 0;
     gridHelper.position.z = 0;
@@ -289,7 +299,7 @@ class ThreeCanary extends Component {
         this.canaryMesh = new THREE.Mesh( object.geometry, shaderMaterial);
         this.canaryMesh = object;
         this.canaryMesh.position.setY(-2);
-        // this.canaryMesh.rotation.z = Math.PI/4;
+        this.canaryMesh.rotation.z = -Math.PI/2 + 0.8;
         this.canaryMesh.scale.set(4, 4, 4);
 
         // this.canaryMesh.material = shaderMaterial;
@@ -307,13 +317,13 @@ class ThreeCanary extends Component {
         line.material.transparent = true;
 
         line.position.setY(-2);
-        // line.rotation.y = -Math.PI/4;
+        line.rotation.z = -Math.PI/2 + 0.8;
         line.rotation.x = Math.PI/2;
         line.scale.set(4, 4, 4);
 
         // line.position.x = 4;
         // group.add( line );
-        // this.scene.add( line );
+        this.scene.add( line );
 
         // It's a group, traverse it
         object.traverse((child) => {
@@ -356,7 +366,7 @@ class ThreeCanary extends Component {
 
             }
             this.canaryPointCloudGroup.position.setY(-2);
-            // this.canaryPointCloudGroup.rotation.y = -Math.PI/4;
+            this.canaryPointCloudGroup.rotation.y = Math.PI/2 - 0.8;
             this.canaryPointCloudGroup.scale.set(4, 4, 4);
             this.scene.add( this.canaryPointCloudGroup );
           }
@@ -380,7 +390,7 @@ class ThreeCanary extends Component {
     const galaxyGeometrySizes = [];
 
     let galaxyColors = [
-      new THREE.Color("#f9fbf2").multiplyScalar(0.8),
+      new THREE.Color("#ffffff").multiplyScalar(0.8),
       new THREE.Color("#ffede1").multiplyScalar(0.8),
       new THREE.Color("#05c7f2").multiplyScalar(0.8),
       new THREE.Color("#0597f2").multiplyScalar(0.8),
@@ -389,7 +399,7 @@ class ThreeCanary extends Component {
 
     const sparklesMaterial = new THREE.PointsMaterial( {
       color: this.brandPalette[0],
-      size: 15,
+      size: 10,
       blending: THREE.AdditiveBlending,
       transparent: true,
       sizeAttenuation: false,

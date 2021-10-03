@@ -245,8 +245,8 @@ var ThreeCanary = /*#__PURE__*/function (_Component) {
     key: "componentDidMount",
     value: function componentDidMount() {
       this.addScene();
-      this.addRenderer();
       this.addCamera();
+      this.addRenderer();
       this.addEffects();
       this.addControls();
       this.addLights();
@@ -262,8 +262,7 @@ var ThreeCanary = /*#__PURE__*/function (_Component) {
       this.width = this.mount.clientWidth;
       this.height = this.mount.clientHeight;
       this.scene = new THREE.Scene();
-      this.clock = new THREE.Clock();
-      this.scene.fog = new THREE.Fog(this.brandPalette[1], 20, 100);
+      this.clock = new THREE.Clock(); // this.scene.fog = new THREE.Fog( this.brandPalette[1], 20, 100 );
     }
   }, {
     key: "addRenderer",
@@ -271,8 +270,13 @@ var ThreeCanary = /*#__PURE__*/function (_Component) {
       this.renderer = new THREE.WebGLRenderer({
         antialias: true
       });
-      this.renderer.setClearColor("#000000");
-      this.renderer.setSize(this.width, this.height);
+      this.renderer.setClearColor("#212529"); // this.renderer.setClearColor("#000000");
+      // this.renderer.setSize(this.width, this.height);
+
+      this.renderer.setPixelRatio(window.devicePixelRatio);
+      this.camera.aspect = window.innerWidth / window.innerHeight;
+      this.camera.updateProjectionMatrix();
+      this.renderer.setSize(window.innerWidth, window.innerHeight);
       this.renderer.setPixelRatio(window.devicePixelRatio);
       this.mount.appendChild(this.renderer.domElement);
 
@@ -285,8 +289,8 @@ var ThreeCanary = /*#__PURE__*/function (_Component) {
     key: "addCamera",
     value: function addCamera() {
       this.camera = new THREE.PerspectiveCamera(40, this.width / this.height, 1, 3000);
-      this.camera.position.z = 12;
-      this.camera.position.y = 10;
+      this.camera.position.z = 4;
+      this.camera.position.y = 8;
       this.camera.position.x = 20;
     }
   }, {
@@ -294,9 +298,9 @@ var ThreeCanary = /*#__PURE__*/function (_Component) {
     value: function addEffects() {
       var renderScene = new RenderPass(this.scene, this.camera);
       var bloomPass = new UnrealBloomPass(new THREE.Vector2(this.mount.offsetWidth, this.mount.offsetHeight), 1.5, 0.4, 0.85);
-      bloomPass.threshold = 0;
-      bloomPass.strength = 2;
-      bloomPass.radius = 0.4;
+      bloomPass.threshold = 0.2;
+      bloomPass.strength = 1.3;
+      bloomPass.radius = 0.5;
       var glitchPass = new GlitchPass();
       this.glitchEffect = glitchPass;
       this.glitchEffect.enabled = false;
@@ -338,13 +342,13 @@ var ThreeCanary = /*#__PURE__*/function (_Component) {
       lights[2].position.set(0, 15, 0);
       this.lights = lights;
       this.scene.add(lights[0]);
-      this.scene.add(lights[1]);
-      this.scene.add(new THREE.AmbientLight(0x404040)); // this.scene.add(lights[2]);
+      this.scene.add(lights[1]); // this.scene.add( new THREE.AmbientLight( 0x404040 ) );
+      // this.scene.add(lights[2]);
       // this.scene.add( new THREE.PointLightHelper( lights[0], 3 ) );
       // this.scene.add( new THREE.PointLightHelper( lights[1], 3 ) );
       // this.scene.add( new THREE.PointLightHelper( lights[2], 3 ) );
 
-      var gridHelper = new THREE.GridHelper(400, 40, 0x222222, 0x222222);
+      var gridHelper = new THREE.GridHelper(400, 40, 0x222222, 0x444444);
       gridHelper.position.y = -3;
       gridHelper.position.x = 0;
       gridHelper.position.z = 0;
@@ -397,8 +401,9 @@ var ThreeCanary = /*#__PURE__*/function (_Component) {
         _this2.canaryMesh = new THREE.Mesh(object.geometry, shaderMaterial);
         _this2.canaryMesh = object;
 
-        _this2.canaryMesh.position.setY(-2); // this.canaryMesh.rotation.z = Math.PI/4;
+        _this2.canaryMesh.position.setY(-2);
 
+        _this2.canaryMesh.rotation.z = -Math.PI / 2 + 0.8;
 
         _this2.canaryMesh.scale.set(4, 4, 4); // this.canaryMesh.material = shaderMaterial;
 
@@ -416,13 +421,14 @@ var ThreeCanary = /*#__PURE__*/function (_Component) {
         line.material.depthTest = false;
         line.material.opacity = 0.1;
         line.material.transparent = true;
-        line.position.setY(-2); // line.rotation.y = -Math.PI/4;
-
+        line.position.setY(-2);
+        line.rotation.z = -Math.PI / 2 + 0.8;
         line.rotation.x = Math.PI / 2;
         line.scale.set(4, 4, 4); // line.position.x = 4;
         // group.add( line );
-        // this.scene.add( line );
-        // It's a group, traverse it
+
+        _this2.scene.add(line); // It's a group, traverse it
+
 
         object.traverse(function (child) {
           if (child.isMesh) {
@@ -464,8 +470,9 @@ var ThreeCanary = /*#__PURE__*/function (_Component) {
               _this2.propsNodes[i].meshObj = cube;
             }
 
-            _this2.canaryPointCloudGroup.position.setY(-2); // this.canaryPointCloudGroup.rotation.y = -Math.PI/4;
+            _this2.canaryPointCloudGroup.position.setY(-2);
 
+            _this2.canaryPointCloudGroup.rotation.y = Math.PI / 2 - 0.8;
 
             _this2.canaryPointCloudGroup.scale.set(4, 4, 4);
 
@@ -485,10 +492,10 @@ var ThreeCanary = /*#__PURE__*/function (_Component) {
       var galaxyGeometryVertices = [];
       var galaxyGeometryColors = [];
       var galaxyGeometrySizes = [];
-      var galaxyColors = [new THREE.Color("#f9fbf2").multiplyScalar(0.8), new THREE.Color("#ffede1").multiplyScalar(0.8), new THREE.Color("#05c7f2").multiplyScalar(0.8), new THREE.Color("#0597f2").multiplyScalar(0.8), new THREE.Color("#0476d9").multiplyScalar(0.8)];
+      var galaxyColors = [new THREE.Color("#ffffff").multiplyScalar(0.8), new THREE.Color("#ffede1").multiplyScalar(0.8), new THREE.Color("#05c7f2").multiplyScalar(0.8), new THREE.Color("#0597f2").multiplyScalar(0.8), new THREE.Color("#0476d9").multiplyScalar(0.8)];
       var sparklesMaterial = new THREE.PointsMaterial({
         color: this.brandPalette[0],
-        size: 15,
+        size: 10,
         blending: THREE.AdditiveBlending,
         transparent: true,
         sizeAttenuation: false,
