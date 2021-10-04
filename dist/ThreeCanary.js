@@ -1,10 +1,35 @@
-import _possibleConstructorReturn from "@babel/runtime/helpers/esm/possibleConstructorReturn";
-import _getPrototypeOf from "@babel/runtime/helpers/esm/getPrototypeOf";
-import _inherits from "@babel/runtime/helpers/esm/inherits";
-import _classCallCheck from "@babel/runtime/helpers/esm/classCallCheck";
-import _createClass from "@babel/runtime/helpers/esm/createClass";
-import React, { Component } from "react";
-import * as THREE from "three"; // Unfortunatelly we can't import three/examples as ES6 modules, so we need to hack it for SSR
+"use strict";
+
+require("core-js/modules/web.dom-collections.iterator.js");
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+require("core-js/modules/es.string.includes.js");
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/possibleConstructorReturn"));
+
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/getPrototypeOf"));
+
+var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/inherits"));
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/createClass"));
+
+var _react = _interopRequireWildcard(require("react"));
+
+var THREE = _interopRequireWildcard(require("three"));
+
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+// Unfortunatelly we can't import three/examples as ES6 modules, so we need to hack it for SSR
 // import Stats from 'three/examples/jsm/libs/stats.module.js';
 // import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 // import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
@@ -13,7 +38,6 @@ import * as THREE from "three"; // Unfortunatelly we can't import three/examples
 // import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 // import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 // Generate a random integer between min and max
-
 var random = function random(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }; // Generate N integer numbers (with no repetition) between mix and max
@@ -35,10 +59,10 @@ var randomN = function randomN(min, max, n) {
 
 var Star = /*#__PURE__*/function () {
   function Star() {
-    _classCallCheck(this, Star);
+    (0, _classCallCheck2.default)(this, Star);
   }
 
-  _createClass(Star, [{
+  (0, _createClass2.default)(Star, [{
     key: "setup",
     value: function setup(color) {
       var pixelRatio = 1;
@@ -62,19 +86,17 @@ var Star = /*#__PURE__*/function () {
       this.z = this.r * Math.sin(this.phi) * Math.cos(this.theta);
     }
   }]);
-
   return Star;
 }();
 
 var ThreeCanary = /*#__PURE__*/function (_Component) {
-  _inherits(ThreeCanary, _Component);
+  (0, _inherits2.default)(ThreeCanary, _Component);
 
   function ThreeCanary(props) {
     var _this;
 
-    _classCallCheck(this, ThreeCanary);
-
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(ThreeCanary).call(this, props));
+    (0, _classCallCheck2.default)(this, ThreeCanary);
+    _this = (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(ThreeCanary).call(this, props));
 
     _this.onPointerMove = function (event) {
       event.preventDefault(); // Raycasting have to discount bounding box of rendering canvas
@@ -242,7 +264,7 @@ var ThreeCanary = /*#__PURE__*/function (_Component) {
     return _this;
   }
 
-  _createClass(ThreeCanary, [{
+  (0, _createClass2.default)(ThreeCanary, [{
     key: "componentDidMount",
     value: function componentDidMount() {
       this.addScene();
@@ -541,7 +563,7 @@ var ThreeCanary = /*#__PURE__*/function (_Component) {
     value: function render() {
       var _this3 = this;
 
-      return /*#__PURE__*/React.createElement("div", {
+      return /*#__PURE__*/_react.default.createElement("div", {
         style: {
           width: "100%",
           height: "900px"
@@ -552,8 +574,8 @@ var ThreeCanary = /*#__PURE__*/function (_Component) {
       });
     }
   }]);
-
   return ThreeCanary;
-}(Component);
+}(_react.Component);
 
-export default ThreeCanary;
+var _default = ThreeCanary;
+exports.default = _default;
