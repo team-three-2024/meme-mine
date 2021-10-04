@@ -2,15 +2,15 @@ import React, { Component } from "react";
 
 import * as THREE from "three";
 
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+// Unfortunatelly we can't import three/examples as ES6 modules, so we need to hack it for SSR
 
-import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-import { GlitchPass } from "three/examples/jsm/postprocessing/GlitchPass.js";
-import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
-
-import Stats from 'three/examples/jsm/libs/stats.module.js';
+// import Stats from 'three/examples/jsm/libs/stats.module.js';
+// import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+// import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+// import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+// import { GlitchPass } from "three/examples/jsm/postprocessing/GlitchPass.js";
+// import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+// import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 
 // Generate a random integer between min and max
 const random = (min, max) => Math.floor(Math.random() * (max - min)) + min;
@@ -110,10 +110,10 @@ class ThreeCanary extends Component {
 
     this.mount.appendChild(this.renderer.domElement);
 
-    if (this.isDebug) {
-      this.stats = new Stats();
-      this.mount.appendChild(this.stats.dom);
-    }
+    // if (this.isDebug) {
+    //   this.stats = new Stats();
+    //   this.mount.appendChild(this.stats.dom);
+    // }
   }
 
   addCamera() {
@@ -124,8 +124,12 @@ class ThreeCanary extends Component {
   }
 
   addEffects() {
+    const RenderPass = require('three/examples/jsm/postprocessing/RenderPass.js').RenderPass;
     const renderScene = new RenderPass(this.scene, this.camera);
 
+    const GlitchPass = require("three/examples/jsm/postprocessing/GlitchPass.js").GlitchPass;
+    const UnrealBloomPass = require('three/examples/jsm/postprocessing/UnrealBloomPass.js').UnrealBloomPass;
+    const EffectComposer = require('three/examples/jsm/postprocessing/EffectComposer.js').EffectComposer;
     const bloomPass = new UnrealBloomPass(
       new THREE.Vector2(this.mount.offsetWidth, this.mount.offsetHeight),
       1.5,
@@ -150,6 +154,7 @@ class ThreeCanary extends Component {
   }
 
   addControls() {
+    const OrbitControls = require('three/examples/jsm/controls/OrbitControls.js').OrbitControls;
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     // Raycaster from camera to vertex pointer so we can interactive with 3D vertices
     this.pointer = new THREE.Vector2();
@@ -211,6 +216,7 @@ class ThreeCanary extends Component {
   }
 
   addModels() {
+    const GLTFLoader = require('three/examples/jsm/loaders/GLTFLoader').GLTFLoader;
     const gltfLoader = new GLTFLoader()
 
     gltfLoader.load(
@@ -576,8 +582,8 @@ class ThreeCanary extends Component {
 
     this.composer.render();
 
-    if (this.isDebug)
-      this.stats.update()
+    // if (this.isDebug)
+    //   this.stats.update()
   }
 
   renderScene = () => {

@@ -4,14 +4,15 @@ import _inherits from "@babel/runtime/helpers/esm/inherits";
 import _classCallCheck from "@babel/runtime/helpers/esm/classCallCheck";
 import _createClass from "@babel/runtime/helpers/esm/createClass";
 import React, { Component } from "react";
-import * as THREE from "three";
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-import { GlitchPass } from "three/examples/jsm/postprocessing/GlitchPass.js";
-import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
-import Stats from 'three/examples/jsm/libs/stats.module.js'; // Generate a random integer between min and max
+import * as THREE from "three"; // Unfortunatelly we can't import three/examples as ES6 modules, so we need to hack it for SSR
+// import Stats from 'three/examples/jsm/libs/stats.module.js';
+// import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+// import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+// import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+// import { GlitchPass } from "three/examples/jsm/postprocessing/GlitchPass.js";
+// import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+// import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+// Generate a random integer between min and max
 
 var random = function random(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
@@ -217,9 +218,9 @@ var ThreeCanary = /*#__PURE__*/function (_Component) {
 
       _this.starsGeometry.setAttribute("position", new THREE.Float32BufferAttribute(tempStarsArray, 3));
 
-      _this.composer.render();
+      _this.composer.render(); // if (this.isDebug)
+      //   this.stats.update()
 
-      if (_this.isDebug) _this.stats.update();
     };
 
     _this.renderScene = function () {
@@ -278,12 +279,10 @@ var ThreeCanary = /*#__PURE__*/function (_Component) {
       this.camera.updateProjectionMatrix();
       this.renderer.setSize(window.innerWidth, window.innerHeight);
       this.renderer.setPixelRatio(window.devicePixelRatio);
-      this.mount.appendChild(this.renderer.domElement);
-
-      if (this.isDebug) {
-        this.stats = new Stats();
-        this.mount.appendChild(this.stats.dom);
-      }
+      this.mount.appendChild(this.renderer.domElement); // if (this.isDebug) {
+      //   this.stats = new Stats();
+      //   this.mount.appendChild(this.stats.dom);
+      // }
     }
   }, {
     key: "addCamera",
@@ -296,7 +295,16 @@ var ThreeCanary = /*#__PURE__*/function (_Component) {
   }, {
     key: "addEffects",
     value: function addEffects() {
+      var RenderPass = require('three/examples/jsm/postprocessing/RenderPass.js').RenderPass;
+
       var renderScene = new RenderPass(this.scene, this.camera);
+
+      var GlitchPass = require("three/examples/jsm/postprocessing/GlitchPass.js").GlitchPass;
+
+      var UnrealBloomPass = require('three/examples/jsm/postprocessing/UnrealBloomPass.js').UnrealBloomPass;
+
+      var EffectComposer = require('three/examples/jsm/postprocessing/EffectComposer.js').EffectComposer;
+
       var bloomPass = new UnrealBloomPass(new THREE.Vector2(this.mount.offsetWidth, this.mount.offsetHeight), 1.5, 0.4, 0.85);
       bloomPass.threshold = 0.2;
       bloomPass.strength = 1.3;
@@ -314,6 +322,8 @@ var ThreeCanary = /*#__PURE__*/function (_Component) {
   }, {
     key: "addControls",
     value: function addControls() {
+      var OrbitControls = require('three/examples/jsm/controls/OrbitControls.js').OrbitControls;
+
       this.controls = new OrbitControls(this.camera, this.renderer.domElement); // Raycaster from camera to vertex pointer so we can interactive with 3D vertices
 
       this.pointer = new THREE.Vector2();
@@ -370,6 +380,8 @@ var ThreeCanary = /*#__PURE__*/function (_Component) {
     key: "addModels",
     value: function addModels() {
       var _this2 = this;
+
+      var GLTFLoader = require('three/examples/jsm/loaders/GLTFLoader').GLTFLoader;
 
       var gltfLoader = new GLTFLoader();
       gltfLoader.load(this.objectUrl, function (gltf) {
