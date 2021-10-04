@@ -1,8 +1,15 @@
 {
-  "name": "canary-component",
-  "version": "1.0.0",
-  "description": "",
-  "keywords": [],
+  "name": "@kappasigmamu/canary-component",
+  "version": "0.1.0",
+  "description": "React Component that renders the KappaSigmaMu Canary in 3D",
+  "keywords": [
+    "kusama",
+    "blockchain",
+    "polkadot",
+    "react",
+    "threejs",
+    "3d"
+  ],
   "main": "dist/index.js",
   "module": "dist/index.js",
   "files": [
@@ -12,7 +19,7 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "https://github.com/KappaSigmaMu/canary-component"
+    "url": "git+https://github.com/KappaSigmaMu/canary-component.git"
   },
   "dependencies": {
     "three": "0.132.2"
@@ -39,5 +46,11 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "bugs": {
+    "url": "https://github.com/KappaSigmaMu/canary-component/issues"
+  },
+  "homepage": "https://github.com/KappaSigmaMu/canary-component#readme",
+  "author": "Vilson Vieira",
+  "license": "MIT"
 }
