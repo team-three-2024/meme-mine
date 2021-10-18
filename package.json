@@ -1,6 +1,6 @@
 {
   "name": "@kappasigmamu/canary-component",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "React Component that renders the KappaSigmaMu Canary in 3D",
   "keywords": [
     "kusama",

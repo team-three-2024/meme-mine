@@ -151,12 +151,11 @@ var ThreeCanary = /*#__PURE__*/function (_Component) {
     };
 
     _this.animate = function () {
-      var delta = _this.clock.getDelta();
-
-      var time = -performance.now() * 0.0005;
-      _this.galaxyPoints.rotation.y += 0.002; // Change shader params
-
-      if (_this.uniforms) _this.uniforms["time"].value += delta * 5;
+      // const delta = this.clock.getDelta();
+      var time = -performance.now() * 0.0005; // this.galaxyPoints.rotation.y += 0.002;
+      // Change shader params
+      // if (this.uniforms)
+      // this.uniforms[ "time" ].value += delta * 5;
 
       _this.raycaster.setFromCamera(_this.pointer, _this.camera);
 
@@ -221,15 +220,12 @@ var ThreeCanary = /*#__PURE__*/function (_Component) {
 
       _this.renderScene();
 
-      _this.frameId = window.requestAnimationFrame(_this.animate);
-
-      if (_this.frameId % 220 === 0) {
-        _this.glitchEffect.enabled = true;
-      }
-
-      if (_this.frameId % 230 === 0) {
-        _this.glitchEffect.enabled = false;
-      }
+      _this.frameId = window.requestAnimationFrame(_this.animate); // if (this.frameId%220 === 0) {
+      //   this.glitchEffect.enabled = true;
+      // }
+      // if (this.frameId%230 === 0) {
+      //   this.glitchEffect.enabled = false;
+      // }
 
       var tempStarsArray = [];
 
@@ -238,9 +234,8 @@ var ThreeCanary = /*#__PURE__*/function (_Component) {
         tempStarsArray.push(s.x, s.y, s.z);
       });
 
-      _this.starsGeometry.setAttribute("position", new THREE.Float32BufferAttribute(tempStarsArray, 3));
-
-      _this.composer.render(); // if (this.isDebug)
+      _this.starsGeometry.setAttribute("position", new THREE.Float32BufferAttribute(tempStarsArray, 3)); // this.composer.render();
+      // if (this.isDebug)
       //   this.stats.update()
 
     };
@@ -253,7 +248,6 @@ var ThreeCanary = /*#__PURE__*/function (_Component) {
     _this.propsOnNodeSelected = props.onNodeSelected;
     _this.propsNodes = props.nodes;
     _this.brandPalette = [0x01ffff, 0xe6007a, 0xffffff, 0x000000];
-    console.log(_this.isDebug, props.debug);
     _this.isDebug = false;
 
     if (props.debug) {
@@ -269,8 +263,8 @@ var ThreeCanary = /*#__PURE__*/function (_Component) {
     value: function componentDidMount() {
       this.addScene();
       this.addCamera();
-      this.addRenderer();
-      this.addEffects();
+      this.addRenderer(); // this.addEffects();
+
       this.addControls();
       this.addLights();
       this.addMaterials();
@@ -415,24 +409,59 @@ var ThreeCanary = /*#__PURE__*/function (_Component) {
 
         if (!object) {
           throw new Error("Loaded model contains no objects!");
-        }
+        } // const uniforms = {
+        //   "time": {
+        //     value: 0.2
+        //   }
+        // };
+        // this.uniforms = uniforms;
+        // const vertexShader = `
+        //   varying vec2 vUv;
+        //   void main()	{
+        //     vUv = uv;
+        //     gl_Position = vec4( position, 1.0 );
+        //   }
+        // `;
+        // const fragmentShader = `
+        //   varying vec2 vUv;
+        //   uniform float time;
+        //   void main()	{
+        //     vec2 p = - 1.0 + 2.0 * vUv;
+        //     float a = time * 40.0;
+        //     float d, e, f, g = 1.0 / 40.0 ,h ,i ,r ,q;
+        //     e = 400.0 * ( p.x * 0.5 + 0.5 );
+        //     f = 400.0 * ( p.y * 0.5 + 0.5 );
+        //     i = 200.0 + sin( e * g + a / 150.0 ) * 20.0;
+        //     d = 200.0 + cos( f * g / 2.0 ) * 18.0 + cos( e * g ) * 7.0;
+        //     r = sqrt( pow( abs( i - e ), 2.0 ) + pow( abs( d - f ), 2.0 ) );
+        //     q = f / r;
+        //     e = ( r * cos( q ) ) - a / 2.0;
+        //     f = ( r * sin( q ) ) - a / 2.0;
+        //     d = sin( e * g ) * 176.0 + sin( e * g ) * 164.0 + r;
+        //     h = ( ( f + d ) + a / 2.0 ) * g;
+        //     i = cos( h + r * p.x / 1.3 ) * ( e + e + a ) + cos( q * g * 6.0 ) * ( r + h / 3.0 );
+        //     h = sin( f * g ) * 144.0 - sin( e * g ) * 212.0 * p.x;
+        //     h = ( h + ( f - e ) * q + sin( r - ( a + h ) / 7.0 ) * 10.0 + i / 4.0 ) * g;
+        //     i += cos( h * 2.3 * sin( a / 350.0 - q ) ) * 184.0 * sin( q - ( r * 4.3 + a / 12.0 ) * g ) + tan( r * g + h ) * 184.0 * cos( r * g + h );
+        //     i = mod( i / 5.6, 256.0 ) / 64.0;
+        //     if ( i < 0.0 ) i += 4.0;
+        //     if ( i >= 2.0 ) i = 4.0 - i;
+        //     d = r / 350.0;
+        //     d += sin( d * d * 8.0 ) * 0.52;
+        //     f = ( sin( a * g ) + 1.0 ) / 2.0;
+        //     gl_FragColor = vec4( vec3( f * i / 1.6, i / 2.0 + d / 13.0, i ) * d * p.x + vec3( i / 1.3 + d / 8.0, i / 2.0 + d / 18.0, i ) * d * ( 1.0 - p.x ), 1.0 );
+        //   }
+        // `;
+        // const shaderMaterial = new THREE.ShaderMaterial( {
+        //   uniforms: uniforms,
+        //   vertexShader: vertexShader,
+        //   fragmentShader: fragmentShader,
+        //   alphaTest: 1.0,
+        //   transparent: true
+        // } );
 
-        var uniforms = {
-          "time": {
-            value: 0.2
-          }
-        };
-        _this2.uniforms = uniforms;
-        var vertexShader = "\n          varying vec2 vUv;\n\n          void main()\t{\n    \n            vUv = uv;\n    \n            gl_Position = vec4( position, 1.0 );\n    \n          }\n        ";
-        var fragmentShader = "\n          varying vec2 vUv;\n\n          uniform float time;\n    \n          void main()\t{\n    \n            vec2 p = - 1.0 + 2.0 * vUv;\n            float a = time * 40.0;\n            float d, e, f, g = 1.0 / 40.0 ,h ,i ,r ,q;\n    \n            e = 400.0 * ( p.x * 0.5 + 0.5 );\n            f = 400.0 * ( p.y * 0.5 + 0.5 );\n            i = 200.0 + sin( e * g + a / 150.0 ) * 20.0;\n            d = 200.0 + cos( f * g / 2.0 ) * 18.0 + cos( e * g ) * 7.0;\n            r = sqrt( pow( abs( i - e ), 2.0 ) + pow( abs( d - f ), 2.0 ) );\n            q = f / r;\n            e = ( r * cos( q ) ) - a / 2.0;\n            f = ( r * sin( q ) ) - a / 2.0;\n            d = sin( e * g ) * 176.0 + sin( e * g ) * 164.0 + r;\n            h = ( ( f + d ) + a / 2.0 ) * g;\n            i = cos( h + r * p.x / 1.3 ) * ( e + e + a ) + cos( q * g * 6.0 ) * ( r + h / 3.0 );\n            h = sin( f * g ) * 144.0 - sin( e * g ) * 212.0 * p.x;\n            h = ( h + ( f - e ) * q + sin( r - ( a + h ) / 7.0 ) * 10.0 + i / 4.0 ) * g;\n            i += cos( h * 2.3 * sin( a / 350.0 - q ) ) * 184.0 * sin( q - ( r * 4.3 + a / 12.0 ) * g ) + tan( r * g + h ) * 184.0 * cos( r * g + h );\n            i = mod( i / 5.6, 256.0 ) / 64.0;\n            if ( i < 0.0 ) i += 4.0;\n            if ( i >= 2.0 ) i = 4.0 - i;\n            d = r / 350.0;\n            d += sin( d * d * 8.0 ) * 0.52;\n            f = ( sin( a * g ) + 1.0 ) / 2.0;\n            gl_FragColor = vec4( vec3( f * i / 1.6, i / 2.0 + d / 13.0, i ) * d * p.x + vec3( i / 1.3 + d / 8.0, i / 2.0 + d / 18.0, i ) * d * ( 1.0 - p.x ), 1.0 );\n    \n          }\n        ";
-        var shaderMaterial = new THREE.ShaderMaterial({
-          uniforms: uniforms,
-          vertexShader: vertexShader,
-          fragmentShader: fragmentShader,
-          alphaTest: 1.0,
-          transparent: true
-        });
-        _this2.canaryMesh = new THREE.Mesh(object.geometry, shaderMaterial);
+
+        _this2.canaryMesh = new THREE.Mesh(object.geometry);
         _this2.canaryMesh = object;
 
         _this2.canaryMesh.position.setY(-2);
@@ -443,25 +472,25 @@ var ThreeCanary = /*#__PURE__*/function (_Component) {
 
 
         _this2.canaryMesh.material.wireframe = true;
-        _this2.canaryMesh.needsUpdate = true;
+        _this2.canaryMesh.needsUpdate = false;
         _this2.canaryMesh.material.transparent = true;
-        _this2.canaryMesh.material.opacity = 0.1;
-        _this2.canaryMesh.material.depthTest = false;
+        _this2.canaryMesh.material.opacity = 0.1; // this.canaryMesh.material.depthTest = false;
 
-        _this2.scene.add(_this2.canaryMesh);
+        _this2.canaryMesh.material.color = new THREE.Color(_this2.brandPalette[2]);
 
-        var wireframe = new THREE.WireframeGeometry(object.geometry);
-        var line = new THREE.LineSegments(wireframe);
-        line.material.depthTest = false;
-        line.material.opacity = 0.1;
-        line.material.transparent = true;
-        line.position.setY(-2);
-        line.rotation.z = -Math.PI / 2 + 0.8;
-        line.rotation.x = Math.PI / 2;
-        line.scale.set(4, 4, 4); // line.position.x = 4;
+        _this2.scene.add(_this2.canaryMesh); // const wireframe = new THREE.WireframeGeometry( object.geometry );
+        // let line = new THREE.LineSegments( wireframe );
+        // line.material.depthTest = false;
+        // line.material.opacity = 0.1;
+        // line.material.transparent = true;
+        // line.position.setY(-2);
+        // line.rotation.z = -Math.PI/2 + 0.8;
+        // line.rotation.x = Math.PI/2;
+        // line.scale.set(4, 4, 4);
+        // line.position.x = 4;
         // group.add( line );
-
-        _this2.scene.add(line); // It's a group, traverse it
+        // this.scene.add( line );
+        // It's a group, traverse it
 
 
         object.traverse(function (child) {
@@ -526,19 +555,19 @@ var ThreeCanary = /*#__PURE__*/function (_Component) {
       var galaxyGeometryVertices = [];
       var galaxyGeometryColors = [];
       var galaxyGeometrySizes = [];
-      var galaxyColors = [new THREE.Color("#ffffff").multiplyScalar(0.8), new THREE.Color("#ffede1").multiplyScalar(0.8), new THREE.Color("#05c7f2").multiplyScalar(0.8), new THREE.Color("#0597f2").multiplyScalar(0.8), new THREE.Color("#0476d9").multiplyScalar(0.8)];
+      var galaxyColor = new THREE.Color(this.brandPalette[1]).multiplyScalar(0.8);
       var sparklesMaterial = new THREE.PointsMaterial({
-        color: this.brandPalette[0],
-        size: 10,
+        color: this.brandPalette[2],
+        size: 6,
         blending: THREE.AdditiveBlending,
         transparent: true,
         sizeAttenuation: false,
         opacity: 0.02
       });
 
-      for (var i = 0; i < 200; i++) {
+      for (var i = 0; i < 100; i++) {
         var star = new Star();
-        star.setup(galaxyColors[Math.floor(Math.random() * galaxyColors.length)]);
+        star.setup(galaxyColor);
         galaxyGeometryVertices.push(star.x, star.y, star.z);
         galaxyGeometryColors.push(star.color.r, star.color.g, star.color.b);
         galaxyGeometrySizes.push(star.size);
