@@ -60,7 +60,6 @@ class ThreeCanary extends Component {
     this.propsNodes = props.nodes;
     this.brandPalette = [0x01ffff, 0xe6007a, 0xffffff, 0x000000];
 
-    console.log(this.isDebug, props.debug)
     this.isDebug = false;
     if (props.debug) {
       this.isDebug = true;
@@ -74,7 +73,7 @@ class ThreeCanary extends Component {
     this.addCamera();
     this.addRenderer();
     
-    this.addEffects();
+    // this.addEffects();
     this.addControls();
     this.addLights();
     this.addMaterials();
@@ -106,7 +105,6 @@ class ThreeCanary extends Component {
 
     this.renderer.setSize( window.innerWidth, window.innerHeight );
     this.renderer.setPixelRatio( window.devicePixelRatio );
-
 
     this.mount.appendChild(this.renderer.domElement);
 
@@ -239,70 +237,70 @@ class ThreeCanary extends Component {
           );
         }
 
-        const uniforms = {
-          "time": {
-            value: 0.2
-          }
-        };
-        this.uniforms = uniforms;
-        const vertexShader = `
-          varying vec2 vUv;
+        // const uniforms = {
+        //   "time": {
+        //     value: 0.2
+        //   }
+        // };
+        // this.uniforms = uniforms;
+        // const vertexShader = `
+        //   varying vec2 vUv;
 
-          void main()	{
+        //   void main()	{
     
-            vUv = uv;
+        //     vUv = uv;
     
-            gl_Position = vec4( position, 1.0 );
+        //     gl_Position = vec4( position, 1.0 );
     
-          }
-        `;
-        const fragmentShader = `
-          varying vec2 vUv;
+        //   }
+        // `;
+        // const fragmentShader = `
+        //   varying vec2 vUv;
 
-          uniform float time;
+        //   uniform float time;
     
-          void main()	{
+        //   void main()	{
     
-            vec2 p = - 1.0 + 2.0 * vUv;
-            float a = time * 40.0;
-            float d, e, f, g = 1.0 / 40.0 ,h ,i ,r ,q;
+        //     vec2 p = - 1.0 + 2.0 * vUv;
+        //     float a = time * 40.0;
+        //     float d, e, f, g = 1.0 / 40.0 ,h ,i ,r ,q;
     
-            e = 400.0 * ( p.x * 0.5 + 0.5 );
-            f = 400.0 * ( p.y * 0.5 + 0.5 );
-            i = 200.0 + sin( e * g + a / 150.0 ) * 20.0;
-            d = 200.0 + cos( f * g / 2.0 ) * 18.0 + cos( e * g ) * 7.0;
-            r = sqrt( pow( abs( i - e ), 2.0 ) + pow( abs( d - f ), 2.0 ) );
-            q = f / r;
-            e = ( r * cos( q ) ) - a / 2.0;
-            f = ( r * sin( q ) ) - a / 2.0;
-            d = sin( e * g ) * 176.0 + sin( e * g ) * 164.0 + r;
-            h = ( ( f + d ) + a / 2.0 ) * g;
-            i = cos( h + r * p.x / 1.3 ) * ( e + e + a ) + cos( q * g * 6.0 ) * ( r + h / 3.0 );
-            h = sin( f * g ) * 144.0 - sin( e * g ) * 212.0 * p.x;
-            h = ( h + ( f - e ) * q + sin( r - ( a + h ) / 7.0 ) * 10.0 + i / 4.0 ) * g;
-            i += cos( h * 2.3 * sin( a / 350.0 - q ) ) * 184.0 * sin( q - ( r * 4.3 + a / 12.0 ) * g ) + tan( r * g + h ) * 184.0 * cos( r * g + h );
-            i = mod( i / 5.6, 256.0 ) / 64.0;
-            if ( i < 0.0 ) i += 4.0;
-            if ( i >= 2.0 ) i = 4.0 - i;
-            d = r / 350.0;
-            d += sin( d * d * 8.0 ) * 0.52;
-            f = ( sin( a * g ) + 1.0 ) / 2.0;
-            gl_FragColor = vec4( vec3( f * i / 1.6, i / 2.0 + d / 13.0, i ) * d * p.x + vec3( i / 1.3 + d / 8.0, i / 2.0 + d / 18.0, i ) * d * ( 1.0 - p.x ), 1.0 );
+        //     e = 400.0 * ( p.x * 0.5 + 0.5 );
+        //     f = 400.0 * ( p.y * 0.5 + 0.5 );
+        //     i = 200.0 + sin( e * g + a / 150.0 ) * 20.0;
+        //     d = 200.0 + cos( f * g / 2.0 ) * 18.0 + cos( e * g ) * 7.0;
+        //     r = sqrt( pow( abs( i - e ), 2.0 ) + pow( abs( d - f ), 2.0 ) );
+        //     q = f / r;
+        //     e = ( r * cos( q ) ) - a / 2.0;
+        //     f = ( r * sin( q ) ) - a / 2.0;
+        //     d = sin( e * g ) * 176.0 + sin( e * g ) * 164.0 + r;
+        //     h = ( ( f + d ) + a / 2.0 ) * g;
+        //     i = cos( h + r * p.x / 1.3 ) * ( e + e + a ) + cos( q * g * 6.0 ) * ( r + h / 3.0 );
+        //     h = sin( f * g ) * 144.0 - sin( e * g ) * 212.0 * p.x;
+        //     h = ( h + ( f - e ) * q + sin( r - ( a + h ) / 7.0 ) * 10.0 + i / 4.0 ) * g;
+        //     i += cos( h * 2.3 * sin( a / 350.0 - q ) ) * 184.0 * sin( q - ( r * 4.3 + a / 12.0 ) * g ) + tan( r * g + h ) * 184.0 * cos( r * g + h );
+        //     i = mod( i / 5.6, 256.0 ) / 64.0;
+        //     if ( i < 0.0 ) i += 4.0;
+        //     if ( i >= 2.0 ) i = 4.0 - i;
+        //     d = r / 350.0;
+        //     d += sin( d * d * 8.0 ) * 0.52;
+        //     f = ( sin( a * g ) + 1.0 ) / 2.0;
+        //     gl_FragColor = vec4( vec3( f * i / 1.6, i / 2.0 + d / 13.0, i ) * d * p.x + vec3( i / 1.3 + d / 8.0, i / 2.0 + d / 18.0, i ) * d * ( 1.0 - p.x ), 1.0 );
     
-          }
-        `;
+        //   }
+        // `;
 
-        const shaderMaterial = new THREE.ShaderMaterial( {
+        // const shaderMaterial = new THREE.ShaderMaterial( {
 
-          uniforms: uniforms,
-          vertexShader: vertexShader,
-          fragmentShader: fragmentShader,
-          alphaTest: 1.0,
-          transparent: true
+        //   uniforms: uniforms,
+        //   vertexShader: vertexShader,
+        //   fragmentShader: fragmentShader,
+        //   alphaTest: 1.0,
+        //   transparent: true
 
-        } );
+        // } );
 
-        this.canaryMesh = new THREE.Mesh( object.geometry, shaderMaterial);
+        this.canaryMesh = new THREE.Mesh( object.geometry );
         this.canaryMesh = object;
         this.canaryMesh.position.setY(-2);
         this.canaryMesh.rotation.z = -Math.PI/2 + 0.8;
@@ -310,26 +308,27 @@ class ThreeCanary extends Component {
 
         // this.canaryMesh.material = shaderMaterial;
         this.canaryMesh.material.wireframe = true;
-        this.canaryMesh.needsUpdate = true;
+        this.canaryMesh.needsUpdate = false;
         this.canaryMesh.material.transparent = true;
         this.canaryMesh.material.opacity = 0.1;
-        this.canaryMesh.material.depthTest = false;
+        // this.canaryMesh.material.depthTest = false;
+        this.canaryMesh.material.color = new THREE.Color(this.brandPalette[2]);
         this.scene.add( this.canaryMesh );
         
-        const wireframe = new THREE.WireframeGeometry( object.geometry );
-        let line = new THREE.LineSegments( wireframe );
-        line.material.depthTest = false;
-        line.material.opacity = 0.1;
-        line.material.transparent = true;
+        // const wireframe = new THREE.WireframeGeometry( object.geometry );
+        // let line = new THREE.LineSegments( wireframe );
+        // line.material.depthTest = false;
+        // line.material.opacity = 0.1;
+        // line.material.transparent = true;
 
-        line.position.setY(-2);
-        line.rotation.z = -Math.PI/2 + 0.8;
-        line.rotation.x = Math.PI/2;
-        line.scale.set(4, 4, 4);
+        // line.position.setY(-2);
+        // line.rotation.z = -Math.PI/2 + 0.8;
+        // line.rotation.x = Math.PI/2;
+        // line.scale.set(4, 4, 4);
 
         // line.position.x = 4;
         // group.add( line );
-        this.scene.add( line );
+        // this.scene.add( line );
 
         // It's a group, traverse it
         object.traverse((child) => {
@@ -395,26 +394,20 @@ class ThreeCanary extends Component {
     const galaxyGeometryColors = [];
     const galaxyGeometrySizes = [];
 
-    let galaxyColors = [
-      new THREE.Color("#ffffff").multiplyScalar(0.8),
-      new THREE.Color("#ffede1").multiplyScalar(0.8),
-      new THREE.Color("#05c7f2").multiplyScalar(0.8),
-      new THREE.Color("#0597f2").multiplyScalar(0.8),
-      new THREE.Color("#0476d9").multiplyScalar(0.8)
-    ];
+    let galaxyColor = new THREE.Color(this.brandPalette[1]).multiplyScalar(0.8);
 
     const sparklesMaterial = new THREE.PointsMaterial( {
-      color: this.brandPalette[0],
-      size: 10,
+      color: this.brandPalette[2],
+      size: 6,
       blending: THREE.AdditiveBlending,
       transparent: true,
       sizeAttenuation: false,
       opacity: 0.02
     } );
 
-    for (let i = 0; i < 200; i++) {
+    for (let i = 0; i < 100; i++) {
       const star = new Star();
-      star.setup(galaxyColors[Math.floor(Math.random() * galaxyColors.length)]);
+      star.setup(galaxyColor);
       galaxyGeometryVertices.push(star.x, star.y, star.z);
       galaxyGeometryColors.push(star.color.r, star.color.g, star.color.b);
       galaxyGeometrySizes.push(star.size);
@@ -492,14 +485,13 @@ class ThreeCanary extends Component {
 
   animate = () => {
     
-    const delta = this.clock.getDelta();
+    // const delta = this.clock.getDelta();
     const time = -performance.now() * 0.0005;
 
-
-    this.galaxyPoints.rotation.y += 0.002;
+    // this.galaxyPoints.rotation.y += 0.002;
     // Change shader params
-    if (this.uniforms)
-      this.uniforms[ "time" ].value += delta * 5;
+    // if (this.uniforms)
+      // this.uniforms[ "time" ].value += delta * 5;
 
     this.raycaster.setFromCamera(this.pointer, this.camera);
 
@@ -564,13 +556,13 @@ class ThreeCanary extends Component {
     this.renderScene();
     this.frameId = window.requestAnimationFrame(this.animate);
 
-    if (this.frameId%220 === 0) {
-      this.glitchEffect.enabled = true;
-    }
+    // if (this.frameId%220 === 0) {
+    //   this.glitchEffect.enabled = true;
+    // }
 
-    if (this.frameId%230 === 0) {
-      this.glitchEffect.enabled = false;
-    }
+    // if (this.frameId%230 === 0) {
+    //   this.glitchEffect.enabled = false;
+    // }
 
     let tempStarsArray = [];
     this.stars.forEach((s) => {
@@ -580,7 +572,7 @@ class ThreeCanary extends Component {
   
     this.starsGeometry.setAttribute("position", new THREE.Float32BufferAttribute(tempStarsArray, 3));
 
-    this.composer.render();
+    // this.composer.render();
 
     // if (this.isDebug)
     //   this.stats.update()
