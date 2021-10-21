@@ -1,13 +1,30 @@
-.App {
-  font-family: sans-serif;
-  text-align: center;
-  background: #000;
+canvas {
+  border: 1px solid #333;
+} 
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  background: #000;
+  background: #202025;
 }
 
-canvas {
-  border: 1px solid #333;
+.content {
+  padding-top: 10px;
+  transform: translate3d(50%, 0, 0);
+  text-align: left;
+  background: #202035;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
 }

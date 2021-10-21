@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import ThreeCanary from "./lib/ThreeCanary";
+import { Stats } from '@react-three/drei'
 
 import "./styles.css";
 
@@ -42,20 +43,25 @@ class App extends React.Component {
   render() {
 
     return (
+      <>
+        <Stats />
       <div
       className="App"
       style={{
         display: "flex",
         flexDirection: "column",
-        alignItems: "center"
+        alignItems: "center",
+        height: "100%"
       }}
       >
-        <ThreeCanary
-          objectUrl={"/assets/canary.glb"}
-          nodes={this.state.nodesData}
-          onNodeSelected={this.onNodeSelected.bind(this)}
-          debug={true}
-        />
+        
+          <ThreeCanary
+            objectUrl={"/assets/canary.glb"}
+            nodes={this.state.nodesData}
+            onNodeSelected={this.onNodeSelected.bind(this)}
+            debug={true}
+          />
+        
         <div
           className="Info"
           style={{
@@ -66,6 +72,7 @@ class App extends React.Component {
           {this.state.nodeSelected ? this.state.nodeSelected.name: ""}
         </div>
       </div>
+      </>
     );
   }
   
