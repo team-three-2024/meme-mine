@@ -9,35 +9,27 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
-require("core-js/modules/es.string.includes.js");
+require("core-js/modules/es.object.assign.js");
 
-var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/possibleConstructorReturn"));
+var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/slicedToArray"));
 
-var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/getPrototypeOf"));
-
-var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/inherits"));
-
-var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/classCallCheck"));
-
-var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/createClass"));
+var THREE = _interopRequireWildcard(require("three"));
 
 var _react = _interopRequireWildcard(require("react"));
 
-var THREE = _interopRequireWildcard(require("three"));
+var _fiber = require("@react-three/fiber");
+
+var _drei = require("@react-three/drei");
+
+var _postprocessing = require("@react-three/postprocessing");
 
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-// Unfortunatelly we can't import three/examples as ES6 modules, so we need to hack it for SSR
-// import Stats from 'three/examples/jsm/libs/stats.module.js';
-// import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-// import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-// import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-// import { GlitchPass } from "three/examples/jsm/postprocessing/GlitchPass.js";
-// import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
-// import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
-// Generate a random integer between min and max
+var color = new THREE.Color();
+var brandPalette = [0x01ffff, 0xe6007a, 0xffffff, 0x000000]; // Generate a random integer between min and max
+
 var random = function random(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }; // Generate N integer numbers (with no repetition) between mix and max
@@ -57,554 +49,162 @@ var randomN = function randomN(min, max, n) {
   return numbers;
 };
 
-var Star = /*#__PURE__*/function () {
-  function Star() {
-    (0, _classCallCheck2.default)(this, Star);
-  }
+function Points(_ref) {
+  var range = _ref.range;
 
-  (0, _createClass2.default)(Star, [{
-    key: "setup",
-    value: function setup(color) {
-      var pixelRatio = 1;
-      this.r = Math.random() * 30 + 3;
-      this.phi = Math.random() * Math.PI * 2;
-      this.theta = Math.random() * Math.PI;
-      this.v = new THREE.Vector2().random().subScalar(0.5).multiplyScalar(0.0007);
-      this.x = this.r * Math.sin(this.phi) * Math.sin(this.theta);
-      this.y = this.r * Math.cos(this.phi);
-      this.z = this.r * Math.sin(this.phi) * Math.cos(this.theta);
-      this.size = Math.random() * 3 + 0.5 * pixelRatio;
-      this.color = color;
+  // Note: useGLTF caches it already
+  var _useGLTF = (0, _drei.useGLTF)('/assets/canary.glb'),
+      nodes = _useGLTF.nodes,
+      materials = _useGLTF.materials; // Or nodes.Scene.children[0].geometry.attributes.position
+
+
+  var positions = nodes.canary.geometry.attributes.position;
+  var randomIndexes = randomN(0, positions.count, range);
+  var selectedPositions = randomIndexes.map(function (i) {
+    return [positions.getX(i), positions.getY(i), positions.getZ(i)];
+  });
+  (0, _react.useLayoutEffect)(function () {// nodes.canary.position.setY(-5)
+    // nodes.canary.scale.set(4, 4, 4)
+  }, [nodes, materials]);
+  return /*#__PURE__*/_react.default.createElement(_drei.Instances, {
+    range: range,
+    material: new THREE.MeshBasicMaterial(),
+    geometry: new THREE.SphereGeometry(0.2)
+  }, selectedPositions.map(function (position, i) {
+    return /*#__PURE__*/_react.default.createElement(Point, {
+      key: i,
+      position: position
+    });
+  }));
+}
+
+function Point(_ref2) {
+  var position = _ref2.position;
+  var ref = (0, _react.useRef)();
+
+  var _useState = (0, _react.useState)(false),
+      _useState2 = (0, _slicedToArray2.default)(_useState, 2),
+      hovered = _useState2[0],
+      setHover = _useState2[1];
+
+  (0, _fiber.useFrame)(function (state) {
+    ref.current.position.copy(new THREE.Vector3(position[0], -position[2], position[1]));
+    ref.current.scale.x = ref.current.scale.y = ref.current.scale.z = 0.02;
+    ref.current.scale.x = ref.current.scale.y = ref.current.scale.z = THREE.MathUtils.lerp(ref.current.scale.z, hovered ? 2 : 1, 0.1);
+    ref.current.color.lerp(color.set(hovered ? brandPalette[0] : brandPalette[1]), hovered ? 1 : 0.1);
+  });
+  return /*#__PURE__*/_react.default.createElement("group", {
+    scale: 0.4
+  }, /*#__PURE__*/_react.default.createElement(_drei.Instance, {
+    ref: ref,
+    onPointerOver: function onPointerOver(e) {
+      return e.stopPropagation(), setHover(true);
+    },
+    onPointerOut: function onPointerOut() {
+      return setHover(false);
     }
-  }, {
-    key: "update",
-    value: function update() {
-      this.phi += this.v.x;
-      this.theta += this.v.y;
-      this.x = this.r * Math.sin(this.phi) * Math.sin(this.theta);
-      this.y = this.r * Math.cos(this.phi);
-      this.z = this.r * Math.sin(this.phi) * Math.cos(this.theta);
+  }));
+}
+
+function Model(props) {
+  var _useGLTF2 = (0, _drei.useGLTF)('/assets/canary.glb'),
+      scene = _useGLTF2.scene,
+      nodes = _useGLTF2.nodes,
+      materials = _useGLTF2.materials;
+
+  (0, _react.useLayoutEffect)(function () {
+    // nodes.canary.position.setY(-10)
+    nodes.canary.scale.set(4, 4, 4);
+    scene.traverse(function (obj) {
+      return obj.type === 'Mesh' && (obj.receiveShadow = obj.castShadow = true);
+    });
+    Object.assign(materials["Default OBJ"], {
+      wireframe: true,
+      metalness: 0.1,
+      roughness: 0.8,
+      color: new THREE.Color(brandPalette[0])
+    });
+  }, [scene, nodes, materials]);
+  return /*#__PURE__*/_react.default.createElement("primitive", Object.assign({
+    object: scene
+  }, props));
+}
+
+function Lights() {
+  var groupL = (0, _react.useRef)();
+  var groupR = (0, _react.useRef)();
+  var front = (0, _react.useRef)();
+  (0, _fiber.useFrame)(function (state) {
+    var t = state.clock.getElapsedTime();
+    groupL.current.position.x = Math.sin(t) / 2;
+    groupL.current.position.y = Math.cos(t) / 2;
+    groupL.current.position.z = Math.cos(t) / 2;
+    groupR.current.position.x = Math.cos(t) / 2;
+    groupR.current.position.y = Math.sin(t) / 2;
+    groupR.current.position.z = Math.sin(t) / 2;
+    front.current.position.x = Math.sin(t) / 2;
+    front.current.position.y = Math.cos(t) / 2;
+    front.current.position.z = Math.sin(t) / 2;
+  });
+  return /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement("group", {
+    ref: groupL
+  }, /*#__PURE__*/_react.default.createElement("pointLight", {
+    color: brandPalette[0],
+    position: [15, 0, 0],
+    distance: 15,
+    intensity: 10
+  })), /*#__PURE__*/_react.default.createElement("group", {
+    ref: groupR
+  }, /*#__PURE__*/_react.default.createElement("pointLight", {
+    color: brandPalette[1],
+    position: [-15, 0, 0],
+    distance: 15,
+    intensity: 10
+  })), /*#__PURE__*/_react.default.createElement("group", {
+    ref: front
+  }, /*#__PURE__*/_react.default.createElement("pointLight", {
+    color: brandPalette[2],
+    position: [0, 15, 0],
+    distance: 15,
+    intensity: 10
+  })));
+}
+
+function ThreeCanary(props) {
+  return /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement(_drei.Stats, null), /*#__PURE__*/_react.default.createElement(_fiber.Canvas, {
+    shadows: true,
+    dpr: [1, 2],
+    camera: {
+      position: [2.3, 1, 1],
+      fov: 50
+    },
+    performance: {
+      min: 0.1
     }
-  }]);
-  return Star;
-}();
-
-var ThreeCanary = /*#__PURE__*/function (_Component) {
-  (0, _inherits2.default)(ThreeCanary, _Component);
-
-  function ThreeCanary(props) {
-    var _this;
-
-    (0, _classCallCheck2.default)(this, ThreeCanary);
-    _this = (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(ThreeCanary).call(this, props));
-
-    _this.onPointerMove = function (event) {
-      event.preventDefault(); // Raycasting have to discount bounding box of rendering canvas
-
-      var rect = _this.renderer.domElement.getBoundingClientRect();
-
-      _this.pointer.x = (event.clientX - rect.left) / (rect.right - rect.left) * 2 - 1;
-      _this.pointer.y = -((event.clientY - rect.top) / (rect.bottom - rect.top)) * 2 + 1;
-    };
-
-    _this.onNodeClicked = function (event) {
-      if (_this.hoveredNodes) {
-        for (var i = 0; i < _this.hoveredNodesObjs.length; i += 1) {
-          if (_this.selectedNode !== _this.hoveredNodesObjs[i]) {
-            // If node is hovered and we click on it, put it on selectedNode
-            _this.selectedNode = _this.hoveredNodesObjs[i]; // Map clicked mesh to propsNodes and call props' callback function
-
-            for (var j = 0; j < _this.propsNodes.length; j += 1) {
-              if (_this.propsNodes[j].meshObj === _this.hoveredNodesObjs[i]) {
-                // Call callback function passing clicked props Nodes as argument
-                if (_this.propsOnNodeSelected) {
-                  _this.propsOnNodeSelected(_this.propsNodes[j]);
-                }
-              }
-            }
-          } else {
-            // If we click again in a node, remove from selectedNode
-            _this.selectedNode = null;
-          }
-        }
-      }
-    };
-
-    _this.onWindowResize = function () {
-      _this.camera.aspect = window.innerWidth / window.innerHeight;
-
-      _this.camera.updateProjectionMatrix();
-
-      _this.renderer.setSize(window.innerWidth, window.innerHeight);
-
-      _this.renderer.setPixelRatio(window.devicePixelRatio);
-    };
-
-    _this.start = function () {
-      if (!_this.frameId) {
-        _this.frameId = requestAnimationFrame(_this.animate);
-      }
-    };
-
-    _this.stop = function () {
-      cancelAnimationFrame(_this.frameId);
-    };
-
-    _this.animate = function () {
-      // const delta = this.clock.getDelta();
-      var time = -performance.now() * 0.0005; // this.galaxyPoints.rotation.y += 0.002;
-      // Change shader params
-      // if (this.uniforms)
-      // this.uniforms[ "time" ].value += delta * 5;
-
-      _this.raycaster.setFromCamera(_this.pointer, _this.camera);
-
-      _this.camera.lookAt(_this.scene.position);
-
-      _this.hoveredNodes = [];
-      _this.hoveredNodesObjs = [];
-
-      if (_this.canaryPointCloudGroup) {
-        var intersects = _this.raycaster.intersectObject(_this.canaryPointCloudGroup, true);
-
-        if (intersects != null && intersects.length > 0) {
-          for (var i = 0; i < intersects.length; i += 1) {
-            if (!_this.hoveredNodes.includes(intersects[i].object.id)) _this.hoveredNodes.push(intersects[i].object.id);
-          }
-        } // Render hovered nodes
-
-
-        for (var _i = 0; _i < _this.canaryPointCloudGroup.children.length; _i += 1) {
-          if (_this.hoveredNodes.includes(_this.canaryPointCloudGroup.children[_i].id)) {
-            // Hovered node style
-            _this.canaryPointCloudGroup.children[_i].material.color.set(_this.brandPalette[2]);
-
-            _this.canaryPointCloudGroup.children[_i].material.wireframe = false;
-            var s = 0.2;
-
-            _this.canaryPointCloudGroup.children[_i].scale.set(s, s, s);
-
-            _this.canaryPointCloudGroup.children[_i].rotateX(Math.sin(_this.frameId / 70) / 20);
-
-            _this.canaryPointCloudGroup.children[_i].rotateY(Math.sin(_this.frameId / 100) / 20);
-
-            _this.canaryPointCloudGroup.children[_i].rotateZ(Math.sin(_this.frameId / 80) / 20);
-
-            _this.hoveredNodesObjs.push(_this.canaryPointCloudGroup.children[_i]);
-          } else {
-            // Default node style, from propsNodes' color
-            for (var j = 0; j < _this.propsNodes.length; j += 1) {
-              if (_this.propsNodes[j].meshObj === _this.canaryPointCloudGroup.children[_i]) {
-                _this.canaryPointCloudGroup.children[_i].material.color.set(_this.propsNodes[j].color);
-              }
-            }
-
-            _this.canaryPointCloudGroup.children[_i].material.wireframe = false;
-
-            _this.canaryPointCloudGroup.children[_i].scale.set(0.05, 0.05, 0.05);
-          }
-        }
-      }
-
-      if (_this.lights) {
-        _this.lights[0].position.x = Math.sin(time * 0.7) * 30;
-        _this.lights[0].position.y = Math.cos(time * 0.5) * 40;
-        _this.lights[0].position.z = Math.cos(time * 0.3) * 30;
-        _this.lights[1].position.x = Math.cos(time * 0.3) * 30;
-        _this.lights[1].position.y = Math.sin(time * 0.5) * 40;
-        _this.lights[1].position.z = Math.sin(time * 0.7) * 30;
-        _this.lights[2].position.x = Math.sin(time * 0.7) * 30;
-        _this.lights[2].position.y = Math.cos(time * 0.3) * 40;
-        _this.lights[2].position.z = Math.sin(time * 0.5) * 30;
-      }
-
-      _this.renderScene();
-
-      _this.frameId = window.requestAnimationFrame(_this.animate); // if (this.frameId%220 === 0) {
-      //   this.glitchEffect.enabled = true;
-      // }
-      // if (this.frameId%230 === 0) {
-      //   this.glitchEffect.enabled = false;
-      // }
-
-      var tempStarsArray = [];
-
-      _this.stars.forEach(function (s) {
-        s.update();
-        tempStarsArray.push(s.x, s.y, s.z);
-      });
-
-      _this.starsGeometry.setAttribute("position", new THREE.Float32BufferAttribute(tempStarsArray, 3)); // this.composer.render();
-      // if (this.isDebug)
-      //   this.stats.update()
-
-    };
-
-    _this.renderScene = function () {
-      if (_this.renderer) _this.renderer.render(_this.scene, _this.camera);
-    };
-
-    _this.objectUrl = props.objectUrl;
-    _this.propsOnNodeSelected = props.onNodeSelected;
-    _this.propsNodes = props.nodes;
-    _this.brandPalette = [0x01ffff, 0xe6007a, 0xffffff, 0x000000];
-    _this.isDebug = false;
-
-    if (props.debug) {
-      _this.isDebug = true;
-    }
-
-    _this.glitchRunning = false;
-    return _this;
-  }
-
-  (0, _createClass2.default)(ThreeCanary, [{
-    key: "componentDidMount",
-    value: function componentDidMount() {
-      this.addScene();
-      this.addCamera();
-      this.addRenderer(); // this.addEffects();
-
-      this.addControls();
-      this.addLights();
-      this.addMaterials();
-      this.addModels();
-      this.addGalaxy();
-      this.renderScene();
-      this.start();
-    }
-  }, {
-    key: "addScene",
-    value: function addScene() {
-      this.width = this.mount.clientWidth;
-      this.height = this.mount.clientHeight;
-      this.scene = new THREE.Scene();
-      this.clock = new THREE.Clock(); // this.scene.fog = new THREE.Fog( this.brandPalette[1], 20, 100 );
-    }
-  }, {
-    key: "addRenderer",
-    value: function addRenderer() {
-      this.renderer = new THREE.WebGLRenderer({
-        antialias: true
-      });
-      this.renderer.setClearColor("#212529"); // this.renderer.setClearColor("#000000");
-      // this.renderer.setSize(this.width, this.height);
-
-      this.renderer.setPixelRatio(window.devicePixelRatio);
-      this.camera.aspect = window.innerWidth / window.innerHeight;
-      this.camera.updateProjectionMatrix();
-      this.renderer.setSize(window.innerWidth, window.innerHeight);
-      this.renderer.setPixelRatio(window.devicePixelRatio);
-      this.mount.appendChild(this.renderer.domElement); // if (this.isDebug) {
-      //   this.stats = new Stats();
-      //   this.mount.appendChild(this.stats.dom);
-      // }
-    }
-  }, {
-    key: "addCamera",
-    value: function addCamera() {
-      this.camera = new THREE.PerspectiveCamera(40, this.width / this.height, 1, 3000);
-      this.camera.position.z = 4;
-      this.camera.position.y = 8;
-      this.camera.position.x = 20;
-    }
-  }, {
-    key: "addEffects",
-    value: function addEffects() {
-      var RenderPass = require('three/examples/jsm/postprocessing/RenderPass.js').RenderPass;
-
-      var renderScene = new RenderPass(this.scene, this.camera);
-
-      var GlitchPass = require("three/examples/jsm/postprocessing/GlitchPass.js").GlitchPass;
-
-      var UnrealBloomPass = require('three/examples/jsm/postprocessing/UnrealBloomPass.js').UnrealBloomPass;
-
-      var EffectComposer = require('three/examples/jsm/postprocessing/EffectComposer.js').EffectComposer;
-
-      var bloomPass = new UnrealBloomPass(new THREE.Vector2(this.mount.offsetWidth, this.mount.offsetHeight), 1.5, 0.4, 0.85);
-      bloomPass.threshold = 0.2;
-      bloomPass.strength = 1.3;
-      bloomPass.radius = 0.5;
-      var glitchPass = new GlitchPass();
-      this.glitchEffect = glitchPass;
-      this.glitchEffect.enabled = false;
-      var composer = new EffectComposer(this.renderer);
-      composer.setPixelRatio(2);
-      composer.addPass(renderScene);
-      composer.addPass(bloomPass);
-      composer.addPass(glitchPass);
-      this.composer = composer;
-    }
-  }, {
-    key: "addControls",
-    value: function addControls() {
-      var OrbitControls = require('three/examples/jsm/controls/OrbitControls.js').OrbitControls;
-
-      this.controls = new OrbitControls(this.camera, this.renderer.domElement); // Raycaster from camera to vertex pointer so we can interactive with 3D vertices
-
-      this.pointer = new THREE.Vector2();
-      this.raycaster = new THREE.Raycaster(); // this.raycaster.params.Points.threshold = 2;
-
-      this.hoveredNodes = [];
-      this.hoveredNodesObjs = [];
-      this.clickedNodes = [];
-      this.selectedNode = null;
-      window.addEventListener("resize", this.onWindowResize);
-      document.addEventListener("pointermove", this.onPointerMove);
-
-      if (this.renderer) {
-        this.renderer.domElement.addEventListener("click", this.onNodeClicked, true);
-      }
-    }
-  }, {
-    key: "addLights",
-    value: function addLights() {
-      var lights = [];
-      lights[0] = new THREE.PointLight(this.brandPalette[0], 10, 50);
-      lights[1] = new THREE.PointLight(this.brandPalette[1], 10, 50);
-      lights[2] = new THREE.PointLight(this.brandPalette[2], 5, 50);
-      lights[0].position.set(15, 0, 0);
-      lights[1].position.set(-15, 0, 0);
-      lights[2].position.set(0, 15, 0);
-      this.lights = lights;
-      this.scene.add(lights[0]);
-      this.scene.add(lights[1]); // this.scene.add( new THREE.AmbientLight( 0x404040 ) );
-      // this.scene.add(lights[2]);
-      // this.scene.add( new THREE.PointLightHelper( lights[0], 3 ) );
-      // this.scene.add( new THREE.PointLightHelper( lights[1], 3 ) );
-      // this.scene.add( new THREE.PointLightHelper( lights[2], 3 ) );
-
-      var gridHelper = new THREE.GridHelper(400, 40, 0x222222, 0x444444);
-      gridHelper.position.y = -3;
-      gridHelper.position.x = 0;
-      gridHelper.position.z = 0;
-      this.scene.add(gridHelper);
-    }
-  }, {
-    key: "addMaterials",
-    value: function addMaterials() {
-      this.canaryMtlMesh = new THREE.PointsMaterial({
-        color: this.brandPalette[0],
-        size: 15,
-        vertexColors: true
-      }); // this.canaryMtlPoints = new THREE.PointsMaterial( {
-      //   color: 0x8200f9,
-      //   size: 0.1
-      // } );
-    }
-  }, {
-    key: "addModels",
-    value: function addModels() {
-      var _this2 = this;
-
-      var GLTFLoader = require('three/examples/jsm/loaders/GLTFLoader').GLTFLoader;
-
-      var gltfLoader = new GLTFLoader();
-      gltfLoader.load(this.objectUrl, function (gltf) {
-        if (!gltf.scene) {
-          throw new Error("Loaded model contains no scene!");
-        }
-
-        var object = gltf.scene.children[0]; // object.geometry.computeTangents();
-
-        if (!object) {
-          throw new Error("Loaded model contains no objects!");
-        } // const uniforms = {
-        //   "time": {
-        //     value: 0.2
-        //   }
-        // };
-        // this.uniforms = uniforms;
-        // const vertexShader = `
-        //   varying vec2 vUv;
-        //   void main()	{
-        //     vUv = uv;
-        //     gl_Position = vec4( position, 1.0 );
-        //   }
-        // `;
-        // const fragmentShader = `
-        //   varying vec2 vUv;
-        //   uniform float time;
-        //   void main()	{
-        //     vec2 p = - 1.0 + 2.0 * vUv;
-        //     float a = time * 40.0;
-        //     float d, e, f, g = 1.0 / 40.0 ,h ,i ,r ,q;
-        //     e = 400.0 * ( p.x * 0.5 + 0.5 );
-        //     f = 400.0 * ( p.y * 0.5 + 0.5 );
-        //     i = 200.0 + sin( e * g + a / 150.0 ) * 20.0;
-        //     d = 200.0 + cos( f * g / 2.0 ) * 18.0 + cos( e * g ) * 7.0;
-        //     r = sqrt( pow( abs( i - e ), 2.0 ) + pow( abs( d - f ), 2.0 ) );
-        //     q = f / r;
-        //     e = ( r * cos( q ) ) - a / 2.0;
-        //     f = ( r * sin( q ) ) - a / 2.0;
-        //     d = sin( e * g ) * 176.0 + sin( e * g ) * 164.0 + r;
-        //     h = ( ( f + d ) + a / 2.0 ) * g;
-        //     i = cos( h + r * p.x / 1.3 ) * ( e + e + a ) + cos( q * g * 6.0 ) * ( r + h / 3.0 );
-        //     h = sin( f * g ) * 144.0 - sin( e * g ) * 212.0 * p.x;
-        //     h = ( h + ( f - e ) * q + sin( r - ( a + h ) / 7.0 ) * 10.0 + i / 4.0 ) * g;
-        //     i += cos( h * 2.3 * sin( a / 350.0 - q ) ) * 184.0 * sin( q - ( r * 4.3 + a / 12.0 ) * g ) + tan( r * g + h ) * 184.0 * cos( r * g + h );
-        //     i = mod( i / 5.6, 256.0 ) / 64.0;
-        //     if ( i < 0.0 ) i += 4.0;
-        //     if ( i >= 2.0 ) i = 4.0 - i;
-        //     d = r / 350.0;
-        //     d += sin( d * d * 8.0 ) * 0.52;
-        //     f = ( sin( a * g ) + 1.0 ) / 2.0;
-        //     gl_FragColor = vec4( vec3( f * i / 1.6, i / 2.0 + d / 13.0, i ) * d * p.x + vec3( i / 1.3 + d / 8.0, i / 2.0 + d / 18.0, i ) * d * ( 1.0 - p.x ), 1.0 );
-        //   }
-        // `;
-        // const shaderMaterial = new THREE.ShaderMaterial( {
-        //   uniforms: uniforms,
-        //   vertexShader: vertexShader,
-        //   fragmentShader: fragmentShader,
-        //   alphaTest: 1.0,
-        //   transparent: true
-        // } );
-
-
-        _this2.canaryMesh = new THREE.Mesh(object.geometry);
-        _this2.canaryMesh = object;
-
-        _this2.canaryMesh.position.setY(-2);
-
-        _this2.canaryMesh.rotation.z = -Math.PI / 2 + 0.8;
-
-        _this2.canaryMesh.scale.set(4, 4, 4); // this.canaryMesh.material = shaderMaterial;
-
-
-        _this2.canaryMesh.material.wireframe = true;
-        _this2.canaryMesh.needsUpdate = false;
-        _this2.canaryMesh.material.transparent = true;
-        _this2.canaryMesh.material.opacity = 0.1; // this.canaryMesh.material.depthTest = false;
-
-        _this2.canaryMesh.material.color = new THREE.Color(_this2.brandPalette[2]);
-
-        _this2.scene.add(_this2.canaryMesh); // const wireframe = new THREE.WireframeGeometry( object.geometry );
-        // let line = new THREE.LineSegments( wireframe );
-        // line.material.depthTest = false;
-        // line.material.opacity = 0.1;
-        // line.material.transparent = true;
-        // line.position.setY(-2);
-        // line.rotation.z = -Math.PI/2 + 0.8;
-        // line.rotation.x = Math.PI/2;
-        // line.scale.set(4, 4, 4);
-        // line.position.x = 4;
-        // group.add( line );
-        // this.scene.add( line );
-        // It's a group, traverse it
-
-
-        object.traverse(function (child) {
-          if (child.isMesh) {
-            // Create point clouds based on mesh
-            var childGeometry = child.geometry.clone(); // Create a group of meshes as a point cloud instead of points, to have
-            // per-mesh control
-
-            var pos = childGeometry.attributes.position;
-            var numMeshPoints = pos.count; // Randomly select n mesh points to use as placement for propsNodes
-
-            _this2.propsNodesIndexes = randomN(0, numMeshPoints, _this2.propsNodes.length);
-            _this2.canaryPointCloudGroup = new THREE.Group();
-
-            for (var i = 0; i < _this2.propsNodesIndexes.length; i += 1) {
-              var nodeIndex = _this2.propsNodesIndexes[i];
-              var geometry = new THREE.SphereGeometry(0.25);
-              var mtlColor = _this2.brandPalette[0];
-
-              if (_this2.propsNodes[i].color) {
-                mtlColor = _this2.propsNodes[i].color;
-              }
-
-              var material = new THREE.MeshBasicMaterial({
-                color: mtlColor
-              });
-              material.wireframe = false;
-              material.needsUpdate = true;
-              var cube = new THREE.Mesh(geometry);
-              cube.position.copy(new THREE.Vector3(pos.getX(nodeIndex), -pos.getZ(nodeIndex), pos.getY(nodeIndex)));
-
-              var _scale = Math.random() * 200;
-
-              cube.scale.set(_scale, _scale, _scale);
-
-              _this2.canaryPointCloudGroup.add(cube); // Map mesh ids to propsNodes
-
-
-              _this2.propsNodes[i].meshIndex = nodeIndex;
-              _this2.propsNodes[i].meshObj = cube;
-            }
-
-            _this2.canaryPointCloudGroup.position.setY(-2);
-
-            _this2.canaryPointCloudGroup.rotation.y = Math.PI / 2 - 0.8;
-
-            _this2.canaryPointCloudGroup.scale.set(4, 4, 4);
-
-            _this2.scene.add(_this2.canaryPointCloudGroup);
-          }
-        });
-      }, function (xhr) {
-        console.log(xhr.loaded / xhr.total * 100 + "% loaded");
-      }, function (error) {
-        console.log("Error while loading: " + error);
-      });
-    }
-  }, {
-    key: "addGalaxy",
-    value: function addGalaxy() {
-      var stars = [];
-      var galaxyGeometryVertices = [];
-      var galaxyGeometryColors = [];
-      var galaxyGeometrySizes = [];
-      var galaxyColor = new THREE.Color(this.brandPalette[1]).multiplyScalar(0.8);
-      var sparklesMaterial = new THREE.PointsMaterial({
-        color: this.brandPalette[2],
-        size: 6,
-        blending: THREE.AdditiveBlending,
-        transparent: true,
-        sizeAttenuation: false,
-        opacity: 0.02
-      });
-
-      for (var i = 0; i < 100; i++) {
-        var star = new Star();
-        star.setup(galaxyColor);
-        galaxyGeometryVertices.push(star.x, star.y, star.z);
-        galaxyGeometryColors.push(star.color.r, star.color.g, star.color.b);
-        galaxyGeometrySizes.push(star.size);
-        stars.push(star);
-      }
-
-      var starsGeometry = new THREE.SphereGeometry(1);
-      this.starsGeometry = starsGeometry;
-      this.galaxyPoints = new THREE.Points(starsGeometry, sparklesMaterial);
-      this.galaxyPoints.scale.set(2, 2, 2);
-      this.stars = stars;
-      this.scene.add(this.galaxyPoints);
-    }
-  }, {
-    key: "componentWillUnmount",
-    value: function componentWillUnmount() {
-      this.stop();
-      this.mount.removeChild(this.renderer.domElement);
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      var _this3 = this;
-
-      return /*#__PURE__*/_react.default.createElement("div", {
-        style: {
-          width: "100%",
-          height: "900px"
-        },
-        ref: function ref(mount) {
-          _this3.mount = mount;
-        }
-      });
-    }
-  }]);
-  return ThreeCanary;
-}(_react.Component);
+  }, /*#__PURE__*/_react.default.createElement(Lights, null), /*#__PURE__*/_react.default.createElement("gridHelper", {
+    position: [0, -0.135, 0],
+    color: "#000",
+    args: [40, 40]
+  }), /*#__PURE__*/_react.default.createElement(_react.Suspense, {
+    fallback: null
+  }, /*#__PURE__*/_react.default.createElement(Model, {
+    scale: 0.1
+  }), /*#__PURE__*/_react.default.createElement(Points, {
+    range: 1500
+  }), /*#__PURE__*/_react.default.createElement(_postprocessing.EffectComposer, {
+    multisampling: 16
+  }, /*#__PURE__*/_react.default.createElement(_postprocessing.Bloom, {
+    kernelSize: 2,
+    luminanceThreshold: 0.01,
+    luminanceSmoothing: 0.05,
+    intensity: 0.1
+  }), /*#__PURE__*/_react.default.createElement(_postprocessing.Glitch, {
+    delay: [5, 10]
+  }))), /*#__PURE__*/_react.default.createElement(_drei.OrbitControls, {
+    minPolarAngle: Math.PI / 2.8,
+    maxPolarAngle: Math.PI / 1.8
+  })));
+}
 
 var _default = ThreeCanary;
 exports.default = _default;
