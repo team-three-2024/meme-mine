@@ -20,11 +20,43 @@ body {
 }
 
 .content {
+
+  animation: fadeInAnimation ease-in-out 0.5s;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+
   padding-top: 10px;
   transform: translate3d(50%, 0, 0);
+
   text-align: left;
-  background: #202035;
+  background: #e6007a;
+
   color: white;
-  padding: 10px 15px;
+  padding: 10px 20px;
   border-radius: 5px;
+
+  font-family: monospace;
+}
+
+.content img {
+  width: 100px;
+}
+
+.content h1 {
+  font-size: 12pt;
+  border-bottom: 1px solid white;
+}
+
+.content p {
+  font-size: 12pt;
+  color: black;
+}
+
+@keyframes fadeInAnimation {
+  0% {
+      opacity: 0;
+  }
+  100% {
+      opacity: 0.8;
+  }
 }
