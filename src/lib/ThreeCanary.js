@@ -23,27 +23,28 @@ const randomN = (min, max, n) => {
   return numbers;
 }
 
-function Points({ range }) {
+function Points({ range, objectUrl, nodesData }) {
   // Note: useGLTF caches it already
-  const { nodes } = useGLTF('/assets/canary.glb')
+  const { nodes } = useGLTF(objectUrl)
 
   // Or nodes.Scene.children[0].geometry.attributes.position
   const positions = nodes.canary.geometry.attributes.position
   const randomIndexes = randomN(0, positions.count, range)
   const selectedPositions = randomIndexes.map((i) => [positions.getX(i), positions.getY(i), positions.getZ(i)])
 
+
   return (
     <Instances range={range} material={new THREE.MeshBasicMaterial()} geometry={new THREE.SphereGeometry( 0.1 )}>
       {
         selectedPositions.map((position, i) => (
-          <Point key={i} position={position} />
+          <Point key={i} position={position} nodeData={nodesData[i]} />
         ))
       }
     </Instances>
   )
 }
 
-function Point({ position }) {
+function Point({ position, nodeData }) {
   const ref = useRef()
   const [hovered, setHover] = useState(false)
   const [active, setActive] = useState(false)
@@ -70,11 +71,11 @@ function Point({ position }) {
     <group  scale={0.4} >
       <>
         {active ?
-          <PointDialog position={position} /> : null
+          <PointDialog position={position} dialogData={nodeData} /> : null
         }
-        {/* eslint-disable-next-line */}
         <Instance
           ref={ref}
+          /* eslint-disable-next-line */
           onPointerOver={(e) => (e.stopPropagation(), setHover(true))}
           onPointerOut={() => (setHover(false))}
           onClick={(e) => setActive(!active)}
@@ -84,7 +85,7 @@ function Point({ position }) {
   )
 }
 
-function PointDialog({ position }) {
+function PointDialog({ position, dialogData }) {
   const ref = useRef()
 
   useFrame((state) => {
@@ -99,9 +100,10 @@ function PointDialog({ position }) {
         <meshStandardMaterial roughness={0.75} metalness={0.8} emissive={brandPalette[0]} />
         <Html distanceFactor={2}>
           <div className="content">
-            <img src="https://pbs.twimg.com/profile_images/1258000414751854592/jSNMO6dk_400x400.jpg" alt="img" />
-            <h1>Vilson Vieira</h1>
-            0x08eded6a76d84e309e3f09705ea2853f
+            <img src={ dialogData.img } alt={ dialogData.name } />
+            <h1>{ dialogData.name }</h1>
+            <div className="label">{ dialogData.level }</div>
+            <div className="hash">{ dialogData.hash }</div>
           </div>
         </Html>
       </mesh>
@@ -110,7 +112,7 @@ function PointDialog({ position }) {
 }
 
 function Model(props) {
-  const { scene, nodes, materials } = useGLTF('/assets/canary.glb')
+  const { scene, nodes, materials } = useGLTF(props.objectUrl)
 
   useLayoutEffect(() => {
     // nodes.canary.position.setY(-10)
@@ -213,6 +215,8 @@ function Particles({ count }) {
 function ThreeCanary(props) {
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 
+  console.log("props", props)
+
   return (
     <>
     <Stats />
@@ -223,8 +227,8 @@ function ThreeCanary(props) {
       <gridHelper position={[0, -0.135, 0]} color={"#000"} args={[40,40]}/>
 
       <Suspense fallback={null}>
-        <Model scale={0.1} />
-        <Points range={1500} />
+        <Model scale={0.1} objectUrl={props.objectUrl} />
+        <Points range={1500} objectUrl={props.objectUrl} nodesData={props.nodes} />
         <Particles count={isMobile ? 50 : 200} />
 
         <EffectComposer multisampling={16}>

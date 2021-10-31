@@ -60,3 +60,16 @@ body {
       opacity: 0.8;
   }
 }
+
+.label {
+  background-color: #ddd;
+  color: #000;
+  border-radius: 20px;
+  padding: 5px;
+  display: inline-block;
+}
+
+.hash {
+  color: #fff;
+  padding: 5px;
+}
