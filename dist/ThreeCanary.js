@@ -9,6 +9,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
+var _taggedTemplateLiteral2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/taggedTemplateLiteral"));
+
 require("core-js/modules/es.object.assign.js");
 
 var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/slicedToArray"));
@@ -17,18 +19,22 @@ var THREE = _interopRequireWildcard(require("three"));
 
 var _react = _interopRequireWildcard(require("react"));
 
+var _styledComponents = _interopRequireWildcard(require("styled-components"));
+
 var _fiber = require("@react-three/fiber");
 
 var _drei = require("@react-three/drei");
 
 var _postprocessing = require("@react-three/postprocessing");
 
+var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6;
+
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 var color = new THREE.Color();
-var brandPalette = [0x01ffff, 0xe6007a, 0xffffff, 0x000000]; // Generate a random integer between min and max
+var brandPalette = ["#01ffff", "#e6007a", "#ffffff", "#000000"]; // Generate a random integer between min and max
 
 var random = function random(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
@@ -50,10 +56,12 @@ var randomN = function randomN(min, max, n) {
 };
 
 function Points(_ref) {
-  var range = _ref.range;
+  var range = _ref.range,
+      objectUrl = _ref.objectUrl,
+      nodesData = _ref.nodesData;
 
   // Note: useGLTF caches it already
-  var _useGLTF = (0, _drei.useGLTF)('/assets/canary.glb'),
+  var _useGLTF = (0, _drei.useGLTF)(objectUrl),
       nodes = _useGLTF.nodes; // Or nodes.Scene.children[0].geometry.attributes.position
 
 
@@ -69,13 +77,15 @@ function Points(_ref) {
   }, selectedPositions.map(function (position, i) {
     return /*#__PURE__*/_react.default.createElement(Point, {
       key: i,
-      position: position
+      position: position,
+      nodeData: nodesData[i]
     });
   }));
 }
 
 function Point(_ref2) {
-  var position = _ref2.position;
+  var position = _ref2.position,
+      nodeData = _ref2.nodeData;
   var ref = (0, _react.useRef)();
 
   var _useState = (0, _react.useState)(false),
@@ -108,9 +118,12 @@ function Point(_ref2) {
   return /*#__PURE__*/_react.default.createElement("group", {
     scale: 0.4
   }, /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, active ? /*#__PURE__*/_react.default.createElement(PointDialog, {
-    position: position
+    position: position,
+    dialogData: nodeData
   }) : null, /*#__PURE__*/_react.default.createElement(_drei.Instance, {
-    ref: ref,
+    ref: ref
+    /* eslint-disable-next-line */
+    ,
     onPointerOver: function onPointerOver(e) {
       return e.stopPropagation(), setHover(true);
     },
@@ -124,7 +137,8 @@ function Point(_ref2) {
 }
 
 function PointDialog(_ref3) {
-  var position = _ref3.position;
+  var position = _ref3.position,
+      dialogData = _ref3.dialogData;
   var ref = (0, _react.useRef)();
   (0, _fiber.useFrame)(function (state) {
     var t = state.clock.getElapsedTime();
@@ -140,16 +154,14 @@ function PointDialog(_ref3) {
     emissive: brandPalette[0]
   }), /*#__PURE__*/_react.default.createElement(_drei.Html, {
     distanceFactor: 2
-  }, /*#__PURE__*/_react.default.createElement("div", {
-    className: "content"
-  }, /*#__PURE__*/_react.default.createElement("img", {
-    src: "https://pbs.twimg.com/profile_images/1258000414751854592/jSNMO6dk_400x400.jpg",
-    alt: "img"
-  }), /*#__PURE__*/_react.default.createElement("h1", null, "Vilson Vieira"), "0x08eded6a76d84e309e3f09705ea2853f")));
+  }, /*#__PURE__*/_react.default.createElement(DialogContent, null, dialogData.img ? /*#__PURE__*/_react.default.createElement(DialogImage, {
+    src: dialogData.img,
+    alt: dialogData.name
+  }) : null, dialogData.name ? /*#__PURE__*/_react.default.createElement(DialogTitle, null, dialogData.name) : null, dialogData.level ? /*#__PURE__*/_react.default.createElement(DialogLabel, null, dialogData.level) : null, dialogData.hash ? /*#__PURE__*/_react.default.createElement(DialogHash, null, dialogData.hash) : null)));
 }
 
 function Model(props) {
-  var _useGLTF2 = (0, _drei.useGLTF)('/assets/canary.glb'),
+  var _useGLTF2 = (0, _drei.useGLTF)(props.objectUrl),
       scene = _useGLTF2.scene,
       nodes = _useGLTF2.nodes,
       materials = _useGLTF2.materials;
@@ -295,9 +307,12 @@ function ThreeCanary(props) {
   }), /*#__PURE__*/_react.default.createElement(_react.Suspense, {
     fallback: null
   }, /*#__PURE__*/_react.default.createElement(Model, {
-    scale: 0.1
+    scale: 0.1,
+    objectUrl: props.objectUrl
   }), /*#__PURE__*/_react.default.createElement(Points, {
-    range: 1500
+    range: props.nodes.length,
+    objectUrl: props.objectUrl,
+    nodesData: props.nodes
   }), /*#__PURE__*/_react.default.createElement(Particles, {
     count: isMobile ? 50 : 200
   }), /*#__PURE__*/_react.default.createElement(_postprocessing.EffectComposer, {
@@ -313,7 +328,20 @@ function ThreeCanary(props) {
     minPolarAngle: Math.PI / 2.8,
     maxPolarAngle: Math.PI / 1.8
   })));
-}
+} // Styling
+
+
+var fadeIn = (0, _styledComponents.keyframes)(_templateObject || (_templateObject = (0, _taggedTemplateLiteral2.default)(["\n  0% {\n    opacity: 0;\n  }\n  100% {\n    opacity: 0.8;\n  }\n"])));
+
+var DialogContent = _styledComponents.default.div(_templateObject2 || (_templateObject2 = (0, _taggedTemplateLiteral2.default)(["\n  animation: ", " ease-in-out 0.5s;\n  animation-iteration-count: 1;\n  animation-fill-mode: forwards;\n\n  padding-top: 10px;\n  transform: translate3d(50%, 0, 0);\n\n  text-align: left;\n  background: ", ";\n\n  color: white;\n  padding: 10px 20px;\n  border-radius: 5px;\n\n  font-family: monospace;\n"])), fadeIn, brandPalette[1]);
+
+var DialogImage = _styledComponents.default.img(_templateObject3 || (_templateObject3 = (0, _taggedTemplateLiteral2.default)(["\n  width: 100px;\n"])));
+
+var DialogTitle = _styledComponents.default.h1(_templateObject4 || (_templateObject4 = (0, _taggedTemplateLiteral2.default)(["\n  font-size: 12pt;\n  border-bottom: 1px solid ", ";\n"])), brandPalette[2]);
+
+var DialogLabel = _styledComponents.default.div(_templateObject5 || (_templateObject5 = (0, _taggedTemplateLiteral2.default)(["\n  background-color: ", ";\n  color: ", ";\n  border-radius: 20px;\n  padding: 5px;\n  display: inline-block;\n"])), brandPalette[0], brandPalette[1]);
+
+var DialogHash = _styledComponents.default.div(_templateObject6 || (_templateObject6 = (0, _taggedTemplateLiteral2.default)(["\n  color: ", ";\n  padding: 5px;\n"])), brandPalette[2]);
 
 var _default = ThreeCanary;
 exports.default = _default;
