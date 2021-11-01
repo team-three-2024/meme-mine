@@ -218,7 +218,7 @@ function ThreeCanary(props) {
 
   return (
     <>
-    <Stats />
+    { props.debug ? <Stats /> : null }
     <Canvas shadows dpr={[1, 2]} camera={{ position: [2.3, 1, 1], fov: 50 }} performance={{ min: 0.1 }}>
       
       <Lights />
