@@ -290,7 +290,7 @@ function Particles(_ref4) {
 
 function ThreeCanary(props) {
   var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  return /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement(_drei.Stats, null), /*#__PURE__*/_react.default.createElement(_fiber.Canvas, {
+  return /*#__PURE__*/_react.default.createElement(_fiber.Canvas, {
     shadows: true,
     dpr: [1, 2],
     camera: {
@@ -327,7 +327,7 @@ function ThreeCanary(props) {
   }))), /*#__PURE__*/_react.default.createElement(_drei.OrbitControls, {
     minPolarAngle: Math.PI / 2.8,
     maxPolarAngle: Math.PI / 1.8
-  })));
+  }));
 } // Styling
 
 
