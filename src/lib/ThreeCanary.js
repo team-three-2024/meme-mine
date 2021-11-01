@@ -1,12 +1,13 @@
 import * as THREE from "three";
 import React, { useMemo, useRef, useState, Suspense, useLayoutEffect } from 'react'
+import styled, { keyframes } from 'styled-components'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { useGLTF, Instances, Instance, OrbitControls, Stats, Html } from '@react-three/drei'
 import { EffectComposer, Bloom, Glitch } from '@react-three/postprocessing'
 
 const color = new THREE.Color()
 
-const brandPalette = [0x01ffff, 0xe6007a, 0xffffff, 0x000000];
+const brandPalette = ["#01ffff", "#e6007a", "#ffffff", "#000000"];
 
 // Generate a random integer between min and max
 const random = (min, max) => Math.floor(Math.random() * (max - min)) + min;
@@ -99,12 +100,12 @@ function PointDialog({ position, dialogData }) {
       <mesh ref={ref}>
         <meshStandardMaterial roughness={0.75} metalness={0.8} emissive={brandPalette[0]} />
         <Html distanceFactor={2}>
-          <div className="content">
-            <img src={ dialogData.img } alt={ dialogData.name } />
-            <h1>{ dialogData.name }</h1>
-            <div className="label">{ dialogData.level }</div>
-            <div className="hash">{ dialogData.hash }</div>
-          </div>
+          <DialogContent>
+            { dialogData.img ? <DialogImage src={ dialogData.img } alt={ dialogData.name } /> : null } 
+            { dialogData.name ? <DialogTitle>{ dialogData.name }</DialogTitle> : null }
+            { dialogData.level ? <DialogLabel>{ dialogData.level }</DialogLabel> : null }
+            { dialogData.hash ? <DialogHash>{ dialogData.hash }</DialogHash> : null }
+          </DialogContent>
         </Html>
       </mesh>
 
@@ -215,20 +216,18 @@ function Particles({ count }) {
 function ThreeCanary(props) {
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 
-  console.log("props", props)
-
   return (
     <>
     <Stats />
     <Canvas shadows dpr={[1, 2]} camera={{ position: [2.3, 1, 1], fov: 50 }} performance={{ min: 0.1 }}>
       
       <Lights />
-      {/* <fog attach="fog" args={[brandPalette[0], 0.5, 10]} /> */}
+      {/* <fog attach="fog" args={[brandPalette[-1], 4.5, 20]} /> */}
       <gridHelper position={[0, -0.135, 0]} color={"#000"} args={[40,40]}/>
 
       <Suspense fallback={null}>
         <Model scale={0.1} objectUrl={props.objectUrl} />
-        <Points range={1500} objectUrl={props.objectUrl} nodesData={props.nodes} />
+        <Points range={props.nodes.length} objectUrl={props.objectUrl} nodesData={props.nodes} />
         <Particles count={isMobile ? 50 : 200} />
 
         <EffectComposer multisampling={16}>
@@ -242,5 +241,56 @@ function ThreeCanary(props) {
     </>
   )
 }
+
+// Styling
+
+const fadeIn = keyframes`
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0.8;
+  }
+`
+
+const DialogContent = styled.div`
+  animation: ${fadeIn} ease-in-out 0.5s;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+
+  padding-top: 10px;
+  transform: translate3d(50%, 0, 0);
+
+  text-align: left;
+  background: ${brandPalette[1]};
+
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+
+  font-family: monospace;
+`
+
+const DialogImage = styled.img`
+  width: 100px;
+`
+
+const DialogTitle = styled.h1`
+  font-size: 12pt;
+  border-bottom: 1px solid ${brandPalette[2]};
+`
+
+const DialogLabel = styled.div`
+  background-color: ${brandPalette[0]};
+  color: ${brandPalette[1]};
+  border-radius: 20px;
+  padding: 5px;
+  display: inline-block;
+`
+
+const DialogHash = styled.div`
+  color: ${brandPalette[2]};
+  padding: 5px;
+`
 
 export default ThreeCanary;

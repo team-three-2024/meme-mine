@@ -20,7 +20,7 @@ const nodesDataFactory = (n) => {
       "name": choose(["Arthur C. Clarke", "Douglas Adams", "Isaac Asimov"]),
       "level": choose(["human", "cyborg"]),
       "hash": choose(["0x08eded6a76d84e309e3f09705ea2853f", "0xdeadbeefe6a76d84e309e3f09705ea28589"]),
-      "img": choose(["/assets/t1.jpg", "/assets/t2.jpg"])
+      // "img": choose(["/assets/t1.jpg", "/assets/t2.jpg"])
     })
   }
   return data;
