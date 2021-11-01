@@ -2,7 +2,7 @@ import * as THREE from "three";
 import React, { useMemo, useRef, useState, Suspense, useLayoutEffect } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { useGLTF, Instances, Instance, OrbitControls, Stats, Html } from '@react-three/drei'
+import { useGLTF, Instances, Instance, OrbitControls, Html } from '@react-three/drei'
 import { EffectComposer, Bloom, Glitch } from '@react-three/postprocessing'
 
 const color = new THREE.Color()
@@ -217,8 +217,6 @@ function ThreeCanary(props) {
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 
   return (
-    <>
-    { props.debug ? <Stats /> : null }
     <Canvas shadows dpr={[1, 2]} camera={{ position: [2.3, 1, 1], fov: 50 }} performance={{ min: 0.1 }}>
       
       <Lights />
@@ -238,7 +236,6 @@ function ThreeCanary(props) {
 
       <OrbitControls minPolarAngle={Math.PI / 2.8} maxPolarAngle={Math.PI / 1.8} />
     </Canvas>
-    </>
   )
 }
 
