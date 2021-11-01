@@ -1,13 +1,20 @@
-.App {
-  font-family: sans-serif;
-  text-align: center;
-  background: #000;
+canvas {
+  border: 1px solid #333;
+} 
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  background: #000;
-}
-
-canvas {
-  border: 1px solid #333;
+  background: #202025;
 }

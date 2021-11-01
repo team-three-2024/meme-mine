@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import ThreeCanary from "./lib/ThreeCanary";
+import { Stats } from '@react-three/drei'
 
 import "./styles.css";
 
@@ -17,7 +18,9 @@ const nodesDataFactory = (n) => {
     data.push({
       "id": Math.floor(Math.random()*100),
       "name": choose(["Arthur C. Clarke", "Douglas Adams", "Isaac Asimov"]),
-      "color": choose(["#e6007a"])
+      "level": choose(["human", "cyborg"]),
+      "hash": choose(["0x08eded6a76d84e309e3f09705ea2853f", "0xdeadbeefe6a76d84e309e3f09705ea28589"]),
+      // "img": choose(["/assets/t1.jpg", "/assets/t2.jpg"])
     })
   }
   return data;
@@ -42,20 +45,25 @@ class App extends React.Component {
   render() {
 
     return (
+      <>
+        <Stats />
       <div
       className="App"
       style={{
         display: "flex",
         flexDirection: "column",
-        alignItems: "center"
+        alignItems: "center",
+        height: "100%"
       }}
       >
-        <ThreeCanary
-          objectUrl={"/assets/canary.glb"}
-          nodes={this.state.nodesData}
-          onNodeSelected={this.onNodeSelected.bind(this)}
-          debug={true}
-        />
+        
+          <ThreeCanary
+            objectUrl={"/assets/canary.glb"}
+            nodes={this.state.nodesData}
+            onNodeSelected={this.onNodeSelected.bind(this)}
+            debug={true}
+          />
+        
         <div
           className="Info"
           style={{
@@ -66,6 +74,7 @@ class App extends React.Component {
           {this.state.nodeSelected ? this.state.nodeSelected.name: ""}
         </div>
       </div>
+      </>
     );
   }
   
