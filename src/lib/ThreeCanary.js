@@ -24,16 +24,20 @@ const randomN = (min, max, n) => {
   return numbers;
 }
 
-function Points({ selectedPositions, nodesData, onNodeClick }) {
+function Points({ objectUrl, nodesData, onNodeClick, randomIndexes }) {
   // Note: useGLTF caches it already
-  // const { nodes } = useGLTF(objectUrl)
-
-  // // Or nodes.Scene.children[0].geometry.attributes.position
-  // const positions = nodes.canary.geometry.attributes.position
-  // // const randomIndexes = randomN(0, positions.count, range)
-  // const randomIndexes = [0,1,2,3,4,5];
-  // const selectedPositions = randomIndexes.map((i) => [positions.getX(i), positions.getY(i), positions.getZ(i)])
+  const { nodes } = useGLTF(objectUrl)
   const [selected, setSelected] = useState(0)
+
+  // Or nodes.Scene.children[0].geometry.attributes.position
+  const positions = nodes.canary.geometry.attributes.position
+  const selectedPositions = randomIndexes.map((i) => [positions.getX(i), positions.getY(i), positions.getZ(i)])
+  
+  const handleSelectedNode = (nodeId, position) => {
+    setSelected(nodeId)
+    console.log("handleSelectedNode", nodeId, position)
+  }
+
 
   return (
     <>
@@ -43,7 +47,7 @@ function Points({ selectedPositions, nodesData, onNodeClick }) {
       <Instances range={selectedPositions.length} material={new THREE.MeshBasicMaterial()} geometry={new THREE.SphereGeometry( 0.1 )}>
         {
           selectedPositions.map((position, i) => (
-            <Point key={i} nodeId={i} position={position} nodeData={nodesData[i]} onNodeClick={onNodeClick} setSelected={setSelected} />
+            <Point key={i} nodeId={i} position={position} nodeData={nodesData[i]} onNodeClick={onNodeClick} onNodeSelected={handleSelectedNode} />
           ))
         }
       </Instances>
@@ -51,7 +55,7 @@ function Points({ selectedPositions, nodesData, onNodeClick }) {
   )
 }
 
-function Point({ nodeId, position, nodeData, onNodeClick, setSelected }) {
+function Point({ nodeId, position, nodeData, onNodeClick, onNodeSelected }) {
   const ref = useRef()
   const [hovered, setHover] = useState(false)
   const [active, setActive] = useState(false)
@@ -86,7 +90,7 @@ function Point({ nodeId, position, nodeData, onNodeClick, setSelected }) {
           onPointerOver={(e) => (e.stopPropagation(), setHover(true))}
           onPointerOut={() => (setHover(false))}
           // onClick={(e) => setActive(!active)}
-          onClick={(e) => setSelected(nodeId)}
+          onClick={(e) => onNodeSelected(nodeId, ref.current.position)}
           />
       </>
     </group>
@@ -101,10 +105,12 @@ function PointDialog({ position, dialogData, onNodeClick }) {
       onNodeClick(dialogData.hash)
   }
 
+  const scale = 1.002
+
   useFrame((state) => {
     const t = state.clock.getElapsedTime()
-    ref.current.position.copy(new THREE.Vector3(position[0], -position[2], position[1]))
-    ref.current.scale.x = ref.current.scale.y = ref.current.scale.z = 0.02
+    ref.current.position.copy(new THREE.Vector3(position[0]*scale, -position[2]*scale, position[1]*scale))
+    ref.current.scale.x = ref.current.scale.y = ref.current.scale.z = 0.05
     ref.current.position.y += Math.sin( t ) / 16
   })
   return (
@@ -125,7 +131,7 @@ function PointDialog({ position, dialogData, onNodeClick }) {
 }
 
 function Model(props) {
-  const { scene, nodes, materials } = props; // useGLTF(props.objectUrl)
+  const { scene, nodes, materials } = useGLTF(props.objectUrl)
 
   useLayoutEffect(() => {
     // nodes.canary.position.setY(-10)
@@ -228,18 +234,9 @@ function Particles({ count }) {
 function ThreeCanary(props) {
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 
-  const { scene, nodes, materials } = useGLTF(props.objectUrl)
-
-  const range = 100;
-
-  // Note: useGLTF caches it already
-  // const { nodes } = useGLTF(objectUrl)
-
-  // Or nodes.Scene.children[0].geometry.attributes.position
-  const positions = nodes.canary.geometry.attributes.position
-  const randomIndexes = randomN(0, positions.count, range)
-  // const randomIndexes = [0,1,2,3,4,5];
-  const selectedPositions = randomIndexes.map((i) => [positions.getX(i), positions.getY(i), positions.getZ(i)])
+  const numPositions = 3471 // positions.count
+  const numNodes = props.nodes.length
+  const randomIndexes = randomN(0, numPositions, numNodes)
 
   return (
     <Canvas shadows dpr={[1, 2]} camera={{ position: [2.3, 1, 1], fov: 50 }} performance={{ min: 0.1 }}>
@@ -249,8 +246,8 @@ function ThreeCanary(props) {
       <gridHelper position={[0, -0.135, 0]} color={"#000"} args={[40,40]}/>
 
       <Suspense fallback={null}>
-        <Model scale={0.1} objectUrl={props.objectUrl} scene={scene} nodes={nodes} materials={materials} />
-        <Points selectedPositions={selectedPositions} nodesData={props.nodes} onNodeClick={props.onNodeClick} />
+        <Model scale={0.1} objectUrl={props.objectUrl} />
+        <Points randomIndexes={randomIndexes} objectUrl={props.objectUrl} nodesData={props.nodes} onNodeClick={props.onNodeClick} />
         <Particles count={isMobile ? 50 : 200} />
 
         <EffectComposer multisampling={16}>

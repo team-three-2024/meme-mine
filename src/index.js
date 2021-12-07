@@ -31,7 +31,7 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      nodesData: nodesDataFactory(1500),
+      nodesData: nodesDataFactory(150),
       nodeSelected: null
     };
   }
@@ -58,7 +58,7 @@ class App extends React.Component {
               objectUrl={"/assets/canary.glb"}
               nodes={this.state.nodesData}
               onNodeSelected={this.onNodeSelected.bind(this)}
-              onNodeClick={(nodeId) => { console.log("boom!", nodeId)}}
+              onNodeClick={(nodeId) => { console.log("onNodeClick", nodeId)}}
               debug={true}
             />
           
