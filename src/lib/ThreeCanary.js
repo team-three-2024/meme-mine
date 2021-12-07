@@ -24,28 +24,34 @@ const randomN = (min, max, n) => {
   return numbers;
 }
 
-function Points({ range, objectUrl, nodesData }) {
+function Points({ selectedPositions, nodesData, onNodeClick }) {
   // Note: useGLTF caches it already
-  const { nodes } = useGLTF(objectUrl)
+  // const { nodes } = useGLTF(objectUrl)
 
-  // Or nodes.Scene.children[0].geometry.attributes.position
-  const positions = nodes.canary.geometry.attributes.position
-  const randomIndexes = randomN(0, positions.count, range)
-  const selectedPositions = randomIndexes.map((i) => [positions.getX(i), positions.getY(i), positions.getZ(i)])
-
+  // // Or nodes.Scene.children[0].geometry.attributes.position
+  // const positions = nodes.canary.geometry.attributes.position
+  // // const randomIndexes = randomN(0, positions.count, range)
+  // const randomIndexes = [0,1,2,3,4,5];
+  // const selectedPositions = randomIndexes.map((i) => [positions.getX(i), positions.getY(i), positions.getZ(i)])
+  const [selected, setSelected] = useState(0)
 
   return (
-    <Instances range={range} material={new THREE.MeshBasicMaterial()} geometry={new THREE.SphereGeometry( 0.1 )}>
-      {
-        selectedPositions.map((position, i) => (
-          <Point key={i} position={position} nodeData={nodesData[i]} />
-        ))
+    <>
+      {selected ?
+        <PointDialog position={selectedPositions[selected]} dialogData={nodesData[selected]} onNodeClick={onNodeClick} /> : null
       }
-    </Instances>
+      <Instances range={selectedPositions.length} material={new THREE.MeshBasicMaterial()} geometry={new THREE.SphereGeometry( 0.1 )}>
+        {
+          selectedPositions.map((position, i) => (
+            <Point key={i} nodeId={i} position={position} nodeData={nodesData[i]} onNodeClick={onNodeClick} setSelected={setSelected} />
+          ))
+        }
+      </Instances>
+    </>
   )
 }
 
-function Point({ position, nodeData }) {
+function Point({ nodeId, position, nodeData, onNodeClick, setSelected }) {
   const ref = useRef()
   const [hovered, setHover] = useState(false)
   const [active, setActive] = useState(false)
@@ -71,23 +77,29 @@ function Point({ position, nodeData }) {
   return (
     <group  scale={0.4} >
       <>
-        {active ?
-          <PointDialog position={position} dialogData={nodeData} /> : null
-        }
+        {/* {active ?
+          <PointDialog position={position} dialogData={nodeData} onNodeClick={onNodeClick} /> : null
+        } */}
         <Instance
           ref={ref}
           /* eslint-disable-next-line */
           onPointerOver={(e) => (e.stopPropagation(), setHover(true))}
           onPointerOut={() => (setHover(false))}
-          onClick={(e) => setActive(!active)}
+          // onClick={(e) => setActive(!active)}
+          onClick={(e) => setSelected(nodeId)}
           />
       </>
     </group>
   )
 }
 
-function PointDialog({ position, dialogData }) {
+function PointDialog({ position, dialogData, onNodeClick }) {
   const ref = useRef()
+
+  const handleNodeClick = () => {
+    if (dialogData.hash)
+      onNodeClick(dialogData.hash)
+  }
 
   useFrame((state) => {
     const t = state.clock.getElapsedTime()
@@ -101,8 +113,8 @@ function PointDialog({ position, dialogData }) {
         <meshStandardMaterial roughness={0.75} metalness={0.8} emissive={brandPalette[0]} />
         <Html distanceFactor={2}>
           <DialogContent>
-            { dialogData.img ? <DialogImage src={ dialogData.img } alt={ dialogData.name } /> : null } 
-            { dialogData.name ? <DialogTitle>{ dialogData.name }</DialogTitle> : null }
+            { dialogData.img ? <DialogImage src={ dialogData.img } alt={ dialogData.name } onClick={handleNodeClick} /> : null } 
+            { dialogData.name ? <DialogTitle onClick={handleNodeClick}>{ dialogData.name }</DialogTitle> : null }
             { dialogData.level ? <DialogLabel>{ dialogData.level }</DialogLabel> : null }
             { dialogData.hash ? <DialogHash>{ dialogData.hash }</DialogHash> : null }
           </DialogContent>
@@ -113,7 +125,7 @@ function PointDialog({ position, dialogData }) {
 }
 
 function Model(props) {
-  const { scene, nodes, materials } = useGLTF(props.objectUrl)
+  const { scene, nodes, materials } = props; // useGLTF(props.objectUrl)
 
   useLayoutEffect(() => {
     // nodes.canary.position.setY(-10)
@@ -216,6 +228,19 @@ function Particles({ count }) {
 function ThreeCanary(props) {
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 
+  const { scene, nodes, materials } = useGLTF(props.objectUrl)
+
+  const range = 100;
+
+  // Note: useGLTF caches it already
+  // const { nodes } = useGLTF(objectUrl)
+
+  // Or nodes.Scene.children[0].geometry.attributes.position
+  const positions = nodes.canary.geometry.attributes.position
+  const randomIndexes = randomN(0, positions.count, range)
+  // const randomIndexes = [0,1,2,3,4,5];
+  const selectedPositions = randomIndexes.map((i) => [positions.getX(i), positions.getY(i), positions.getZ(i)])
+
   return (
     <Canvas shadows dpr={[1, 2]} camera={{ position: [2.3, 1, 1], fov: 50 }} performance={{ min: 0.1 }}>
       
@@ -224,8 +249,8 @@ function ThreeCanary(props) {
       <gridHelper position={[0, -0.135, 0]} color={"#000"} args={[40,40]}/>
 
       <Suspense fallback={null}>
-        <Model scale={0.1} objectUrl={props.objectUrl} />
-        <Points range={props.nodes.length} objectUrl={props.objectUrl} nodesData={props.nodes} />
+        <Model scale={0.1} objectUrl={props.objectUrl} scene={scene} nodes={nodes} materials={materials} />
+        <Points selectedPositions={selectedPositions} nodesData={props.nodes} onNodeClick={props.onNodeClick} />
         <Particles count={isMobile ? 50 : 200} />
 
         <EffectComposer multisampling={16}>
@@ -270,11 +295,19 @@ const DialogContent = styled.div`
 
 const DialogImage = styled.img`
   width: 100px;
+
+  &:hover {
+    cursor: pointer;
+  }
 `
 
 const DialogTitle = styled.h1`
   font-size: 12pt;
   border-bottom: 1px solid ${brandPalette[2]};
+
+  &:hover {
+    cursor: pointer;
+  }
 `
 
 const DialogLabel = styled.div`

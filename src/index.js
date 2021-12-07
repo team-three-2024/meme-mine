@@ -58,6 +58,7 @@ class App extends React.Component {
               objectUrl={"/assets/canary.glb"}
               nodes={this.state.nodesData}
               onNodeSelected={this.onNodeSelected.bind(this)}
+              onNodeClick={(nodeId) => { console.log("boom!", nodeId)}}
               debug={true}
             />
           
