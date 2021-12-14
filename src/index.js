@@ -36,11 +36,6 @@ class App extends React.Component {
     };
   }
 
-  onNodeSelected(node) {
-    this.setState({nodeSelected: node});
-    console.log("Node Selected:", this.state.nodeSelected);
-  }
-
   render() {
 
     return (
@@ -57,9 +52,7 @@ class App extends React.Component {
             <ThreeCanary
               objectUrl={"/assets/canary.glb"}
               nodes={this.state.nodesData}
-              onNodeSelected={this.onNodeSelected.bind(this)}
               onNodeClick={(nodeId) => { console.log("onNodeClick", nodeId)}}
-              debug={true}
             />
           
             <div
