@@ -25,7 +25,7 @@ const randomN = (min, max, n) => {
 }
 
 const cutText = (str) => {
-  const numChars = 7
+  const numChars = 6
   const sep = "..."
   const strLen = str.length
   const head = str.slice(0, numChars)
