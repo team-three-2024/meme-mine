@@ -285,9 +285,6 @@ const DialogContent = styled.div`
   animation-iteration-count: 1;
   animation-fill-mode: forwards;
 
-  padding-top: 10px;
-  transform: translate3d(10px, 10px, 0);
-
   text-align: left;
   background: ${brandPalette[1]};
 
