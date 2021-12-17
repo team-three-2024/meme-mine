@@ -33,13 +33,18 @@ const cutText = (str) => {
   return head + sep + tail
 }
 
-function Points({ objectUrl, nodesData, onNodeClick, randomIndexes }) {
+function Points({ objectUrl, nodesData, onNodeClick }) {
   // Note: useGLTF caches it already
   const { nodes } = useGLTF(objectUrl)
   const [selected, setSelected] = useState(0)
 
   // Or nodes.Scene.children[0].geometry.attributes.position
   const positions = nodes.canary.geometry.attributes.position
+  
+  const numPositions = positions.count
+  const numNodes = nodesData.length
+  const randomIndexes = useMemo(() => randomN(0, numPositions, numNodes), [])
+
   const selectedPositions = randomIndexes.map((i) => [positions.getX(i), positions.getY(i), positions.getZ(i)])
 
   const handleSelectedNode = (nodeId) => {
@@ -95,7 +100,7 @@ function Point({ nodeId, position, onNodeSelected }) {
         <Instance
           ref={ref}
           /* eslint-disable-next-line */
-          onPointerOver={(e) => (e.stopPropagation(), setHover(true))}
+          onPointerOver={(e) => (e.stopPropagation(), setHover(true),  onNodeSelected(nodeId))}
           onPointerOut={() => setHover(false)}
           onClick={(e) => onNodeSelected(nodeId)}
           />
@@ -241,10 +246,6 @@ function Particles({ count }) {
 function ThreeCanary(props) {
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 
-  const numPositions = 3471 // positions.count
-  const numNodes = props.nodes.length
-  const randomIndexes = randomN(0, numPositions, numNodes)
-
   return (
     <Canvas shadows dpr={[1, 2]} camera={{ position: [2.3, 1, 1], fov: 50 }} performance={{ min: 0.1 }}>
       
@@ -254,7 +255,7 @@ function ThreeCanary(props) {
 
       <Suspense fallback={null}>
         <Model scale={0.1} objectUrl={props.objectUrl} />
-        <Points randomIndexes={randomIndexes} objectUrl={props.objectUrl} nodesData={props.nodes} onNodeClick={props.onNodeClick} />
+        <Points objectUrl={props.objectUrl} nodesData={props.nodes} onNodeClick={props.onNodeClick} />
         <Particles count={isMobile ? 50 : 200} />
 
         <EffectComposer multisampling={16}>
@@ -285,7 +286,7 @@ const DialogContent = styled.div`
   animation-fill-mode: forwards;
 
   padding-top: 10px;
-  transform: translate3d(50%, 0, 0);
+  transform: translate3d(10px, 10px, 0);
 
   text-align: left;
   background: ${brandPalette[1]};
