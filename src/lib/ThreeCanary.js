@@ -1,4 +1,5 @@
-import * as THREE from "three";
+import * as THREE from "three"
+import Identicon from '@polkadot/react-identicon'
 import React, { useMemo, useRef, useState, Suspense, useLayoutEffect } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { Canvas, useFrame } from '@react-three/fiber'
@@ -24,7 +25,8 @@ const randomN = (min, max, n) => {
   return numbers;
 }
 
-const cutText = (str) => {
+const formatHash = (str) => {
+  if (!str) return ""
   const numChars = 6
   const sep = "..."
   const strLen = str.length
@@ -43,7 +45,7 @@ function Points({ objectUrl, nodesData, onNodeClick }) {
   
   const numPositions = positions.count
   const numNodes = nodesData.length
-  const randomIndexes = useMemo(() => randomN(0, numPositions, numNodes), [])
+  const randomIndexes = useMemo(() => randomN(0, numPositions, numNodes), [numPositions, numNodes])
 
   const selectedPositions = randomIndexes.map((i) => [positions.getX(i), positions.getY(i), positions.getZ(i)])
 
@@ -131,10 +133,33 @@ function PointDialog({ position, dialogData, onNodeClick }) {
         <meshStandardMaterial roughness={0.75} metalness={0.8} emissive={brandPalette[0]} />
         <Html distanceFactor={2}>
           <DialogContent>
-            { dialogData.img ? <DialogImage src={ dialogData.img } alt={ dialogData.name } onClick={handleNodeClick} /> : null } 
-            { dialogData.name ? <DialogTitle onClick={handleNodeClick}>{ dialogData.name }</DialogTitle> : null }
-            { dialogData.level ? <DialogLabel>{ dialogData.level }</DialogLabel> : null }
-            { dialogData.hash ? <DialogHash>{ cutText(dialogData.hash) }</DialogHash> : null }
+            { dialogData.hash && !dialogData.img ?
+                <div onClick={handleNodeClick}>
+                  <DialogIdenticon
+                    value={dialogData.hash}
+                    size={200}
+                    theme={'polkadot'}
+                  />
+                </div> : null}
+            { dialogData.img ?
+                <DialogImage
+                  src={ dialogData.img }
+                  alt={ dialogData.name }
+                  onClick={handleNodeClick}
+                /> : null } 
+            { dialogData.name ?
+                <DialogTitle
+                  onClick={handleNodeClick}>
+                  { dialogData.name }
+                </DialogTitle> : null }
+            { dialogData.level ?
+                <DialogLabel>
+                  { dialogData.level }
+                </DialogLabel> : null }
+            { dialogData.hash ?
+                <DialogHash>
+                  { formatHash(dialogData.hash) }
+                </DialogHash> : null }
           </DialogContent>
         </Html>
       </mesh>
@@ -298,6 +323,12 @@ const DialogContent = styled.div`
 const DialogImage = styled.img`
   width: 200px;
 
+  &:hover {
+    cursor: pointer;
+  }
+`
+
+const DialogIdenticon = styled(Identicon)`
   &:hover {
     cursor: pointer;
   }
