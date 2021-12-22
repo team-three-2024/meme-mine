@@ -17,6 +17,8 @@ var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/esm
 
 var THREE = _interopRequireWildcard(require("three"));
 
+var _reactIdenticon = _interopRequireDefault(require("@polkadot/react-identicon"));
+
 var _react = _interopRequireWildcard(require("react"));
 
 var _styledComponents = _interopRequireWildcard(require("styled-components"));
@@ -27,7 +29,7 @@ var _drei = require("@react-three/drei");
 
 var _postprocessing = require("@react-three/postprocessing");
 
-var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6;
+var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7;
 
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 
@@ -55,56 +57,90 @@ var randomN = function randomN(min, max, n) {
   return numbers;
 };
 
+var formatHash = function formatHash(str) {
+  if (!str) return "";
+  var numChars = 6;
+  var sep = "...";
+  var strLen = str.length;
+  var head = str.slice(0, numChars);
+  var tail = str.slice(strLen - 5, strLen);
+  return head + sep + tail;
+};
+
 function Points(_ref) {
-  var range = _ref.range,
-      objectUrl = _ref.objectUrl,
-      nodesData = _ref.nodesData;
+  var objectUrl = _ref.objectUrl,
+      nodesData = _ref.nodesData,
+      onNodeClick = _ref.onNodeClick;
 
   // Note: useGLTF caches it already
   var _useGLTF = (0, _drei.useGLTF)(objectUrl),
-      nodes = _useGLTF.nodes; // Or nodes.Scene.children[0].geometry.attributes.position
+      nodes = _useGLTF.nodes;
+
+  var _useState = (0, _react.useState)(0),
+      _useState2 = (0, _slicedToArray2.default)(_useState, 2),
+      selected = _useState2[0],
+      setSelected = _useState2[1]; // Or nodes.Scene.children[0].geometry.attributes.position
 
 
   var positions = nodes.canary.geometry.attributes.position;
-  var randomIndexes = randomN(0, positions.count, range);
+  var numPositions = positions.count;
+  var numNodes = nodesData.length;
+  var randomIndexes = (0, _react.useMemo)(function () {
+    return randomN(0, numPositions, numNodes);
+  }, [numPositions, numNodes]);
   var selectedPositions = randomIndexes.map(function (i) {
     return [positions.getX(i), positions.getY(i), positions.getZ(i)];
   });
-  return /*#__PURE__*/_react.default.createElement(_drei.Instances, {
-    range: range,
+
+  var handleSelectedNode = function handleSelectedNode(nodeId) {
+    setSelected(nodeId);
+  };
+
+  return /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, selected ? /*#__PURE__*/_react.default.createElement("group", {
+    scale: 0.4
+  }, /*#__PURE__*/_react.default.createElement(PointDialog, {
+    position: selectedPositions[selected],
+    dialogData: nodesData[selected],
+    onNodeClick: onNodeClick
+  })) : null, /*#__PURE__*/_react.default.createElement(_drei.Instances, {
+    range: selectedPositions.length,
     material: new THREE.MeshBasicMaterial(),
     geometry: new THREE.SphereGeometry(0.1)
   }, selectedPositions.map(function (position, i) {
     return /*#__PURE__*/_react.default.createElement(Point, {
       key: i,
+      nodeId: i,
       position: position,
-      nodeData: nodesData[i]
+      onNodeSelected: handleSelectedNode
     });
-  }));
+  })));
 }
 
 function Point(_ref2) {
-  var position = _ref2.position,
-      nodeData = _ref2.nodeData;
+  var nodeId = _ref2.nodeId,
+      position = _ref2.position,
+      onNodeSelected = _ref2.onNodeSelected;
   var ref = (0, _react.useRef)();
-
-  var _useState = (0, _react.useState)(false),
-      _useState2 = (0, _slicedToArray2.default)(_useState, 2),
-      hovered = _useState2[0],
-      setHover = _useState2[1];
 
   var _useState3 = (0, _react.useState)(false),
       _useState4 = (0, _slicedToArray2.default)(_useState3, 2),
-      active = _useState4[0],
-      setActive = _useState4[1];
+      hovered = _useState4[0],
+      setHover = _useState4[1];
+
+  var _useState5 = (0, _react.useState)(false),
+      _useState6 = (0, _slicedToArray2.default)(_useState5, 1),
+      active = _useState6[0];
 
   (0, _fiber.useFrame)(function (state) {
-    var t = state.clock.getElapsedTime();
-    ref.current.position.copy(new THREE.Vector3(position[0], -position[2], position[1]));
-    ref.current.scale.x = ref.current.scale.y = ref.current.scale.z = 0.02;
-    ref.current.scale.x = ref.current.scale.y = ref.current.scale.z = THREE.MathUtils.lerp(ref.current.scale.z, hovered ? 4 : 1, 0.1);
+    var t = state.clock.getElapsedTime(); // ref.current.position.copy(new THREE.Vector3(position[0], -position[2], position[1]))
+
+    ref.current.position.x = position[0];
+    ref.current.position.y = -position[2];
+    ref.current.position.z = position[1];
+    ref.current.scale.x = ref.current.scale.y = ref.current.scale.z = 0.1;
+    ref.current.scale.x = ref.current.scale.y = ref.current.scale.z = THREE.MathUtils.lerp(ref.current.scale.z, hovered ? 6 : 1, 0.1);
     ref.current.scale.x = ref.current.scale.y = ref.current.scale.z = THREE.MathUtils.lerp(ref.current.scale.z, active ? 5 : 1, 0.1);
-    ref.current.color.lerp(color.set(hovered ? brandPalette[0] : brandPalette[1]), hovered ? 1 : 0.1);
+    ref.current.color.lerp(color.set(hovered || active ? brandPalette[0] : brandPalette[1]), hovered || active ? 1 : 0.1);
 
     if (hovered) {
       ref.current.color.lerp(color.set(hovered ? brandPalette[0] : brandPalette[1]), hovered ? 1 : 0.1);
@@ -117,33 +153,37 @@ function Point(_ref2) {
   });
   return /*#__PURE__*/_react.default.createElement("group", {
     scale: 0.4
-  }, /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, active ? /*#__PURE__*/_react.default.createElement(PointDialog, {
-    position: position,
-    dialogData: nodeData
-  }) : null, /*#__PURE__*/_react.default.createElement(_drei.Instance, {
+  }, /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement(_drei.Instance, {
     ref: ref
     /* eslint-disable-next-line */
     ,
     onPointerOver: function onPointerOver(e) {
-      return e.stopPropagation(), setHover(true);
+      return e.stopPropagation(), setHover(true), onNodeSelected(nodeId);
     },
     onPointerOut: function onPointerOut() {
       return setHover(false);
     },
     onClick: function onClick(e) {
-      return setActive(!active);
+      return onNodeSelected(nodeId);
     }
   })));
 }
 
 function PointDialog(_ref3) {
   var position = _ref3.position,
-      dialogData = _ref3.dialogData;
+      dialogData = _ref3.dialogData,
+      onNodeClick = _ref3.onNodeClick;
   var ref = (0, _react.useRef)();
+
+  var handleNodeClick = function handleNodeClick() {
+    if (dialogData.hash) onNodeClick(dialogData.hash);
+  };
+
+  var scale = 1.002;
   (0, _fiber.useFrame)(function (state) {
     var t = state.clock.getElapsedTime();
-    ref.current.position.copy(new THREE.Vector3(position[0], -position[2], position[1]));
-    ref.current.scale.x = ref.current.scale.y = ref.current.scale.z = 0.02;
+    ref.current.position.copy(new THREE.Vector3(position[0] * scale, -position[2] * scale, position[1] * scale));
+    ref.current.scale.x = ref.current.scale.y = ref.current.scale.z = 0.05;
     ref.current.position.y += Math.sin(t) / 16;
   });
   return /*#__PURE__*/_react.default.createElement("mesh", {
@@ -154,10 +194,19 @@ function PointDialog(_ref3) {
     emissive: brandPalette[0]
   }), /*#__PURE__*/_react.default.createElement(_drei.Html, {
     distanceFactor: 2
-  }, /*#__PURE__*/_react.default.createElement(DialogContent, null, dialogData.img ? /*#__PURE__*/_react.default.createElement(DialogImage, {
+  }, /*#__PURE__*/_react.default.createElement(DialogContent, null, dialogData.hash && !dialogData.img ? /*#__PURE__*/_react.default.createElement("div", {
+    onClick: handleNodeClick
+  }, /*#__PURE__*/_react.default.createElement(DialogIdenticon, {
+    value: dialogData.hash,
+    size: 200,
+    theme: 'polkadot'
+  })) : null, dialogData.img ? /*#__PURE__*/_react.default.createElement(DialogImage, {
     src: dialogData.img,
-    alt: dialogData.name
-  }) : null, dialogData.name ? /*#__PURE__*/_react.default.createElement(DialogTitle, null, dialogData.name) : null, dialogData.level ? /*#__PURE__*/_react.default.createElement(DialogLabel, null, dialogData.level) : null, dialogData.hash ? /*#__PURE__*/_react.default.createElement(DialogHash, null, dialogData.hash) : null)));
+    alt: dialogData.name,
+    onClick: handleNodeClick
+  }) : null, dialogData.name ? /*#__PURE__*/_react.default.createElement(DialogTitle, {
+    onClick: handleNodeClick
+  }, dialogData.name) : null, dialogData.level ? /*#__PURE__*/_react.default.createElement(DialogLabel, null, dialogData.level) : null, dialogData.hash ? /*#__PURE__*/_react.default.createElement(DialogHash, null, formatHash(dialogData.hash)) : null)));
 }
 
 function Model(props) {
@@ -310,9 +359,9 @@ function ThreeCanary(props) {
     scale: 0.1,
     objectUrl: props.objectUrl
   }), /*#__PURE__*/_react.default.createElement(Points, {
-    range: props.nodes.length,
     objectUrl: props.objectUrl,
-    nodesData: props.nodes
+    nodesData: props.nodes,
+    onNodeClick: props.onNodeClick
   }), /*#__PURE__*/_react.default.createElement(Particles, {
     count: isMobile ? 50 : 200
   }), /*#__PURE__*/_react.default.createElement(_postprocessing.EffectComposer, {
@@ -323,7 +372,7 @@ function ThreeCanary(props) {
     luminanceSmoothing: 0.05,
     intensity: 0.1
   }), /*#__PURE__*/_react.default.createElement(_postprocessing.Glitch, {
-    delay: [10, 20]
+    delay: [20, 30]
   }))), /*#__PURE__*/_react.default.createElement(_drei.OrbitControls, {
     minPolarAngle: Math.PI / 2.8,
     maxPolarAngle: Math.PI / 1.8
@@ -331,17 +380,19 @@ function ThreeCanary(props) {
 } // Styling
 
 
-var fadeIn = (0, _styledComponents.keyframes)(_templateObject || (_templateObject = (0, _taggedTemplateLiteral2.default)(["\n  0% {\n    opacity: 0;\n  }\n  100% {\n    opacity: 0.8;\n  }\n"])));
+var fadeIn = (0, _styledComponents.keyframes)(_templateObject || (_templateObject = (0, _taggedTemplateLiteral2.default)(["\n  0% {\n    opacity: 0;\n  }\n  100% {\n    opacity: 0.9;\n  }\n"])));
 
-var DialogContent = _styledComponents.default.div(_templateObject2 || (_templateObject2 = (0, _taggedTemplateLiteral2.default)(["\n  animation: ", " ease-in-out 0.5s;\n  animation-iteration-count: 1;\n  animation-fill-mode: forwards;\n\n  padding-top: 10px;\n  transform: translate3d(50%, 0, 0);\n\n  text-align: left;\n  background: ", ";\n\n  color: white;\n  padding: 10px 20px;\n  border-radius: 5px;\n\n  font-family: monospace;\n"])), fadeIn, brandPalette[1]);
+var DialogContent = _styledComponents.default.div(_templateObject2 || (_templateObject2 = (0, _taggedTemplateLiteral2.default)(["\n  animation: ", " ease-in-out 0.5s;\n  animation-iteration-count: 1;\n  animation-fill-mode: forwards;\n\n  text-align: left;\n  background: ", ";\n\n  color: white;\n  padding: 10px 20px;\n  border-radius: 5px;\n\n  font-family: monospace;\n"])), fadeIn, brandPalette[1]);
 
-var DialogImage = _styledComponents.default.img(_templateObject3 || (_templateObject3 = (0, _taggedTemplateLiteral2.default)(["\n  width: 100px;\n"])));
+var DialogImage = _styledComponents.default.img(_templateObject3 || (_templateObject3 = (0, _taggedTemplateLiteral2.default)(["\n  width: 200px;\n\n  &:hover {\n    cursor: pointer;\n  }\n"])));
 
-var DialogTitle = _styledComponents.default.h1(_templateObject4 || (_templateObject4 = (0, _taggedTemplateLiteral2.default)(["\n  font-size: 12pt;\n  border-bottom: 1px solid ", ";\n"])), brandPalette[2]);
+var DialogIdenticon = (0, _styledComponents.default)(_reactIdenticon.default)(_templateObject4 || (_templateObject4 = (0, _taggedTemplateLiteral2.default)(["\n  &:hover {\n    cursor: pointer;\n  }\n"])));
 
-var DialogLabel = _styledComponents.default.div(_templateObject5 || (_templateObject5 = (0, _taggedTemplateLiteral2.default)(["\n  background-color: ", ";\n  color: ", ";\n  border-radius: 20px;\n  padding: 5px;\n  display: inline-block;\n"])), brandPalette[0], brandPalette[1]);
+var DialogTitle = _styledComponents.default.h1(_templateObject5 || (_templateObject5 = (0, _taggedTemplateLiteral2.default)(["\n  font-size: 12pt;\n  font-weight: bold;\n  text-transform: uppercase;\n  float: left;\n  width: 100px;\n\n  &:hover {\n    cursor: pointer;\n  }\n"])));
 
-var DialogHash = _styledComponents.default.div(_templateObject6 || (_templateObject6 = (0, _taggedTemplateLiteral2.default)(["\n  color: ", ";\n  padding: 5px;\n"])), brandPalette[2]);
+var DialogLabel = _styledComponents.default.div(_templateObject6 || (_templateObject6 = (0, _taggedTemplateLiteral2.default)(["\n  background-color: ", ";\n  color: ", ";\n  border-radius: 20px;\n  padding: 5px;\n  margin-top: 10px;\n\n  float: right;\n  font-weight: bold;\n  font-size: 10pt;\n  text-transform: uppercase;\n"])), brandPalette[0], brandPalette[1]);
+
+var DialogHash = _styledComponents.default.div(_templateObject7 || (_templateObject7 = (0, _taggedTemplateLiteral2.default)(["\n  color: ", ";\n  padding-top: 5px;\n"])), brandPalette[2]);
 
 var _default = ThreeCanary;
 exports.default = _default;
