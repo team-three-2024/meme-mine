@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@babel/polyfill": "^7.12.1",
+    "@polkadot/react-identicon": "^0.87.6",
     "@react-three/drei": "^7.16.8",
     "@react-three/fiber": "^7.0.17",
     "@react-three/postprocessing": "^2.0.5",
