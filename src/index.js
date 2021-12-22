@@ -31,14 +31,9 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      nodesData: nodesDataFactory(1500),
+      nodesData: nodesDataFactory(150),
       nodeSelected: null
     };
-  }
-
-  onNodeSelected(node) {
-    this.setState({nodeSelected: node});
-    console.log("Node Selected:", this.state.nodeSelected);
   }
 
   render() {
@@ -57,8 +52,7 @@ class App extends React.Component {
             <ThreeCanary
               objectUrl={"/assets/canary.glb"}
               nodes={this.state.nodesData}
-              onNodeSelected={this.onNodeSelected.bind(this)}
-              debug={true}
+              onNodeClick={(nodeId) => { console.log("onNodeClick", nodeId)}}
             />
           
             <div

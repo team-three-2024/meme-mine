@@ -1,4 +1,5 @@
-import * as THREE from "three";
+import * as THREE from "three"
+import Identicon from '@polkadot/react-identicon'
 import React, { useMemo, useRef, useState, Suspense, useLayoutEffect } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { Canvas, useFrame } from '@react-three/fiber'
@@ -24,45 +25,72 @@ const randomN = (min, max, n) => {
   return numbers;
 }
 
-function Points({ range, objectUrl, nodesData }) {
+const formatHash = (str) => {
+  if (!str) return ""
+  const numChars = 6
+  const sep = "..."
+  const strLen = str.length
+  const head = str.slice(0, numChars)
+  const tail = str.slice(strLen-5, strLen)
+  return head + sep + tail
+}
+
+function Points({ objectUrl, nodesData, onNodeClick }) {
   // Note: useGLTF caches it already
   const { nodes } = useGLTF(objectUrl)
+  const [selected, setSelected] = useState(0)
 
   // Or nodes.Scene.children[0].geometry.attributes.position
   const positions = nodes.canary.geometry.attributes.position
-  const randomIndexes = randomN(0, positions.count, range)
+  
+  const numPositions = positions.count
+  const numNodes = nodesData.length
+  const randomIndexes = useMemo(() => randomN(0, numPositions, numNodes), [numPositions, numNodes])
+
   const selectedPositions = randomIndexes.map((i) => [positions.getX(i), positions.getY(i), positions.getZ(i)])
 
+  const handleSelectedNode = (nodeId) => {
+    setSelected(nodeId)
+  }
 
   return (
-    <Instances range={range} material={new THREE.MeshBasicMaterial()} geometry={new THREE.SphereGeometry( 0.1 )}>
-      {
-        selectedPositions.map((position, i) => (
-          <Point key={i} position={position} nodeData={nodesData[i]} />
-        ))
+    <>
+      {selected ?
+        <group scale={0.4}>
+          <PointDialog position={selectedPositions[selected]} dialogData={nodesData[selected]} onNodeClick={onNodeClick} />
+        </group> : null
       }
-    </Instances>
+      <Instances range={selectedPositions.length} material={new THREE.MeshBasicMaterial()} geometry={new THREE.SphereGeometry( 0.1 )}>
+        {
+          selectedPositions.map((position, i) => (
+            <Point key={i} nodeId={i} position={position} onNodeSelected={handleSelectedNode} />
+          ))
+        }
+      </Instances>
+    </>
   )
 }
 
-function Point({ position, nodeData }) {
+function Point({ nodeId, position, onNodeSelected }) {
   const ref = useRef()
   const [hovered, setHover] = useState(false)
-  const [active, setActive] = useState(false)
+  const [active] = useState(false)
 
   useFrame((state) => {
     const t = state.clock.getElapsedTime()
-    ref.current.position.copy(new THREE.Vector3(position[0], -position[2], position[1]))
-    ref.current.scale.x = ref.current.scale.y = ref.current.scale.z = 0.02
-    ref.current.scale.x = ref.current.scale.y = ref.current.scale.z = THREE.MathUtils.lerp(ref.current.scale.z, hovered ? 4 : 1, 0.1)
+    // ref.current.position.copy(new THREE.Vector3(position[0], -position[2], position[1]))
+    ref.current.position.x = position[0]
+    ref.current.position.y = -position[2]
+    ref.current.position.z = position[1]
+    ref.current.scale.x = ref.current.scale.y = ref.current.scale.z = 0.1
+    ref.current.scale.x = ref.current.scale.y = ref.current.scale.z = THREE.MathUtils.lerp(ref.current.scale.z, hovered ? 6 : 1, 0.1)
     ref.current.scale.x = ref.current.scale.y = ref.current.scale.z = THREE.MathUtils.lerp(ref.current.scale.z, active ? 5 : 1, 0.1)
-    ref.current.color.lerp(color.set(hovered ? brandPalette[0] : brandPalette[1]), hovered ? 1 : 0.1)
+    ref.current.color.lerp(color.set(hovered || active ? brandPalette[0] : brandPalette[1]), hovered || active ? 1 : 0.1)
 
     if (hovered) {
       ref.current.color.lerp(color.set(hovered ? brandPalette[0] : brandPalette[1]), hovered ? 1 : 0.1)
     }
     
-
     if (active) {
       ref.current.scale.x = ref.current.scale.y = ref.current.scale.z += Math.sin( t ) / 4
       ref.current.color.lerp(color.set(active ? brandPalette[2] : brandPalette[1]), active ? 1 : 0.1)
@@ -71,28 +99,32 @@ function Point({ position, nodeData }) {
   return (
     <group  scale={0.4} >
       <>
-        {active ?
-          <PointDialog position={position} dialogData={nodeData} /> : null
-        }
         <Instance
           ref={ref}
           /* eslint-disable-next-line */
-          onPointerOver={(e) => (e.stopPropagation(), setHover(true))}
-          onPointerOut={() => (setHover(false))}
-          onClick={(e) => setActive(!active)}
+          onPointerOver={(e) => (e.stopPropagation(), setHover(true),  onNodeSelected(nodeId))}
+          onPointerOut={() => setHover(false)}
+          onClick={(e) => onNodeSelected(nodeId)}
           />
       </>
     </group>
   )
 }
 
-function PointDialog({ position, dialogData }) {
+function PointDialog({ position, dialogData, onNodeClick }) {
   const ref = useRef()
+
+  const handleNodeClick = () => {
+    if (dialogData.hash)
+      onNodeClick(dialogData.hash)
+  }
+
+  const scale = 1.002
 
   useFrame((state) => {
     const t = state.clock.getElapsedTime()
-    ref.current.position.copy(new THREE.Vector3(position[0], -position[2], position[1]))
-    ref.current.scale.x = ref.current.scale.y = ref.current.scale.z = 0.02
+    ref.current.position.copy(new THREE.Vector3(position[0]*scale, -position[2]*scale, position[1]*scale))
+    ref.current.scale.x = ref.current.scale.y = ref.current.scale.z = 0.05
     ref.current.position.y += Math.sin( t ) / 16
   })
   return (
@@ -101,10 +133,33 @@ function PointDialog({ position, dialogData }) {
         <meshStandardMaterial roughness={0.75} metalness={0.8} emissive={brandPalette[0]} />
         <Html distanceFactor={2}>
           <DialogContent>
-            { dialogData.img ? <DialogImage src={ dialogData.img } alt={ dialogData.name } /> : null } 
-            { dialogData.name ? <DialogTitle>{ dialogData.name }</DialogTitle> : null }
-            { dialogData.level ? <DialogLabel>{ dialogData.level }</DialogLabel> : null }
-            { dialogData.hash ? <DialogHash>{ dialogData.hash }</DialogHash> : null }
+            { dialogData.hash && !dialogData.img ?
+                <div onClick={handleNodeClick}>
+                  <DialogIdenticon
+                    value={dialogData.hash}
+                    size={200}
+                    theme={'polkadot'}
+                  />
+                </div> : null}
+            { dialogData.img ?
+                <DialogImage
+                  src={ dialogData.img }
+                  alt={ dialogData.name }
+                  onClick={handleNodeClick}
+                /> : null } 
+            { dialogData.name ?
+                <DialogTitle
+                  onClick={handleNodeClick}>
+                  { dialogData.name }
+                </DialogTitle> : null }
+            { dialogData.level ?
+                <DialogLabel>
+                  { dialogData.level }
+                </DialogLabel> : null }
+            { dialogData.hash ?
+                <DialogHash>
+                  { formatHash(dialogData.hash) }
+                </DialogHash> : null }
           </DialogContent>
         </Html>
       </mesh>
@@ -225,12 +280,12 @@ function ThreeCanary(props) {
 
       <Suspense fallback={null}>
         <Model scale={0.1} objectUrl={props.objectUrl} />
-        <Points range={props.nodes.length} objectUrl={props.objectUrl} nodesData={props.nodes} />
+        <Points objectUrl={props.objectUrl} nodesData={props.nodes} onNodeClick={props.onNodeClick} />
         <Particles count={isMobile ? 50 : 200} />
 
         <EffectComposer multisampling={16}>
           <Bloom kernelSize={2} luminanceThreshold={0.01} luminanceSmoothing={0.05} intensity={0.1} />
-          <Glitch delay={[10, 20]} />
+          <Glitch delay={[20, 30]} />
         </EffectComposer>
       </Suspense>
 
@@ -246,7 +301,7 @@ const fadeIn = keyframes`
     opacity: 0;
   }
   100% {
-    opacity: 0.8;
+    opacity: 0.9;
   }
 `
 
@@ -254,9 +309,6 @@ const DialogContent = styled.div`
   animation: ${fadeIn} ease-in-out 0.5s;
   animation-iteration-count: 1;
   animation-fill-mode: forwards;
-
-  padding-top: 10px;
-  transform: translate3d(50%, 0, 0);
 
   text-align: left;
   background: ${brandPalette[1]};
@@ -269,12 +321,29 @@ const DialogContent = styled.div`
 `
 
 const DialogImage = styled.img`
-  width: 100px;
+  width: 200px;
+
+  &:hover {
+    cursor: pointer;
+  }
+`
+
+const DialogIdenticon = styled(Identicon)`
+  &:hover {
+    cursor: pointer;
+  }
 `
 
 const DialogTitle = styled.h1`
   font-size: 12pt;
-  border-bottom: 1px solid ${brandPalette[2]};
+  font-weight: bold;
+  text-transform: uppercase;
+  float: left;
+  width: 100px;
+
+  &:hover {
+    cursor: pointer;
+  }
 `
 
 const DialogLabel = styled.div`
@@ -282,12 +351,17 @@ const DialogLabel = styled.div`
   color: ${brandPalette[1]};
   border-radius: 20px;
   padding: 5px;
-  display: inline-block;
+  margin-top: 10px;
+
+  float: right;
+  font-weight: bold;
+  font-size: 10pt;
+  text-transform: uppercase;
 `
 
 const DialogHash = styled.div`
   color: ${brandPalette[2]};
-  padding: 5px;
+  padding-top: 5px;
 `
 
 export default ThreeCanary;
