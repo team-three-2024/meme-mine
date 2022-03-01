@@ -1,5 +1,4 @@
 import * as THREE from "three"
-import Identicon from '@polkadot/react-identicon'
 import React, { useMemo, useRef, useState, Suspense, useLayoutEffect } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { Canvas, useFrame } from '@react-three/fiber'
@@ -133,14 +132,6 @@ function PointDialog({ position, dialogData, onNodeClick }) {
         <meshStandardMaterial roughness={0.75} metalness={0.8} emissive={brandPalette[0]} />
         <Html distanceFactor={2}>
           <DialogContent>
-            { dialogData.hash && !dialogData.img ?
-                <div onClick={handleNodeClick}>
-                  <DialogIdenticon
-                    value={dialogData.hash}
-                    size={200}
-                    theme={'polkadot'}
-                  />
-                </div> : null}
             { dialogData.img ?
                 <DialogImage
                   src={ dialogData.img }
@@ -323,12 +314,6 @@ const DialogContent = styled.div`
 const DialogImage = styled.img`
   width: 200px;
 
-  &:hover {
-    cursor: pointer;
-  }
-`
-
-const DialogIdenticon = styled(Identicon)`
   &:hover {
     cursor: pointer;
   }
