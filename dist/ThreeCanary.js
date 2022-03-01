@@ -13,11 +13,13 @@ var _taggedTemplateLiteral2 = _interopRequireDefault(require("@babel/runtime/hel
 
 require("core-js/modules/es.object.assign.js");
 
+require("core-js/modules/es.regexp.exec.js");
+
+require("core-js/modules/es.regexp.test.js");
+
 var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/slicedToArray"));
 
 var THREE = _interopRequireWildcard(require("three"));
-
-var _reactIdenticon = _interopRequireDefault(require("@polkadot/react-identicon"));
 
 var _react = _interopRequireWildcard(require("react"));
 
@@ -29,7 +31,7 @@ var _drei = require("@react-three/drei");
 
 var _postprocessing = require("@react-three/postprocessing");
 
-var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7;
+var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6;
 
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 
@@ -194,13 +196,7 @@ function PointDialog(_ref3) {
     emissive: brandPalette[0]
   }), /*#__PURE__*/_react.default.createElement(_drei.Html, {
     distanceFactor: 2
-  }, /*#__PURE__*/_react.default.createElement(DialogContent, null, dialogData.hash && !dialogData.img ? /*#__PURE__*/_react.default.createElement("div", {
-    onClick: handleNodeClick
-  }, /*#__PURE__*/_react.default.createElement(DialogIdenticon, {
-    value: dialogData.hash,
-    size: 200,
-    theme: 'polkadot'
-  })) : null, dialogData.img ? /*#__PURE__*/_react.default.createElement(DialogImage, {
+  }, /*#__PURE__*/_react.default.createElement(DialogContent, null, dialogData.img ? /*#__PURE__*/_react.default.createElement(DialogImage, {
     src: dialogData.img,
     alt: dialogData.name,
     onClick: handleNodeClick
@@ -386,13 +382,11 @@ var DialogContent = _styledComponents.default.div(_templateObject2 || (_template
 
 var DialogImage = _styledComponents.default.img(_templateObject3 || (_templateObject3 = (0, _taggedTemplateLiteral2.default)(["\n  width: 200px;\n\n  &:hover {\n    cursor: pointer;\n  }\n"])));
 
-var DialogIdenticon = (0, _styledComponents.default)(_reactIdenticon.default)(_templateObject4 || (_templateObject4 = (0, _taggedTemplateLiteral2.default)(["\n  &:hover {\n    cursor: pointer;\n  }\n"])));
+var DialogTitle = _styledComponents.default.h1(_templateObject4 || (_templateObject4 = (0, _taggedTemplateLiteral2.default)(["\n  font-size: 12pt;\n  font-weight: bold;\n  text-transform: uppercase;\n  float: left;\n  width: 100px;\n\n  &:hover {\n    cursor: pointer;\n  }\n"])));
 
-var DialogTitle = _styledComponents.default.h1(_templateObject5 || (_templateObject5 = (0, _taggedTemplateLiteral2.default)(["\n  font-size: 12pt;\n  font-weight: bold;\n  text-transform: uppercase;\n  float: left;\n  width: 100px;\n\n  &:hover {\n    cursor: pointer;\n  }\n"])));
+var DialogLabel = _styledComponents.default.div(_templateObject5 || (_templateObject5 = (0, _taggedTemplateLiteral2.default)(["\n  background-color: ", ";\n  color: ", ";\n  border-radius: 20px;\n  padding: 5px;\n  margin-top: 10px;\n\n  float: right;\n  font-weight: bold;\n  font-size: 10pt;\n  text-transform: uppercase;\n"])), brandPalette[0], brandPalette[1]);
 
-var DialogLabel = _styledComponents.default.div(_templateObject6 || (_templateObject6 = (0, _taggedTemplateLiteral2.default)(["\n  background-color: ", ";\n  color: ", ";\n  border-radius: 20px;\n  padding: 5px;\n  margin-top: 10px;\n\n  float: right;\n  font-weight: bold;\n  font-size: 10pt;\n  text-transform: uppercase;\n"])), brandPalette[0], brandPalette[1]);
-
-var DialogHash = _styledComponents.default.div(_templateObject7 || (_templateObject7 = (0, _taggedTemplateLiteral2.default)(["\n  color: ", ";\n  padding-top: 5px;\n"])), brandPalette[2]);
+var DialogHash = _styledComponents.default.div(_templateObject6 || (_templateObject6 = (0, _taggedTemplateLiteral2.default)(["\n  color: ", ";\n  padding-top: 5px;\n"])), brandPalette[2]);
 
 var _default = ThreeCanary;
 exports.default = _default;
