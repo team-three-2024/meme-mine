@@ -30,7 +30,7 @@ const formatHash = (str) => {
   const sep = "..."
   const strLen = str.length
   const head = str.slice(0, numChars)
-  const tail = str.slice(strLen-5, strLen)
+  const tail = str.slice(strLen - 5, strLen)
   return head + sep + tail
 }
 
@@ -41,7 +41,7 @@ function Points({ objectUrl, nodesData, onNodeClick }) {
 
   // Or nodes.Scene.children[0].geometry.attributes.position
   const positions = nodes.canary.geometry.attributes.position
-  
+
   const numPositions = positions.count
   const numNodes = nodesData.length
   const randomIndexes = useMemo(() => randomN(0, numPositions, numNodes), [numPositions, numNodes])
@@ -59,10 +59,10 @@ function Points({ objectUrl, nodesData, onNodeClick }) {
           <PointDialog position={selectedPositions[selected]} dialogData={nodesData[selected]} onNodeClick={onNodeClick} />
         </group> : null
       }
-      <Instances range={selectedPositions.length} material={new THREE.MeshBasicMaterial()} geometry={new THREE.SphereGeometry( 0.1 )}>
+      <Instances range={selectedPositions.length} material={new THREE.MeshBasicMaterial()} geometry={new THREE.SphereGeometry(0.1)}>
         {
           selectedPositions.map((position, i) => (
-            <Point key={i} nodeId={i} position={position} onNodeSelected={handleSelectedNode} />
+            <Point key={i} nodeId={i} position={position} onNodeSelected={handleSelectedNode} dialogData={nodesData[selected]} onNodeClick={onNodeClick} />
           ))
         }
       </Instances>
@@ -70,7 +70,7 @@ function Points({ objectUrl, nodesData, onNodeClick }) {
   )
 }
 
-function Point({ nodeId, position, onNodeSelected }) {
+function Point({ nodeId, position, dialogData, onNodeSelected, onNodeClick }) {
   const ref = useRef()
   const [hovered, setHover] = useState(false)
   const [active] = useState(false)
@@ -89,22 +89,22 @@ function Point({ nodeId, position, onNodeSelected }) {
     if (hovered) {
       ref.current.color.lerp(color.set(hovered ? brandPalette[0] : brandPalette[1]), hovered ? 1 : 0.1)
     }
-    
+
     if (active) {
-      ref.current.scale.x = ref.current.scale.y = ref.current.scale.z += Math.sin( t ) / 4
+      ref.current.scale.x = ref.current.scale.y = ref.current.scale.z += Math.sin(t) / 4
       ref.current.color.lerp(color.set(active ? brandPalette[2] : brandPalette[1]), active ? 1 : 0.1)
     }
   })
   return (
-    <group  scale={0.4} >
+    <group scale={0.4} >
       <>
         <Instance
           ref={ref}
           /* eslint-disable-next-line */
-          onPointerOver={(e) => (e.stopPropagation(), setHover(true),  onNodeSelected(nodeId))}
+          onPointerOver={(e) => (e.stopPropagation(), setHover(true), onNodeSelected(nodeId))}
           onPointerOut={() => setHover(false)}
-          onClick={(e) => onNodeSelected(nodeId)}
-          />
+          onClick={(e) => onNodeClick(dialogData.hash)}
+        />
       </>
     </group>
   )
@@ -122,38 +122,23 @@ function PointDialog({ position, dialogData, onNodeClick }) {
 
   useFrame((state) => {
     const t = state.clock.getElapsedTime()
-    ref.current.position.copy(new THREE.Vector3(position[0]*scale, -position[2]*scale, position[1]*scale))
+    ref.current.position.copy(new THREE.Vector3(position[0] * scale, -position[2] * scale, position[1] * scale))
     ref.current.scale.x = ref.current.scale.y = ref.current.scale.z = 0.05
-    ref.current.position.y += Math.sin( t ) / 16
+    ref.current.position.y += Math.sin(t) / 16
   })
   return (
 
-      <mesh ref={ref}>
-        <meshStandardMaterial roughness={0.75} metalness={0.8} emissive={brandPalette[0]} />
-        <Html distanceFactor={2}>
-          <DialogContent>
-            { dialogData.img ?
-                <DialogImage
-                  src={ dialogData.img }
-                  alt={ dialogData.name }
-                  onClick={handleNodeClick}
-                /> : null } 
-            { dialogData.name ?
-                <DialogTitle
-                  onClick={handleNodeClick}>
-                  { dialogData.name }
-                </DialogTitle> : null }
-            { dialogData.level ?
-                <DialogLabel>
-                  { dialogData.level }
-                </DialogLabel> : null }
-            { dialogData.hash ?
-                <DialogHash>
-                  { formatHash(dialogData.hash) }
-                </DialogHash> : null }
-          </DialogContent>
-        </Html>
-      </mesh>
+    <mesh ref={ref}>
+      <meshStandardMaterial roughness={0.75} metalness={0.8} emissive={brandPalette[0]} />
+      <Html distanceFactor={2}>
+        <DialogContent>
+          {dialogData.hash ?
+            <DialogHash>
+              {dialogData.hash}
+            </DialogHash> : null}
+        </DialogContent>
+      </Html>
+    </mesh>
 
   )
 }
@@ -179,17 +164,17 @@ function Lights() {
   useFrame((state) => {
     const t = state.clock.getElapsedTime()
 
-    groupL.current.position.x = Math.sin( t  ) / 2;
-    groupL.current.position.y = Math.cos( t  ) / 2;
-    groupL.current.position.z = Math.cos( t  ) / 2;
+    groupL.current.position.x = Math.sin(t) / 2;
+    groupL.current.position.y = Math.cos(t) / 2;
+    groupL.current.position.z = Math.cos(t) / 2;
 
-    groupR.current.position.x = Math.cos( t  ) / 2;
-    groupR.current.position.y = Math.sin( t  ) / 2;
-    groupR.current.position.z = Math.sin( t  ) / 2;
+    groupR.current.position.x = Math.cos(t) / 2;
+    groupR.current.position.y = Math.sin(t) / 2;
+    groupR.current.position.z = Math.sin(t) / 2;
 
-    front.current.position.x = Math.sin( t ) / 2;
-    front.current.position.y = Math.cos( t ) / 2;
-    front.current.position.z = Math.sin( t ) / 2;
+    front.current.position.x = Math.sin(t) / 2;
+    front.current.position.y = Math.cos(t) / 2;
+    front.current.position.z = Math.sin(t) / 2;
   })
 
   return (
@@ -253,7 +238,7 @@ function Particles({ count }) {
     <>
       <instancedMesh ref={mesh} args={[null, null, count]}>
         <boxGeometry args={[1]} />
-        <pointsMaterial color={brandPalette[1]} size={0.02}  transparent={true} sizeAttenuation={false} opacity={0.3} />
+        <pointsMaterial color={brandPalette[1]} size={0.02} transparent={true} sizeAttenuation={false} opacity={0.3} />
       </instancedMesh>
     </>
   )
@@ -264,10 +249,10 @@ function ThreeCanary(props) {
 
   return (
     <Canvas shadows dpr={[1, 2]} camera={{ position: [2.3, 1, 1], fov: 50 }} performance={{ min: 0.1 }}>
-      
+
       <Lights />
       {/* <fog attach="fog" args={[brandPalette[-1], 4.5, 20]} /> */}
-      <gridHelper position={[0, -0.135, 0]} color={"#000"} args={[40,40]}/>
+      <gridHelper position={[0, -0.135, 0]} color={"#000"} args={[40, 40]} />
 
       <Suspense fallback={null}>
         <Model scale={0.1} objectUrl={props.objectUrl} />
