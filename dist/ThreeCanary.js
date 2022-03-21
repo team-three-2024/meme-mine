@@ -113,7 +113,9 @@ function Points(_ref) {
       key: i,
       nodeId: i,
       position: position,
-      onNodeSelected: handleSelectedNode
+      onNodeSelected: handleSelectedNode,
+      dialogData: nodesData[selected],
+      onNodeClick: onNodeClick
     });
   })));
 }
@@ -121,7 +123,9 @@ function Points(_ref) {
 function Point(_ref2) {
   var nodeId = _ref2.nodeId,
       position = _ref2.position,
-      onNodeSelected = _ref2.onNodeSelected;
+      dialogData = _ref2.dialogData,
+      onNodeSelected = _ref2.onNodeSelected,
+      onNodeClick = _ref2.onNodeClick;
   var ref = (0, _react.useRef)();
 
   var _useState3 = (0, _react.useState)(false),
@@ -166,7 +170,7 @@ function Point(_ref2) {
       return setHover(false);
     },
     onClick: function onClick(e) {
-      return onNodeSelected(nodeId);
+      return onNodeClick(dialogData.hash);
     }
   })));
 }
@@ -196,13 +200,7 @@ function PointDialog(_ref3) {
     emissive: brandPalette[0]
   }), /*#__PURE__*/_react.default.createElement(_drei.Html, {
     distanceFactor: 2
-  }, /*#__PURE__*/_react.default.createElement(DialogContent, null, dialogData.img ? /*#__PURE__*/_react.default.createElement(DialogImage, {
-    src: dialogData.img,
-    alt: dialogData.name,
-    onClick: handleNodeClick
-  }) : null, dialogData.name ? /*#__PURE__*/_react.default.createElement(DialogTitle, {
-    onClick: handleNodeClick
-  }, dialogData.name) : null, dialogData.level ? /*#__PURE__*/_react.default.createElement(DialogLabel, null, dialogData.level) : null, dialogData.hash ? /*#__PURE__*/_react.default.createElement(DialogHash, null, formatHash(dialogData.hash)) : null)));
+  }, /*#__PURE__*/_react.default.createElement(DialogContent, null, dialogData.hash ? /*#__PURE__*/_react.default.createElement(DialogHash, null, dialogData.hash) : null)));
 }
 
 function Model(props) {
