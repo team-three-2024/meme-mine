@@ -40,7 +40,7 @@ function Points({ objectUrl, nodesData, onNodeClick }) {
   const [selected, setSelected] = useState(0)
 
   // Or nodes.Scene.children[0].geometry.attributes.position
-  const positions = nodes.Baked_GIL_BUSTO001.geometry.attributes.position
+  const positions = nodes.Baked_GIL_BUSTO003_1.geometry.attributes.position
 
   const numPositions = positions.count
   const numNodes = nodesData.length
@@ -148,9 +148,8 @@ function Model(props) {
 
   useLayoutEffect(() => {
     // nodes.canary.position.setY(-10)
-    nodes.Baked_GIL_BUSTO001.scale.set(4, 4, 4)
     scene.traverse((obj) => obj.type === 'Mesh' && (obj.receiveShadow = obj.castShadow = true))
-    Object.assign(materials["Material.002"], { wireframe: true, metalness: 0.1, roughness: 0.8, color: new THREE.Color(brandPalette[0]) })
+    Object.assign(materials["MatWireframe"], { wireframe: true, metalness: 0.1, roughness: 0.8, color: new THREE.Color(brandPalette[0]) })
   }, [scene, nodes, materials])
 
   return <primitive object={scene} {...props} />
