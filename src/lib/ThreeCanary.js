@@ -2,7 +2,7 @@ import * as THREE from "three"
 import React, { useMemo, useRef, useState, Suspense, useLayoutEffect } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { useGLTF, Instances, Instance, OrbitControls, Html } from '@react-three/drei'
+import { useGLTF, useHelper, Instances, Instance, OrbitControls, Html } from '@react-three/drei'
 import { EffectComposer, Bloom, Glitch } from '@react-three/postprocessing'
 
 const color = new THREE.Color()
@@ -59,7 +59,8 @@ function Points({ objectUrl, nodesData, onNodeClick }) {
           <PointDialog position={selectedPositions[selected]} dialogData={nodesData[selected]} onNodeClick={onNodeClick} />
         </group> : null
       }
-      <Instances range={selectedPositions.length} material={new THREE.MeshBasicMaterial()} geometry={new THREE.SphereGeometry(0.1)}>
+      <Instances range={selectedPositions.length} material={new
+      THREE.MeshBasicMaterial()} geometry={new THREE.SphereGeometry(0.5)}>
         {
           selectedPositions.map((position, i) => (
             <Point key={i} nodeId={i} position={position} onNodeSelected={handleSelectedNode} dialogData={nodesData[selected]} onNodeClick={onNodeClick} />
@@ -78,16 +79,16 @@ function Point({ nodeId, position, dialogData, onNodeSelected, onNodeClick }) {
   useFrame((state) => {
     const t = state.clock.getElapsedTime()
     // ref.current.position.copy(new THREE.Vector3(position[0], -position[2], position[1]))
-    ref.current.position.x = position[0]
+    ref.current.position.x = -position[0]
     ref.current.position.y = -position[2]
     ref.current.position.z = position[1]
-    ref.current.scale.x = ref.current.scale.y = ref.current.scale.z = 0.1
-    ref.current.scale.x = ref.current.scale.y = ref.current.scale.z = THREE.MathUtils.lerp(ref.current.scale.z, hovered ? 6 : 1, 0.1)
-    ref.current.scale.x = ref.current.scale.y = ref.current.scale.z = THREE.MathUtils.lerp(ref.current.scale.z, active ? 5 : 1, 0.1)
-    ref.current.color.lerp(color.set(hovered || active ? brandPalette[0] : brandPalette[1]), hovered || active ? 1 : 0.1)
+    ref.current.scale.x = ref.current.scale.y = ref.current.scale.z = 0.3
+    //ref.current.scale.x = ref.current.scale.y = ref.current.scale.z = THREE.MathUtils.lerp(ref.current.scale.z, hovered ? 6 : 1, 0.1)
+    //ref.current.scale.x = ref.current.scale.y = ref.current.scale.z = THREE.MathUtils.lerp(ref.current.scale.z, active ? 5 : 1, 0.1)
+    ref.current.color.lerp(color.set(hovered || active ? brandPalette[1] : brandPalette[0]), hovered || active ? 1 : 0.1)
 
     if (hovered) {
-      ref.current.color.lerp(color.set(hovered ? brandPalette[0] : brandPalette[1]), hovered ? 1 : 0.1)
+      ref.current.color.lerp(color.set(hovered ? brandPalette[1] : brandPalette[0]), hovered ? 1 : 0.1)
     }
 
     if (active) {
@@ -96,7 +97,7 @@ function Point({ nodeId, position, dialogData, onNodeSelected, onNodeClick }) {
     }
   })
   return (
-    <group scale={0.4} >
+    <group scale={0.1} >
       <>
         <Instance
           ref={ref}
@@ -149,7 +150,15 @@ function Model(props) {
   useLayoutEffect(() => {
     // nodes.canary.position.setY(-10)
     scene.traverse((obj) => obj.type === 'Mesh' && (obj.receiveShadow = obj.castShadow = true))
-    Object.assign(materials["MatWireframe"], { wireframe: true, metalness: 0.1, roughness: 0.8, color: new THREE.Color(brandPalette[0]) })
+    
+    Object.assign(materials["MatWireframe"], {
+      wireframe: true,
+      metalness: 0.8,
+      roughness: 0.2,
+
+      color: new THREE.Color(brandPalette[3])
+    })
+    
   }, [scene, nodes, materials])
 
   return <primitive object={scene} {...props} />
@@ -159,33 +168,43 @@ function Lights() {
   const groupL = useRef()
   const groupR = useRef()
   const front = useRef()
+  const lightL = useRef()
+  const lightR = useRef()
+  const lightF = useRef()
 
   useFrame((state) => {
     const t = state.clock.getElapsedTime()
 
-    groupL.current.position.x = Math.sin(t) / 2;
-    groupL.current.position.y = Math.cos(t) / 2;
-    groupL.current.position.z = Math.cos(t) / 2;
+    groupL.current.position.x = Math.sin(t) / 4 * 15;
+    groupL.current.position.y = Math.cos(t) / 4 * 15;
+    groupL.current.position.z = Math.cos(t) / 4 * 15;
 
-    groupR.current.position.x = Math.cos(t) / 2;
-    groupR.current.position.y = Math.sin(t) / 2;
-    groupR.current.position.z = Math.sin(t) / 2;
+    groupR.current.position.x = Math.cos(t) / 4 * 10;
+    groupR.current.position.y = Math.sin(t) / 4 * 10;
+    groupR.current.position.z = Math.sin(t) / 4 * 10;
 
-    front.current.position.x = Math.sin(t) / 2;
-    front.current.position.y = Math.cos(t) / 2;
-    front.current.position.z = Math.sin(t) / 2;
+    front.current.position.x = Math.sin(t) / 4 * 10;
+    front.current.position.y = Math.cos(t) / 4 * 10;
+    front.current.position.z = Math.sin(t) / 4 * 10;
   })
+
+  //useHelper(lightL, THREE.PointLightHelper)
+  //useHelper(lightR, THREE.PointLightHelper)
+  //useHelper(lightF, THREE.PointLightHelper)
 
   return (
     <>
       <group ref={groupL}>
-        <pointLight color={brandPalette[0]} position={[15, 0, 0]} distance={15} intensity={10} />
+        <pointLight ref={lightL} color={brandPalette[0]} position={[0, 5, 0]}
+        distance={15} intensity={5} />
       </group>
       <group ref={groupR}>
-        <pointLight color={brandPalette[1]} position={[-15, 0, 0]} distance={15} intensity={10} />
+        <pointLight ref={lightR} color={brandPalette[1]} position={[0, 5, 0]}
+        distance={15} intensity={5} />
       </group>
       <group ref={front}>
-        <pointLight color={brandPalette[2]} position={[0, 15, 0]} distance={15} intensity={10} />
+        <pointLight ref={lightF} color={brandPalette[2]} position={[0, 5, 0]}
+        distance={15} intensity={5} />
       </group>
     </>
   )
@@ -200,11 +219,11 @@ function Particles({ count }) {
     const temp = []
     for (let i = 0; i < count; i++) {
       const t = Math.random() * 100
-      const factor = 20 + Math.random() * 100
+      const factor = 20 + Math.random() * 10
       const speed = 0.01 + Math.random() / 200
-      const xFactor = -50 + Math.random() * 100
-      const yFactor = -50 + Math.random() * 100
-      const zFactor = -50 + Math.random() * 100
+      const xFactor = -5 + Math.random() * 10
+      const yFactor = -5 + Math.random() * 10
+      const zFactor = -5 + Math.random() * 10
       temp.push({ t, factor, speed, xFactor, yFactor, zFactor, mx: 0, my: 0 })
     }
     return temp
@@ -218,7 +237,7 @@ function Particles({ count }) {
       t = particle.t += speed / 4
       const a = Math.cos(t) + Math.sin(t * 1) / 10
       const b = Math.sin(t) + Math.cos(t * 2) / 10
-      const s = Math.cos(t) / 2
+      const s = Math.cos(t) / 4
 
       dummy.position.set(
         (particle.mx / 10) * a + xFactor + Math.cos((t / 10) * factor) + (Math.sin(t * 1) * factor) / 10,
@@ -237,7 +256,7 @@ function Particles({ count }) {
     <>
       <instancedMesh ref={mesh} args={[null, null, count]}>
         <boxGeometry args={[1]} />
-        <pointsMaterial color={brandPalette[1]} size={0.02} transparent={true} sizeAttenuation={false} opacity={0.3} />
+        <pointsMaterial color={brandPalette[1]} size={0.5} transparent={true} sizeAttenuation={false} opacity={0.3} />
       </instancedMesh>
     </>
   )
@@ -247,19 +266,20 @@ function ThreeCanary(props) {
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 
   return (
-    <Canvas shadows dpr={[1, 2]} camera={{ position: [2.3, 1, 1], fov: 50 }} performance={{ min: 0.1 }}>
+    <Canvas shadows dpr={[1, 2]} camera={{ position: [-1, 2.5, 4], fov: 50 }} performance={{ min: 0.1 }}>
 
       <Lights />
       {/* <fog attach="fog" args={[brandPalette[-1], 4.5, 20]} /> */}
-      <gridHelper position={[0, -0.135, 0]} color={"#000"} args={[40, 40]} />
+      <gridHelper position={[0, -0.4, 0]} color={"#000"} args={[40, 40]} />
 
       <Suspense fallback={null}>
-        <Model scale={0.1} objectUrl={props.objectUrl} />
+        <Model scale={0.2} objectUrl={props.objectUrl} />
         <Points objectUrl={props.objectUrl} nodesData={props.nodes} onNodeClick={props.onNodeClick} />
         <Particles count={isMobile ? 50 : 200} />
 
         <EffectComposer multisampling={16}>
-          <Bloom kernelSize={2} luminanceThreshold={0.01} luminanceSmoothing={0.05} intensity={0.1} />
+          <Bloom kernelSize={2} luminanceThreshold={0.1}
+          luminanceSmoothing={0.05} intensity={.5} />
           <Glitch delay={[20, 30]} />
         </EffectComposer>
       </Suspense>
