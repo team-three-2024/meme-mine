@@ -13,37 +13,49 @@ const _defaultCanaryConfig = {
     "nodeGroupScale": 0.4,
     "meshColorIndex": 0,
     "meshScale": 4,
-    "modelMaterial": "Default OBJ",
-    "modelScale": 0.1,
+    "model": {
+      "material": "Default OBJ",
+      "scale": 0.1,
+      "metalness": 0.2,
+      "roughness": 2,
+      "opacity": 1,
+      "color": 0
+    },
     "gridPosition": [0, -0.135, 0],
     "cameraPosition": [2.3, 1, 1],
     "pointColorIndex": {
-      "primary": 1,
-      "secondary": 3
+      "primary": 3,
+      "secondary": 1
     },
     "pointLight": {
-      "position": [15, 5, 0],
-      "intensity": 15,
-      "distance": 10
+      "position": [0, 0, 0],
+      "intensity": [2, 2, 2],
+      "distance": 15
     }
   },
   "gil": {
     "nodeCoords": "Baked_GIL_BUSTO003_1.geometry.attributes.position",
     "nodeSigns": [-1, 1, -1],
-    "nodeScale": 0.5,
+    "nodeScale": 1.5,
     "nodeGroupScale": 0.1,
     "meshColorIndex": 3,
-    "modelMaterial": "MatWireframe",
-    "modelScale": 0.2,
+    "model": {
+      "material": "MatWireframe",
+      "scale": 0.2,
+      "metalness": 0.1,
+      "roughness": 0.1,
+      "opacity": 0.1,
+      "color": 3
+    },
     "gridPosition": [0, -0, 4, 0],
     "cameraPosition": [-1, 2.5, 4],
     "pointColorIndex": {
-      "primary": 0,
-      "secondary": 2
+      "primary": 2,
+      "secondary": 0
     },
     "pointLight": {
       "position": [0, 5, 0],
-      "intensity": 1,
+      "intensity": [2, 15, 15],
       "distance": 15
     },
   },
@@ -219,11 +231,12 @@ const Model = (props) => {
       obj.type === 'Mesh' && (obj.receiveShadow = obj.castShadow = true)
     })
     // 0.8 0.2
-    Object.assign(materials[props.modelMaterial], {
+    Object.assign(materials[props.model.material], {
       wireframe: true,
-      metalness: 0.1,
-      roughness: 0.8,
-      color: new THREE.Color(brandPalette[props.meshColorIndex])
+      metalness: props.model.metalness,
+      roughness: props.model.moughness,
+      opacity: props.model.opacity,
+      color: new THREE.Color(brandPalette[props.model.color])
     })
 
   }, [scene, nodes, materials])
@@ -269,7 +282,7 @@ const Lights = ({ config }) => {
           color={brandPalette[0]}
           position={config.pointLight.position}
           distance={config.pointLight.distance}
-          intensity={config.pointLight.instensity}
+          intensity={config.pointLight.intensity[0]}
         />
       </group>
       <group ref={groupR}>
@@ -278,7 +291,7 @@ const Lights = ({ config }) => {
           color={brandPalette[1]}
           position={config.pointLight.position}
           distance={config.pointLight.distance}
-          intensity={config.pointLight.instensity}
+          intensity={config.pointLight.intensity[1]}
         />
       </group>
       <group ref={front}>
@@ -287,7 +300,7 @@ const Lights = ({ config }) => {
           color={brandPalette[2]}
           position={config.pointLight.position}
           distance={config.pointLight.distance}
-          intensity={config.pointLight.intensity}
+          intensity={config.pointLight.intensity[2]}
         />
       </group>
     </>
@@ -374,11 +387,11 @@ const ThreeCanary = (props) => {
 
       <Suspense fallback={null}>
         <Model
-          scale={config.modelScale}
+          scale={config.model.scale}
           objectUrl={props.objectUrl}
           meshColorIndex={config.meshColorIndex}
           meshScale={config.meshScale}
-          modelMaterial={config.modelMaterial}
+          model={config.model}
         />
         <Points
           objectUrl={props.objectUrl}
@@ -395,7 +408,7 @@ const ThreeCanary = (props) => {
             kernelSize={2}
             luminanceThreshold={0.1}
             luminanceSmoothing={0.05}
-            intensity={.5}
+            intensity={1}
           />
           <Glitch delay={[20, 30]} />
         </EffectComposer>
