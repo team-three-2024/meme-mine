@@ -13,7 +13,7 @@ const localCanaryConfig = {
   "meshColorIndex": 3,
   "modelMaterial": "MatWireframe",
   "modelScale": 0.2,
-  "gridPosition": [0, -0,4, 0],
+  "gridPosition": [0, -0, 4, 0],
   "cameraPosition": [-1, 2.5, 4]
 }
 
@@ -26,9 +26,9 @@ const choose = (choices) => {
 
 const nodesDataFactory = (n) => {
   let data = []
-  for (let i=0; i<n; i+=1) {
+  for (let i = 0; i < n; i += 1) {
     data.push({
-      "id": Math.floor(Math.random()*100),
+      "id": Math.floor(Math.random() * 100),
       "name": choose([
         "Arthur C. Clarke",
         "Douglas Adams",
@@ -53,7 +53,7 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      nodesData: nodesDataFactory(500),
+      nodesData: nodesDataFactory(150),
       nodeSelected: null
     }
   }
@@ -61,35 +61,36 @@ class App extends React.Component {
   render() {
 
     return (
-        <>
-          <div
-            className={ "App" }
-            style={ {
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              height: "100%"
-            } }
-          >
-            <ThreeCanary
-              objectUrl={ "/assets/gil.glb" }
-              nodes={ this.state.nodesData }
-              onNodeClick={ (nodeId) => {
-                console.log("onNodeClick", nodeId)}
-              }
-              config={ defaultCanaryConfig["gil"] }
-            />
+      <>
+        <div
+          className={"App"}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            height: "100%"
+          }}
+        >
+          <ThreeCanary
+            objectUrl={"/assets/gil.glb"}
+            nodes={this.state.nodesData}
+            onNodeClick={(nodeId) => {
+              console.log("onNodeClick", nodeId)
+            }
+            }
+            config={defaultCanaryConfig["gil"]}
+          />
 
-            <div
-              className={ "Info" }
-              style={ {
-                padding: 10,
-                color: this.state.nodeSelected ?
-                  this.state.nodeSelected.color : "#ffffff"
-              } }
-            >
-            { this.state.nodeSelected ?
-                this.state.nodeSelected.name : ""}
+          <div
+            className={"Info"}
+            style={{
+              padding: 10,
+              color: this.state.nodeSelected ?
+                this.state.nodeSelected.color : "#ffffff"
+            }}
+          >
+            {this.state.nodeSelected ?
+              this.state.nodeSelected.name : ""}
           </div>
         </div>
       </>

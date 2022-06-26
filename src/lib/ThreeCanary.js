@@ -16,7 +16,16 @@ const _defaultCanaryConfig = {
     "modelMaterial": "Default OBJ",
     "modelScale": 0.1,
     "gridPosition": [0, -0.135, 0],
-    "cameraPosition": [2.3, 1, 1]
+    "cameraPosition": [2.3, 1, 1],
+    "pointColorIndex": {
+      "primary": 1,
+      "secondary": 3
+    },
+    "pointLight": {
+      "position": [15, 5, 0],
+      "intensity": 15,
+      "distance": 10
+    }
   },
   "gil": {
     "nodeCoords": "Baked_GIL_BUSTO003_1.geometry.attributes.position",
@@ -26,13 +35,23 @@ const _defaultCanaryConfig = {
     "meshColorIndex": 3,
     "modelMaterial": "MatWireframe",
     "modelScale": 0.2,
-    "gridPosition": [0, -0,4, 0],
-    "cameraPosition": [-1, 2.5, 4]
-  }
+    "gridPosition": [0, -0, 4, 0],
+    "cameraPosition": [-1, 2.5, 4],
+    "pointColorIndex": {
+      "primary": 0,
+      "secondary": 2
+    },
+    "pointLight": {
+      "position": [0, 5, 0],
+      "intensity": 1,
+      "distance": 15
+    },
+  },
 }
 
 const color = new THREE.Color()
 
+// ciano, magenta, white, black
 const brandPalette = ["#01ffff", "#e6007a", "#ffffff", "#000000"];
 
 // Generate a random integer between min and max
@@ -50,7 +69,7 @@ const randomN = (min, max, n) => {
   return numbers;
 }
 
-const resolve = (path, obj, separator='.') => {
+const resolve = (path, obj, separator = '.') => {
   let properties = Array.isArray(path) ? path : path.split(separator)
   return properties.reduce((prev, curr) => prev && prev[curr], obj)
 }
@@ -80,27 +99,27 @@ const Points = ({ objectUrl, nodesData, onNodeClick, config }) => {
       {selected ?
         <group scale={config.nodeGroupScale}>
           <PointDialog
-            position={ selectedPositions[selected] }
-            dialogData={ nodesData[selected] }
-            onNodeClick={ onNodeClick }
-            config={ config }
+            position={selectedPositions[selected]}
+            dialogData={nodesData[selected]}
+            onNodeClick={onNodeClick}
+            config={config}
           />
         </group> : null
       }
       <Instances
-        range={ selectedPositions.length }
-        material={ new THREE.MeshBasicMaterial() }
-        geometry={ new THREE.SphereGeometry(0.1) }>
+        range={selectedPositions.length}
+        material={new THREE.MeshBasicMaterial()}
+        geometry={new THREE.SphereGeometry(0.1)}>
         {
           selectedPositions.map((position, i) => (
             <Point
-              key={ i }
-              nodeId={ i }
-              position={ position }
-              onNodeSelected={ handleSelectedNode }
-              dialogData={ nodesData[selected] }
-              onNodeClick={ onNodeClick }
-              config={ config }
+              key={i}
+              nodeId={i}
+              position={position}
+              onNodeSelected={handleSelectedNode}
+              dialogData={nodesData[selected]}
+              onNodeClick={onNodeClick}
+              config={config}
             />
           ))
         }
@@ -126,7 +145,7 @@ const Point = ({ nodeId, position, dialogData, onNodeSelected, onNodeClick, conf
     ref.current.scale.x = ref.current.scale.y = ref.current.scale.z =
       THREE.MathUtils.lerp(ref.current.scale.z, active ? 5 : 1, defaultScale)
     ref.current.color.lerp(
-      color.set(hovered || active ? brandPalette[1] : brandPalette[0]),
+      color.set(hovered || active ? brandPalette[config.pointColorIndex.primary] : brandPalette[config.pointColorIndex.secondary]),
       hovered || active ? 1 : defaultScale)
 
     if (hovered) {
@@ -141,14 +160,14 @@ const Point = ({ nodeId, position, dialogData, onNodeSelected, onNodeClick, conf
     }
   })
   return (
-    <group scale={ config.nodeGroupScale } >
+    <group scale={config.nodeGroupScale} >
       <>
         <Instance
-          ref={ ref }
+          ref={ref}
           /* eslint-disable-next-line */
-          onPointerOver={ (e) => ( e.stopPropagation(), setHover(true), onNodeSelected(nodeId)) }
-          onPointerOut={ () => setHover(false) }
-          onClick={ (e) => onNodeClick(dialogData.hash) }
+          onPointerOver={(e) => (e.stopPropagation(), setHover(true), onNodeSelected(nodeId))}
+          onPointerOut={() => setHover(false)}
+          onClick={(e) => onNodeClick(dialogData.hash)}
         />
       </>
     </group>
@@ -172,14 +191,14 @@ const PointDialog = ({ position, dialogData, onNodeClick, config }) => {
   })
   return (
 
-    <mesh ref={ ref }>
-      <meshStandardMaterial roughness={ 0.75 } metalness={ 0.8 } emissive={ brandPalette[0] } />
-      <Html distanceFactor={ 2 }>
+    <mesh ref={ref}>
+      <meshStandardMaterial roughness={0.75} metalness={0.8} emissive={brandPalette[0]} />
+      <Html distanceFactor={2}>
         <DialogContent>
-          { dialogData.hash ?
+          {dialogData.hash ?
             <DialogHash>
-              { dialogData.hash }
-            </DialogHash> : null }
+              {dialogData.hash}
+            </DialogHash> : null}
         </DialogContent>
       </Html>
     </mesh>
@@ -212,7 +231,7 @@ const Model = (props) => {
   return <primitive object={scene} {...props} />
 }
 
-const Lights = (debug) => {
+const Lights = ({ config }) => {
   const groupL = useRef()
   const groupR = useRef()
   const front = useRef()
@@ -236,7 +255,7 @@ const Lights = (debug) => {
     front.current.position.z = Math.sin(t) / 4 * 10
   })
 
-  if (debug === true) {
+  if (config.debug === true) {
     useHelper(lightL, THREE.PointLightHelper)
     useHelper(lightR, THREE.PointLightHelper)
     useHelper(lightF, THREE.PointLightHelper)
@@ -244,31 +263,31 @@ const Lights = (debug) => {
 
   return (
     <>
-      <group ref={ groupL }>
+      <group ref={groupL}>
         <pointLight
-          ref={ lightL }
-          color={ brandPalette[0] }
-          position={ [0, 5, 0] }
-          distance={ 15 }
-          intensity={ 5 }
+          ref={lightL}
+          color={brandPalette[0]}
+          position={config.pointLight.position}
+          distance={config.pointLight.distance}
+          intensity={config.pointLight.instensity}
         />
       </group>
-      <group ref={ groupR }>
+      <group ref={groupR}>
         <pointLight
-          ref={ lightR }
-          color={ brandPalette[1] }
-          position={ [0, 5, 0] }
-          distance={ 15 }
-          intensity={ 5 }
+          ref={lightR}
+          color={brandPalette[1]}
+          position={config.pointLight.position}
+          distance={config.pointLight.distance}
+          intensity={config.pointLight.instensity}
         />
       </group>
-      <group ref={ front }>
+      <group ref={front}>
         <pointLight
-          ref={ lightF }
-          color={ brandPalette[2] }
-          position={ [0, 5, 0] }
-          distance={ 15 }
-          intensity={ 5 }
+          ref={lightF}
+          color={brandPalette[2]}
+          position={config.pointLight.position}
+          distance={config.pointLight.distance}
+          intensity={config.pointLight.intensity}
         />
       </group>
     </>
@@ -319,14 +338,14 @@ const Particles = ({ count }) => {
   })
   return (
     <>
-      <instancedMesh ref={ mesh } args={ [null, null, count] }>
-        <boxGeometry args={ [1] } />
+      <instancedMesh ref={mesh} args={[null, null, count]}>
+        <boxGeometry args={[1]} />
         <pointsMaterial
-          color={ brandPalette[1] }
-          size={ 0.02 }
-          transparent={ true }
-          sizeAttenuation={ false }
-          opacity={ 0.3 }
+          color={brandPalette[1]}
+          size={0.02}
+          transparent={true}
+          sizeAttenuation={false}
+          opacity={0.3}
         />
       </instancedMesh>
     </>
@@ -341,50 +360,50 @@ const ThreeCanary = (props) => {
   return (
     <Canvas
       shadows
-      dpr={ [1, 2] }
-      camera={ { position: config.cameraPosition, fov: 50 } }
-      performance={ { min: 0.1 } }>
+      dpr={[1, 2]}
+      camera={{ position: config.cameraPosition, fov: 50 }}
+      performance={{ min: 0.1 }}>
 
-      <Lights debug={ config.debug } />
+      <Lights config={config} />
       {/* <fog attach="fog" args={[brandPalette[-1], 4.5, 20]} /> */}
       <gridHelper
-        position={ config.gridPosition }
+        position={config.gridPosition}
         color={"#000"}
         args={[40, 40]}
       />
 
       <Suspense fallback={null}>
         <Model
-          scale={ config.modelScale }
-          objectUrl={ props.objectUrl }
-          meshColorIndex={ config.meshColorIndex }
-          meshScale={ config.meshScale }
-          modelMaterial={ config.modelMaterial }
+          scale={config.modelScale}
+          objectUrl={props.objectUrl}
+          meshColorIndex={config.meshColorIndex}
+          meshScale={config.meshScale}
+          modelMaterial={config.modelMaterial}
         />
         <Points
-          objectUrl={ props.objectUrl }
-          nodesData={ props.nodes }
-          onNodeClick={ props.onNodeClick }
-          config={ config }
+          objectUrl={props.objectUrl}
+          nodesData={props.nodes}
+          onNodeClick={props.onNodeClick}
+          config={config}
         />
         <Particles
-          count={ isMobile ? 50 : 200}
+          count={isMobile ? 50 : 200}
         />
 
-        <EffectComposer multisampling={ 16 }>
+        <EffectComposer multisampling={16}>
           <Bloom
-            kernelSize={ 2 }
-            luminanceThreshold={ 0.1 }
-            luminanceSmoothing={ 0.05 }
-            intensity={ .5 }
+            kernelSize={2}
+            luminanceThreshold={0.1}
+            luminanceSmoothing={0.05}
+            intensity={.5}
           />
-          <Glitch delay={ [20, 30] } />
+          <Glitch delay={[20, 30]} />
         </EffectComposer>
       </Suspense>
 
       <OrbitControls
-        minPolarAngle={ Math.PI / 2.8 }
-        maxPolarAngle={ Math.PI / 1.8 }
+        minPolarAngle={Math.PI / 2.8}
+        maxPolarAngle={Math.PI / 1.8}
       />
     </Canvas>
   )
