@@ -31,6 +31,12 @@ const _defaultCanaryConfig = {
       "position": [0, 0, 0],
       "intensity": [2, 2, 2],
       "distance": 15
+    },
+    "bloom": {
+      "kernelSize": 1,
+      "luminanceThreshold": 0.1,
+      "luminanceSmoothing": 0.05,
+      "intensity": 0.1
     }
   },
   "gil": {
@@ -58,6 +64,12 @@ const _defaultCanaryConfig = {
       "intensity": [2, 15, 15],
       "distance": 15
     },
+    "bloom": {
+      "kernelSize": 1,
+      "luminanceThreshold": 0.1,
+      "luminanceSmoothing": 0.05,
+      "intensity": 0.1
+    }
   },
 }
 
@@ -334,7 +346,7 @@ const Particles = ({ count }) => {
       t = particle.t += speed / 4
       const a = Math.cos(t) + Math.sin(t * 1) / 10
       const b = Math.sin(t) + Math.cos(t * 2) / 10
-      const s = Math.cos(t) / 4
+      const s = Math.cos(t) / 6
 
       dummy.position.set(
         (particle.mx / 10) * a + xFactor + Math.cos((t / 10) * factor) + (Math.sin(t * 1) * factor) / 10,
@@ -405,10 +417,10 @@ const ThreeCanary = (props) => {
 
         <EffectComposer multisampling={16}>
           <Bloom
-            kernelSize={2}
-            luminanceThreshold={0.1}
-            luminanceSmoothing={0.05}
-            intensity={1}
+            kernelSize={config.bloom.kernelSize}
+            luminanceThreshold={config.bloom.luminanceThreshold}
+            luminanceSmoothing={config.bloom.luminanceSmoothing}
+            intensity={config.bloom.intensity}
           />
           <Glitch delay={[20, 30]} />
         </EffectComposer>
