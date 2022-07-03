@@ -72,7 +72,7 @@ class App extends React.Component {
           }}
         >
           <ThreeCanary
-            objectUrl={"/assets/gil.glb"}
+            objectUrl={defaultCanaryConfig["gil"].objectUrl}
             nodes={this.state.nodesData}
             onNodeClick={(nodeId) => {
               console.log("onNodeClick", nodeId)

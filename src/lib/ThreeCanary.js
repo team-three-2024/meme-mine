@@ -7,6 +7,7 @@ import { EffectComposer, Bloom, Glitch } from '@react-three/postprocessing'
 
 const _defaultCanaryConfig = {
   "canary": {
+    "objectUrl": "/assets/canary.glb",
     "nodeCoords": "canary.geometry.attributes.position",
     "nodeSigns": [1, 1, -1],
     "nodeScale": 0.1,
@@ -40,6 +41,7 @@ const _defaultCanaryConfig = {
     }
   },
   "gil": {
+    "objectUrl": "/assets/gil.glb",
     "nodeCoords": "Baked_GIL_BUSTO003_1.geometry.attributes.position",
     "nodeSigns": [-1, 1, -1],
     "nodeScale": 1.5,
@@ -68,7 +70,7 @@ const _defaultCanaryConfig = {
       "kernelSize": 1,
       "luminanceThreshold": 0.1,
       "luminanceSmoothing": 0.05,
-      "intensity": 0.1
+      "intensity": 0.5
     }
   },
 }
@@ -100,7 +102,7 @@ const resolve = (path, obj, separator = '.') => {
 
 const Points = ({ objectUrl, nodesData, onNodeClick, config }) => {
   // Note: useGLTF caches it already
-  const { nodes } = useGLTF(objectUrl)
+  const { nodes } = useGLTF(objectUrl ? objectUrl : config.objectUrl)
   const [selected, setSelected] = useState(0)
 
   // Or nodes.Scene.children[0].geometry.attributes.position
