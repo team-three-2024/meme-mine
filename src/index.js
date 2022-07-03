@@ -1,6 +1,6 @@
 import React from "react"
 import ReactDOM from "react-dom"
-import ThreeCanary, { defaultCanaryConfig } from "./lib/ThreeCanary"
+import { ThreeCanary, defaultCanaryConfig } from "./lib/ThreeCanary"
 
 import "./styles.css"
 

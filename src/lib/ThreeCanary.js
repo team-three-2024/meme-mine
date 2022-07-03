@@ -5,7 +5,7 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import { useGLTF, useHelper, Instances, Instance, OrbitControls, Html } from '@react-three/drei'
 import { EffectComposer, Bloom, Glitch } from '@react-three/postprocessing'
 
-const _defaultCanaryConfig = {
+const defaultCanaryConfig = {
   "canary": {
     "objectUrl": "/assets/canary.glb",
     "nodeCoords": "canary.geometry.attributes.position",
@@ -382,7 +382,7 @@ const Particles = ({ count }) => {
 const ThreeCanary = (props) => {
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 
-  const config = props.config ? props.config : _defaultCanaryConfig["canary"]
+  const config = props.config ? props.config : defaultCanaryConfig["canary"]
 
   return (
     <Canvas
@@ -467,5 +467,4 @@ const DialogHash = styled.div`
   padding-top: 5px;
 `
 
-export default ThreeCanary
-export const defaultCanaryConfig = _defaultCanaryConfig
+export { ThreeCanary, defaultCanaryConfig }

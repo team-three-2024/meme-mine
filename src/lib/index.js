@@ -1,4 +1,3 @@
-import ThreeCanary, { defaultCanaryConfig } from "./ThreeCanary";
+import { ThreeCanary, defaultCanaryConfig } from "./ThreeCanary";
 
-export default ThreeCanary;
-export const defaultCanaryConfig = defaultCanaryConfig;
+export { ThreeCanary, defaultCanaryConfig };
