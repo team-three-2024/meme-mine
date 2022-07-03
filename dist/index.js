@@ -1,13 +1,19 @@
 "use strict";
 
-var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = void 0;
+Object.defineProperty(exports, "ThreeCanary", {
+  enumerable: true,
+  get: function get() {
+    return _ThreeCanary.ThreeCanary;
+  }
+});
+Object.defineProperty(exports, "defaultCanaryConfig", {
+  enumerable: true,
+  get: function get() {
+    return _ThreeCanary.defaultCanaryConfig;
+  }
+});
 
-var _ThreeCanary = _interopRequireDefault(require("./ThreeCanary"));
-
-var _default = _ThreeCanary.default;
-exports.default = _default;
+var _ThreeCanary = require("./ThreeCanary");

@@ -7,7 +7,7 @@ var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefau
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.defaultCanaryConfig = exports.default = void 0;
+exports.defaultCanaryConfig = exports.ThreeCanary = void 0;
 
 var _taggedTemplateLiteral2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/taggedTemplateLiteral"));
 
@@ -41,8 +41,9 @@ function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "functio
 
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-var _defaultCanaryConfig = {
+var defaultCanaryConfig = {
   "canary": {
+    "objectUrl": "/assets/canary.glb",
     "nodeCoords": "canary.geometry.attributes.position",
     "nodeSigns": [1, 1, -1],
     "nodeScale": 0.1,
@@ -67,9 +68,16 @@ var _defaultCanaryConfig = {
       "position": [0, 0, 0],
       "intensity": [2, 2, 2],
       "distance": 15
+    },
+    "bloom": {
+      "kernelSize": 1,
+      "luminanceThreshold": 0.1,
+      "luminanceSmoothing": 0.05,
+      "intensity": 0.1
     }
   },
   "gil": {
+    "objectUrl": "/assets/gil.glb",
     "nodeCoords": "Baked_GIL_BUSTO003_1.geometry.attributes.position",
     "nodeSigns": [-1, 1, -1],
     "nodeScale": 1.5,
@@ -93,9 +101,16 @@ var _defaultCanaryConfig = {
       "position": [0, 5, 0],
       "intensity": [2, 15, 15],
       "distance": 15
+    },
+    "bloom": {
+      "kernelSize": 1,
+      "luminanceThreshold": 0.1,
+      "luminanceSmoothing": 0.05,
+      "intensity": 0.5
     }
   }
 };
+exports.defaultCanaryConfig = defaultCanaryConfig;
 var color = new THREE.Color(); // ciano, magenta, white, black
 
 var brandPalette = ["#01ffff", "#e6007a", "#ffffff", "#000000"]; // Generate a random integer between min and max
@@ -134,7 +149,7 @@ var Points = function Points(_ref) {
       config = _ref.config;
 
   // Note: useGLTF caches it already
-  var _useGLTF = (0, _drei.useGLTF)(objectUrl),
+  var _useGLTF = (0, _drei.useGLTF)(objectUrl ? objectUrl : config.objectUrl),
       nodes = _useGLTF.nodes;
 
   var _useState = (0, _react.useState)(0),
@@ -387,7 +402,7 @@ var Particles = function Particles(_ref5) {
       t = particle.t += speed / 4;
       var a = Math.cos(t) + Math.sin(t * 1) / 10;
       var b = Math.sin(t) + Math.cos(t * 2) / 10;
-      var s = Math.cos(t) / 4;
+      var s = Math.cos(t) / 6;
       dummy.position.set(particle.mx / 10 * a + xFactor + Math.cos(t / 10 * factor) + Math.sin(t * 1) * factor / 10, particle.my / 10 * b + yFactor + Math.sin(t / 10 * factor) + Math.cos(t * 2) * factor / 10, particle.my / 10 * b + zFactor + Math.cos(t / 10 * factor) + Math.sin(t * 3) * factor / 10);
       dummy.scale.set(s, s, s);
       dummy.rotation.set(s * 5, s * 5, s * 5);
@@ -412,7 +427,7 @@ var Particles = function Particles(_ref5) {
 
 var ThreeCanary = function ThreeCanary(props) {
   var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  var config = props.config ? props.config : _defaultCanaryConfig["canary"];
+  var config = props.config ? props.config : defaultCanaryConfig["canary"];
   return /*#__PURE__*/_react.default.createElement(_fiber.Canvas, {
     shadows: true,
     dpr: [1, 2],
@@ -447,10 +462,10 @@ var ThreeCanary = function ThreeCanary(props) {
   }), /*#__PURE__*/_react.default.createElement(_postprocessing.EffectComposer, {
     multisampling: 16
   }, /*#__PURE__*/_react.default.createElement(_postprocessing.Bloom, {
-    kernelSize: 2,
-    luminanceThreshold: 0.1,
-    luminanceSmoothing: 0.05,
-    intensity: 1
+    kernelSize: config.bloom.kernelSize,
+    luminanceThreshold: config.bloom.luminanceThreshold,
+    luminanceSmoothing: config.bloom.luminanceSmoothing,
+    intensity: config.bloom.intensity
   }), /*#__PURE__*/_react.default.createElement(_postprocessing.Glitch, {
     delay: [20, 30]
   }))), /*#__PURE__*/_react.default.createElement(_drei.OrbitControls, {
@@ -460,13 +475,9 @@ var ThreeCanary = function ThreeCanary(props) {
 }; // Styling
 
 
+exports.ThreeCanary = ThreeCanary;
 var fadeIn = (0, _styledComponents.keyframes)(_templateObject || (_templateObject = (0, _taggedTemplateLiteral2.default)(["\n  0% {\n    opacity: 0;\n  }\n  100% {\n    opacity: 0.9;\n  }\n"])));
 
 var DialogContent = _styledComponents.default.div(_templateObject2 || (_templateObject2 = (0, _taggedTemplateLiteral2.default)(["\n  animation: ", " ease-in-out 0.5s;\n  animation-iteration-count: 1;\n  animation-fill-mode: forwards;\n\n  text-align: left;\n  background: ", ";\n\n  color: white;\n  padding: 10px 20px;\n  border-radius: 5px;\n\n  font-family: monospace;\n"])), fadeIn, brandPalette[1]);
 
 var DialogHash = _styledComponents.default.div(_templateObject3 || (_templateObject3 = (0, _taggedTemplateLiteral2.default)(["\n  color: ", ";\n  padding-top: 5px;\n"])), brandPalette[2]);
-
-var _default = ThreeCanary;
-exports.default = _default;
-var defaultCanaryConfig = _defaultCanaryConfig;
-exports.defaultCanaryConfig = defaultCanaryConfig;
