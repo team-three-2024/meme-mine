@@ -1,3 +1,3 @@
-import { ThreeCanary, defaultCanaryConfig } from "./ThreeCanary";
+import { ThreeCanary, defaultConfig } from "./ThreeCanary";
 
-export { ThreeCanary, defaultCanaryConfig };
+export { ThreeCanary, defaultConfig };

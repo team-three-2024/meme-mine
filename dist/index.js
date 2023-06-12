@@ -9,10 +9,10 @@ Object.defineProperty(exports, "ThreeCanary", {
     return _ThreeCanary.ThreeCanary;
   }
 });
-Object.defineProperty(exports, "defaultCanaryConfig", {
+Object.defineProperty(exports, "defaultConfig", {
   enumerable: true,
   get: function get() {
-    return _ThreeCanary.defaultCanaryConfig;
+    return _ThreeCanary.defaultConfig;
   }
 });
 

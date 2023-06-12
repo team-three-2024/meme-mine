@@ -4,81 +4,22 @@ import styled, { keyframes } from 'styled-components'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { useGLTF, useHelper, Instances, Instance, OrbitControls, Html } from '@react-three/drei'
 import { EffectComposer, Bloom, Glitch } from '@react-three/postprocessing'
+import { canaryConfig } from "./CanaryConfig"
+import { gilConfig } from "./GilConfig"
 
-const defaultCanaryConfig = {
-  "canary": {
-    "objectUrl": "/assets/canary.glb",
-    "nodeCoords": "canary.geometry.attributes.position",
-    "nodeSigns": [1, 1, -1],
-    "nodeScale": 0.1,
-    "nodeGroupScale": 0.4,
-    "meshColorIndex": 0,
-    "meshScale": 4,
-    "model": {
-      "material": "Default OBJ",
-      "scale": 0.1,
-      "metalness": 0.2,
-      "roughness": 2,
-      "opacity": 1,
-      "color": 0
-    },
-    "gridPosition": [0, -0.135, 0],
-    "cameraPosition": [2.3, 1, 1],
-    "pointColorIndex": {
-      "primary": 3,
-      "secondary": 1
-    },
-    "pointLight": {
-      "position": [0, 0, 0],
-      "intensity": [2, 2, 2],
-      "distance": 15
-    },
-    "bloom": {
-      "kernelSize": 1,
-      "luminanceThreshold": 0.1,
-      "luminanceSmoothing": 0.05,
-      "intensity": 0.1
-    }
-  },
-  "gil": {
-    "objectUrl": "/assets/gil.glb",
-    "nodeCoords": "Baked_GIL_BUSTO003_1.geometry.attributes.position",
-    "nodeSigns": [-1, 1, -1],
-    "nodeScale": 1.5,
-    "nodeGroupScale": 0.1,
-    "meshColorIndex": 3,
-    "model": {
-      "material": "MatWireframe",
-      "scale": 0.2,
-      "metalness": 0.1,
-      "roughness": 0.1,
-      "opacity": 0.1,
-      "color": 3
-    },
-    "gridPosition": [0, -0, 4, 0],
-    "cameraPosition": [-1, 2.5, 4],
-    "pointColorIndex": {
-      "primary": 2,
-      "secondary": 0
-    },
-    "pointLight": {
-      "position": [0, 5, 0],
-      "intensity": [2, 15, 15],
-      "distance": 15
-    },
-    "bloom": {
-      "kernelSize": 1,
-      "luminanceThreshold": 0.1,
-      "luminanceSmoothing": 0.05,
-      "intensity": 0.5
-    }
-  },
+const defaultConfig = {
+  "canary": canaryConfig,
+  "gil": gilConfig,
 }
 
 const color = new THREE.Color()
 
-// ciano, magenta, white, black
-const brandPalette = ["#01ffff", "#e6007a", "#ffffff", "#000000"];
+const brandPalette = {
+  ciano: "#01ffff",
+  magenta: "#e6007a",
+  white: "#ffffff",
+  black: "#000000"
+}
 
 // Generate a random integer between min and max
 const random = (min, max) => Math.floor(Math.random() * (max - min)) + min;
@@ -146,6 +87,9 @@ const Points = ({ objectUrl, nodesData, onNodeClick, config }) => {
               dialogData={nodesData[selected]}
               onNodeClick={onNodeClick}
               config={config}
+              primaryColor={config.pointColorIndex.primary}
+              hoveredColor={config.pointColorIndex.hovered}
+              activeColor={config.pointColorIndex.active}
             />
           ))
         }
@@ -154,7 +98,7 @@ const Points = ({ objectUrl, nodesData, onNodeClick, config }) => {
   )
 }
 
-const Point = ({ nodeId, position, dialogData, onNodeSelected, onNodeClick, config }) => {
+const Point = ({ nodeId, position, dialogData, onNodeSelected, onNodeClick, config, primaryColor, hoveredColor, activeColor }) => {
   const ref = useRef()
   const [hovered, setHover] = useState(false)
   const [active] = useState(false)
@@ -171,18 +115,18 @@ const Point = ({ nodeId, position, dialogData, onNodeSelected, onNodeClick, conf
     ref.current.scale.x = ref.current.scale.y = ref.current.scale.z =
       THREE.MathUtils.lerp(ref.current.scale.z, active ? 5 : 1, defaultScale)
     ref.current.color.lerp(
-      color.set(hovered || active ? brandPalette[config.pointColorIndex.primary] : brandPalette[config.pointColorIndex.secondary]),
+      color.set(hovered || active ? brandPalette[hoveredColor] : brandPalette[primaryColor]),
       hovered || active ? 1 : defaultScale)
 
     if (hovered) {
       ref.current.color.lerp(
-        color.set(hovered ? brandPalette[0] : brandPalette[1]), hovered ? 1 : defaultScale)
+        color.set(hovered ? brandPalette[hoveredColor] : brandPalette[primaryColor]), hovered ? 1 : defaultScale)
     }
 
     if (active) {
       ref.current.scale.x = ref.current.scale.y = ref.current.scale.z += Math.sin(t) / 4
       ref.current.color.lerp(
-        color.set(active ? brandPalette[2] : brandPalette[1]), active ? 1 : defaultScale)
+        color.set(active ? brandPalette[activeColor] : brandPalette[primaryColor]), active ? 1 : defaultScale)
     }
   })
   return (
@@ -218,7 +162,7 @@ const PointDialog = ({ position, dialogData, onNodeClick, config }) => {
   return (
 
     <mesh ref={ref}>
-      <meshStandardMaterial roughness={0.75} metalness={0.8} emissive={brandPalette[0]} />
+      <meshStandardMaterial roughness={0.75} metalness={0.8} emissive={brandPalette.ciano} />
       <Html distanceFactor={2}>
         <DialogContent>
           {dialogData.hash ?
@@ -268,10 +212,16 @@ const Lights = ({ config }) => {
 
   useFrame((state) => {
     const t = state.clock.getElapsedTime()
-    // 4 * 15, 4 * 10, 4 * 10
-    groupL.current.position.x = Math.sin(t) / 4 * 15
-    groupL.current.position.y = Math.cos(t) / 4 * 15
-    groupL.current.position.z = Math.cos(t) / 4 * 15
+    
+    // storm effect
+    let currentPosition = 15
+    if (parseInt(t)%4 === 1) {
+      currentPosition = Math.random() * 15 | 0
+    }
+    
+    groupL.current.position.x = Math.sin(t) / 4 * currentPosition;
+    groupL.current.position.y = Math.cos(t) / 4 * currentPosition;
+    groupL.current.position.z = Math.cos(t) / 4 * currentPosition;
 
     groupR.current.position.x = Math.cos(t) / 4 * 10
     groupR.current.position.y = Math.sin(t) / 4 * 10
@@ -293,7 +243,7 @@ const Lights = ({ config }) => {
       <group ref={groupL}>
         <pointLight
           ref={lightL}
-          color={brandPalette[0]}
+          color={brandPalette[config.pointLight.color[0]]}
           position={config.pointLight.position}
           distance={config.pointLight.distance}
           intensity={config.pointLight.intensity[0]}
@@ -302,7 +252,7 @@ const Lights = ({ config }) => {
       <group ref={groupR}>
         <pointLight
           ref={lightR}
-          color={brandPalette[1]}
+          color={brandPalette[config.pointLight.color[1]]}
           position={config.pointLight.position}
           distance={config.pointLight.distance}
           intensity={config.pointLight.intensity[1]}
@@ -311,7 +261,7 @@ const Lights = ({ config }) => {
       <group ref={front}>
         <pointLight
           ref={lightF}
-          color={brandPalette[2]}
+          color={brandPalette[config.pointLight.color[2]]}
           position={config.pointLight.position}
           distance={config.pointLight.distance}
           intensity={config.pointLight.intensity[2]}
@@ -368,7 +318,7 @@ const Particles = ({ count }) => {
       <instancedMesh ref={mesh} args={[null, null, count]}>
         <boxGeometry args={[1]} />
         <pointsMaterial
-          color={brandPalette[1]}
+          color={brandPalette.magenta}
           size={0.02}
           transparent={true}
           sizeAttenuation={false}
@@ -382,7 +332,7 @@ const Particles = ({ count }) => {
 const ThreeCanary = (props) => {
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 
-  const config = props.config ? props.config : defaultCanaryConfig["canary"]
+  const config = props.config ? props.config : defaultConfig["canary"]
 
   return (
     <Canvas
@@ -392,10 +342,10 @@ const ThreeCanary = (props) => {
       performance={{ min: 0.1 }}>
 
       <Lights config={config} />
-      {/* <fog attach="fog" args={[brandPalette[-1], 4.5, 20]} /> */}
+      {/* <fog attach="fog" args={[brandPalette.ciano, 4.5, 20]} /> */}
       <gridHelper
         position={config.gridPosition}
-        color={"#000"}
+        color={brandPalette.black}
         args={[40, 40]}
       />
 
@@ -424,7 +374,11 @@ const ThreeCanary = (props) => {
             luminanceSmoothing={config.bloom.luminanceSmoothing}
             intensity={config.bloom.intensity}
           />
-          <Glitch delay={[20, 30]} />
+          <Glitch 
+            delay={config.glitch.delay}
+            strength={config.glitch.strength}
+            duration={config.glitch.duration}
+          />
         </EffectComposer>
       </Suspense>
 
@@ -453,18 +407,19 @@ const DialogContent = styled.div`
   animation-fill-mode: forwards;
 
   text-align: left;
-  background: ${brandPalette[1]};
+  background: ${brandPalette.magenta};
 
-  color: white;
+  color: ${brandPalette.white};
   padding: 10px 20px;
   border-radius: 5px;
+  margin: 20px 0 0 20px;
 
   font-family: monospace;
 `
 
 const DialogHash = styled.div`
-  color: ${brandPalette[2]};
+  color: ${brandPalette.white};
   padding-top: 5px;
 `
 
-export { ThreeCanary, defaultCanaryConfig }
+export { ThreeCanary, defaultConfig }

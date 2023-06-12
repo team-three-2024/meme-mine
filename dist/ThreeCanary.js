@@ -7,7 +7,7 @@ var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefau
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.defaultCanaryConfig = exports.ThreeCanary = void 0;
+exports.defaultConfig = exports.ThreeCanary = void 0;
 
 var _taggedTemplateLiteral2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/taggedTemplateLiteral"));
 
@@ -20,6 +20,8 @@ require("core-js/modules/es.string.split.js");
 require("core-js/modules/es.array.reduce.js");
 
 require("core-js/modules/es.object.assign.js");
+
+require("core-js/modules/es.parse-int.js");
 
 require("core-js/modules/es.regexp.test.js");
 
@@ -35,85 +37,28 @@ var _drei = require("@react-three/drei");
 
 var _postprocessing = require("@react-three/postprocessing");
 
+var _CanaryConfig = require("./CanaryConfig");
+
+var _GilConfig = require("./GilConfig");
+
 var _templateObject, _templateObject2, _templateObject3;
 
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-var defaultCanaryConfig = {
-  "canary": {
-    "objectUrl": "/assets/canary.glb",
-    "nodeCoords": "canary.geometry.attributes.position",
-    "nodeSigns": [1, 1, -1],
-    "nodeScale": 0.1,
-    "nodeGroupScale": 0.4,
-    "meshColorIndex": 0,
-    "meshScale": 4,
-    "model": {
-      "material": "Default OBJ",
-      "scale": 0.1,
-      "metalness": 0.2,
-      "roughness": 2,
-      "opacity": 1,
-      "color": 0
-    },
-    "gridPosition": [0, -0.135, 0],
-    "cameraPosition": [2.3, 1, 1],
-    "pointColorIndex": {
-      "primary": 3,
-      "secondary": 1
-    },
-    "pointLight": {
-      "position": [0, 0, 0],
-      "intensity": [2, 2, 2],
-      "distance": 15
-    },
-    "bloom": {
-      "kernelSize": 1,
-      "luminanceThreshold": 0.1,
-      "luminanceSmoothing": 0.05,
-      "intensity": 0.1
-    }
-  },
-  "gil": {
-    "objectUrl": "/assets/gil.glb",
-    "nodeCoords": "Baked_GIL_BUSTO003_1.geometry.attributes.position",
-    "nodeSigns": [-1, 1, -1],
-    "nodeScale": 1.5,
-    "nodeGroupScale": 0.1,
-    "meshColorIndex": 3,
-    "model": {
-      "material": "MatWireframe",
-      "scale": 0.2,
-      "metalness": 0.1,
-      "roughness": 0.1,
-      "opacity": 0.1,
-      "color": 3
-    },
-    "gridPosition": [0, -0, 4, 0],
-    "cameraPosition": [-1, 2.5, 4],
-    "pointColorIndex": {
-      "primary": 2,
-      "secondary": 0
-    },
-    "pointLight": {
-      "position": [0, 5, 0],
-      "intensity": [2, 15, 15],
-      "distance": 15
-    },
-    "bloom": {
-      "kernelSize": 1,
-      "luminanceThreshold": 0.1,
-      "luminanceSmoothing": 0.05,
-      "intensity": 0.5
-    }
-  }
+var defaultConfig = {
+  "canary": _CanaryConfig.canaryConfig,
+  "gil": _GilConfig.gilConfig
 };
-exports.defaultCanaryConfig = defaultCanaryConfig;
-var color = new THREE.Color(); // ciano, magenta, white, black
-
-var brandPalette = ["#01ffff", "#e6007a", "#ffffff", "#000000"]; // Generate a random integer between min and max
+exports.defaultConfig = defaultConfig;
+var color = new THREE.Color();
+var brandPalette = {
+  ciano: "#01ffff",
+  magenta: "#e6007a",
+  white: "#ffffff",
+  black: "#000000"
+}; // Generate a random integer between min and max
 
 var random = function random(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
@@ -191,7 +136,10 @@ var Points = function Points(_ref) {
       onNodeSelected: handleSelectedNode,
       dialogData: nodesData[selected],
       onNodeClick: onNodeClick,
-      config: config
+      config: config,
+      primaryColor: config.pointColorIndex.primary,
+      hoveredColor: config.pointColorIndex.hovered,
+      activeColor: config.pointColorIndex.active
     });
   })));
 };
@@ -202,7 +150,10 @@ var Point = function Point(_ref2) {
       dialogData = _ref2.dialogData,
       onNodeSelected = _ref2.onNodeSelected,
       onNodeClick = _ref2.onNodeClick,
-      config = _ref2.config;
+      config = _ref2.config,
+      primaryColor = _ref2.primaryColor,
+      hoveredColor = _ref2.hoveredColor,
+      activeColor = _ref2.activeColor;
   var ref = (0, _react.useRef)();
 
   var _useState3 = (0, _react.useState)(false),
@@ -223,15 +174,15 @@ var Point = function Point(_ref2) {
     ref.current.scale.x = ref.current.scale.y = ref.current.scale.z = defaultScale;
     ref.current.scale.x = ref.current.scale.y = ref.current.scale.z = THREE.MathUtils.lerp(ref.current.scale.z, hovered ? 6 : 1, defaultScale);
     ref.current.scale.x = ref.current.scale.y = ref.current.scale.z = THREE.MathUtils.lerp(ref.current.scale.z, active ? 5 : 1, defaultScale);
-    ref.current.color.lerp(color.set(hovered || active ? brandPalette[config.pointColorIndex.primary] : brandPalette[config.pointColorIndex.secondary]), hovered || active ? 1 : defaultScale);
+    ref.current.color.lerp(color.set(hovered || active ? brandPalette[hoveredColor] : brandPalette[primaryColor]), hovered || active ? 1 : defaultScale);
 
     if (hovered) {
-      ref.current.color.lerp(color.set(hovered ? brandPalette[0] : brandPalette[1]), hovered ? 1 : defaultScale);
+      ref.current.color.lerp(color.set(hovered ? brandPalette[hoveredColor] : brandPalette[primaryColor]), hovered ? 1 : defaultScale);
     }
 
     if (active) {
       ref.current.scale.x = ref.current.scale.y = ref.current.scale.z += Math.sin(t) / 4;
-      ref.current.color.lerp(color.set(active ? brandPalette[2] : brandPalette[1]), active ? 1 : defaultScale);
+      ref.current.color.lerp(color.set(active ? brandPalette[activeColor] : brandPalette[primaryColor]), active ? 1 : defaultScale);
     }
   });
   return /*#__PURE__*/_react.default.createElement("group", {
@@ -270,7 +221,7 @@ var PointDialog = function PointDialog(_ref3) {
   }, /*#__PURE__*/_react.default.createElement("meshStandardMaterial", {
     roughness: 0.75,
     metalness: 0.8,
-    emissive: brandPalette[0]
+    emissive: brandPalette.ciano
   }), /*#__PURE__*/_react.default.createElement(_drei.Html, {
     distanceFactor: 2
   }, /*#__PURE__*/_react.default.createElement(DialogContent, null, dialogData.hash ? /*#__PURE__*/_react.default.createElement(DialogHash, null, dialogData.hash) : null)));
@@ -315,11 +266,17 @@ var Lights = function Lights(_ref4) {
   var lightR = (0, _react.useRef)();
   var lightF = (0, _react.useRef)();
   (0, _fiber.useFrame)(function (state) {
-    var t = state.clock.getElapsedTime(); // 4 * 15, 4 * 10, 4 * 10
+    var t = state.clock.getElapsedTime(); // storm effect
 
-    groupL.current.position.x = Math.sin(t) / 4 * 15;
-    groupL.current.position.y = Math.cos(t) / 4 * 15;
-    groupL.current.position.z = Math.cos(t) / 4 * 15;
+    var currentPosition = 15;
+
+    if (parseInt(t) % 4 === 1) {
+      currentPosition = Math.random() * 15 | 0;
+    }
+
+    groupL.current.position.x = Math.sin(t) / 4 * currentPosition;
+    groupL.current.position.y = Math.cos(t) / 4 * currentPosition;
+    groupL.current.position.z = Math.cos(t) / 4 * currentPosition;
     groupR.current.position.x = Math.cos(t) / 4 * 10;
     groupR.current.position.y = Math.sin(t) / 4 * 10;
     groupR.current.position.z = Math.sin(t) / 4 * 10;
@@ -338,7 +295,7 @@ var Lights = function Lights(_ref4) {
     ref: groupL
   }, /*#__PURE__*/_react.default.createElement("pointLight", {
     ref: lightL,
-    color: brandPalette[0],
+    color: brandPalette[config.pointLight.color[0]],
     position: config.pointLight.position,
     distance: config.pointLight.distance,
     intensity: config.pointLight.intensity[0]
@@ -346,7 +303,7 @@ var Lights = function Lights(_ref4) {
     ref: groupR
   }, /*#__PURE__*/_react.default.createElement("pointLight", {
     ref: lightR,
-    color: brandPalette[1],
+    color: brandPalette[config.pointLight.color[1]],
     position: config.pointLight.position,
     distance: config.pointLight.distance,
     intensity: config.pointLight.intensity[1]
@@ -354,7 +311,7 @@ var Lights = function Lights(_ref4) {
     ref: front
   }, /*#__PURE__*/_react.default.createElement("pointLight", {
     ref: lightF,
-    color: brandPalette[2],
+    color: brandPalette[config.pointLight.color[2]],
     position: config.pointLight.position,
     distance: config.pointLight.distance,
     intensity: config.pointLight.intensity[2]
@@ -417,7 +374,7 @@ var Particles = function Particles(_ref5) {
   }, /*#__PURE__*/_react.default.createElement("boxGeometry", {
     args: [1]
   }), /*#__PURE__*/_react.default.createElement("pointsMaterial", {
-    color: brandPalette[1],
+    color: brandPalette.magenta,
     size: 0.02,
     transparent: true,
     sizeAttenuation: false,
@@ -427,7 +384,7 @@ var Particles = function Particles(_ref5) {
 
 var ThreeCanary = function ThreeCanary(props) {
   var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  var config = props.config ? props.config : defaultCanaryConfig["canary"];
+  var config = props.config ? props.config : defaultConfig["canary"];
   return /*#__PURE__*/_react.default.createElement(_fiber.Canvas, {
     shadows: true,
     dpr: [1, 2],
@@ -442,7 +399,7 @@ var ThreeCanary = function ThreeCanary(props) {
     config: config
   }), /*#__PURE__*/_react.default.createElement("gridHelper", {
     position: config.gridPosition,
-    color: "#000",
+    color: brandPalette.black,
     args: [40, 40]
   }), /*#__PURE__*/_react.default.createElement(_react.Suspense, {
     fallback: null
@@ -467,7 +424,9 @@ var ThreeCanary = function ThreeCanary(props) {
     luminanceSmoothing: config.bloom.luminanceSmoothing,
     intensity: config.bloom.intensity
   }), /*#__PURE__*/_react.default.createElement(_postprocessing.Glitch, {
-    delay: [20, 30]
+    delay: config.glitch.delay,
+    strength: config.glitch.strength,
+    duration: config.glitch.duration
   }))), /*#__PURE__*/_react.default.createElement(_drei.OrbitControls, {
     minPolarAngle: Math.PI / 2.8,
     maxPolarAngle: Math.PI / 1.8
@@ -478,6 +437,6 @@ var ThreeCanary = function ThreeCanary(props) {
 exports.ThreeCanary = ThreeCanary;
 var fadeIn = (0, _styledComponents.keyframes)(_templateObject || (_templateObject = (0, _taggedTemplateLiteral2.default)(["\n  0% {\n    opacity: 0;\n  }\n  100% {\n    opacity: 0.9;\n  }\n"])));
 
-var DialogContent = _styledComponents.default.div(_templateObject2 || (_templateObject2 = (0, _taggedTemplateLiteral2.default)(["\n  animation: ", " ease-in-out 0.5s;\n  animation-iteration-count: 1;\n  animation-fill-mode: forwards;\n\n  text-align: left;\n  background: ", ";\n\n  color: white;\n  padding: 10px 20px;\n  border-radius: 5px;\n\n  font-family: monospace;\n"])), fadeIn, brandPalette[1]);
+var DialogContent = _styledComponents.default.div(_templateObject2 || (_templateObject2 = (0, _taggedTemplateLiteral2.default)(["\n  animation: ", " ease-in-out 0.5s;\n  animation-iteration-count: 1;\n  animation-fill-mode: forwards;\n\n  text-align: left;\n  background: ", ";\n\n  color: ", ";\n  padding: 10px 20px;\n  border-radius: 5px;\n  margin: 20px 0 0 20px;\n\n  font-family: monospace;\n"])), fadeIn, brandPalette.magenta, brandPalette.white);
 
-var DialogHash = _styledComponents.default.div(_templateObject3 || (_templateObject3 = (0, _taggedTemplateLiteral2.default)(["\n  color: ", ";\n  padding-top: 5px;\n"])), brandPalette[2]);
+var DialogHash = _styledComponents.default.div(_templateObject3 || (_templateObject3 = (0, _taggedTemplateLiteral2.default)(["\n  color: ", ";\n  padding-top: 5px;\n"])), brandPalette.white);

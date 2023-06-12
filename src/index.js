@@ -1,21 +1,8 @@
 import React from "react"
-import ReactDOM from "react-dom"
-import { ThreeCanary, defaultCanaryConfig } from "./lib/ThreeCanary"
+import { createRoot } from "react-dom/client"
+import { ThreeCanary, defaultConfig } from "./lib/ThreeCanary"
 
 import "./styles.css"
-
-/* eslint-disable-next-line */
-const localCanaryConfig = {
-  "nodeCoords": "Baked_GIL_BUSTO003_1.geometry.attributes.position",
-  "nodeSigns": [-1, 1, -1],
-  "nodeScale": 0.5,
-  "nodeGroupScale": 0.1,
-  "meshColorIndex": 3,
-  "modelMaterial": "MatWireframe",
-  "modelScale": 0.2,
-  "gridPosition": [0, -0, 4, 0],
-  "cameraPosition": [-1, 2.5, 4]
-}
 
 // Utils
 
@@ -72,13 +59,13 @@ class App extends React.Component {
           }}
         >
           <ThreeCanary
-            objectUrl={defaultCanaryConfig["gil"].objectUrl}
+            objectUrl={defaultConfig["canary"].objectUrl}
             nodes={this.state.nodesData}
             onNodeClick={(nodeId) => {
               console.log("onNodeClick", nodeId)
             }
             }
-            config={defaultCanaryConfig["gil"]}
+            config={defaultConfig["canary"]}
           />
 
           <div
@@ -100,4 +87,5 @@ class App extends React.Component {
 }
 
 const rootElement = document.getElementById("root")
-ReactDOM.render(<App />, rootElement)
+const root = createRoot(rootElement)
+root.render(<App />)
