@@ -1,8 +1,8 @@
 import * as THREE from "three"
-import React, { useMemo, useRef, useState, Suspense, useLayoutEffect } from 'react'
+import React, { useMemo, useRef, useState, Suspense, useEffect, useLayoutEffect } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { useGLTF, useHelper, Instances, Instance, OrbitControls, Html } from '@react-three/drei'
+import { useGLTF, useAnimations, useHelper, Instances, Instance, OrbitControls, Html } from '@react-three/drei'
 import { EffectComposer, Bloom, Glitch } from '@react-three/postprocessing'
 import { canaryConfig } from "./CanaryConfig"
 import { gilConfig } from "./GilConfig"
@@ -109,6 +109,24 @@ const Point = ({ nodeId, position, dialogData, onNodeSelected, onNodeClick, conf
     ref.current.position.x = position[0] * config.nodeSigns[0]
     ref.current.position.z = position[1] * config.nodeSigns[1]
     ref.current.position.y = position[2] * config.nodeSigns[2]
+
+    // Convert the angle to radians for a general rotation
+    const rotationAngle = 180 * Math.PI / 180; // 90 degrees in radians
+
+    // Assuming position is an array [x, y, z]
+    let x = position[0];
+    let y = position[1];
+    let z = position[2];
+
+    // Rotate around the X-axis by rotationAngle
+    let newY = y * Math.cos(rotationAngle) - z * Math.sin(rotationAngle);
+    let newZ = y * Math.sin(rotationAngle) + z * Math.cos(rotationAngle);
+
+    // Apply the new positions
+    ref.current.position.x = x * config.nodeSigns[0];
+    ref.current.position.y = newY * config.nodeSigns[2]; // Note the index change due to rotation
+    ref.current.position.z = newZ * config.nodeSigns[1];
+
     ref.current.scale.x = ref.current.scale.y = ref.current.scale.z = defaultScale
     ref.current.scale.x = ref.current.scale.y = ref.current.scale.z =
       THREE.MathUtils.lerp(ref.current.scale.z, hovered ? 6 : 1, defaultScale)
@@ -177,7 +195,37 @@ const PointDialog = ({ position, dialogData, onNodeClick, config }) => {
 }
 
 const Model = (props) => {
-  const { scene, nodes, materials } = useGLTF(props.objectUrl)
+  const { scene, nodes, materials, animations } = useGLTF(props.objectUrl)
+
+  const modelRef = useRef()
+  const mixerRef = useRef()
+
+  useEffect(() => {
+    if (modelRef.current) {
+        mixerRef.current = new THREE.AnimationMixer(modelRef.current);
+    }
+  }, [modelRef]);
+
+  useEffect(() => {
+    if (mixerRef.current && animations) {
+        animations.forEach(clip => {
+            const action = mixerRef.current.clipAction(clip);
+            action.play();
+        });
+    }
+
+    return () => {
+        if (mixerRef.current) {
+            mixerRef.current.stopAllAction();
+        }
+    };
+  }, [animations]);
+
+  useFrame((state, delta) => {
+      if (mixerRef.current) {
+          mixerRef.current.update(delta);
+      }
+  });
 
   useLayoutEffect(() => {
     if (props.meshScale) {
@@ -199,7 +247,7 @@ const Model = (props) => {
 
   }, [scene, nodes, materials])
 
-  return <primitive object={scene} {...props} />
+  return <primitive ref={modelRef} object={scene} {...props} />
 }
 
 const Lights = ({ config }) => {
@@ -212,13 +260,13 @@ const Lights = ({ config }) => {
 
   useFrame((state) => {
     const t = state.clock.getElapsedTime()
-    
+
     // storm effect
     let currentPosition = 15
     if (parseInt(t)%4 === 1) {
       currentPosition = Math.random() * 15 | 0
     }
-    
+
     groupL.current.position.x = Math.sin(t) / 4 * currentPosition;
     groupL.current.position.y = Math.cos(t) / 4 * currentPosition;
     groupL.current.position.z = Math.cos(t) / 4 * currentPosition;
@@ -357,12 +405,12 @@ const ThreeCanary = (props) => {
           meshScale={config.meshScale}
           model={config.model}
         />
-        <Points
+        {/* <Points
           objectUrl={props.objectUrl}
           nodesData={props.nodes}
           onNodeClick={props.onNodeClick}
           config={config}
-        />
+        /> */}
         <Particles
           count={isMobile ? 50 : 200}
         />
@@ -374,7 +422,7 @@ const ThreeCanary = (props) => {
             luminanceSmoothing={config.bloom.luminanceSmoothing}
             intensity={config.bloom.intensity}
           />
-          <Glitch 
+          <Glitch
             delay={config.glitch.delay}
             strength={config.glitch.strength}
             duration={config.glitch.duration}
