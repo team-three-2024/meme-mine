@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import React, { useMemo, useRef, useState, Suspense, useEffect, useLayoutEffect } from 'react'
 import styled, { keyframes } from 'styled-components'
-import { Canvas, useFrame } from '@react-three/fiber'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { useGLTF, useHelper, Instances, Instance, OrbitControls, Html } from '@react-three/drei'
 import { EffectComposer, Bloom, Glitch } from '@react-three/postprocessing'
 import { canaryConfig } from './CanaryConfig'
@@ -210,6 +210,7 @@ const PointDialog = ({ position, dialogData, onNodeClick, config }) => {
 
 const Model = React.forwardRef((props, modelRef) => {
   const [position, setPosition] = useState([0, 0, 0])
+  const [isJumping, setIsJumping] = useState(false)
 
   const { scene, nodes, materials, animations } = useGLTF(props.objectUrl)
 
@@ -225,7 +226,7 @@ const Model = React.forwardRef((props, modelRef) => {
     if (mixerRef.current && animations) {
       animations.forEach(clip => {
         const action = mixerRef.current.clipAction(clip)
-        action.timeScale = 5
+        action.timeScale = 3
         action.play()
       })
     }
@@ -237,19 +238,15 @@ const Model = React.forwardRef((props, modelRef) => {
     }
   }, [animations])
 
-  useFrame((state, delta) => {
-    if (mixerRef.current) {
-      mixerRef.current.update(delta)
-    }
-  })
-
-  // UseEffect for keydown event
   useEffect(() => {
     const handleKeyDown = event => {
       if (event.key === 'ArrowRight') {
         setPosition(prevPosition => [prevPosition[0] - 1, prevPosition[1], prevPosition[2]])
       } else if (event.key === 'ArrowLeft') {
         setPosition(prevPosition => [prevPosition[0] + 1, prevPosition[1], prevPosition[2]])
+      }
+      if (event.key === 'ArrowUp' && !isJumping && position[1] === 0) {
+        setIsJumping(true)
       }
     }
 
@@ -258,7 +255,28 @@ const Model = React.forwardRef((props, modelRef) => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [])
+  }, [position])
+
+  useFrame((state, delta) => {
+    if (mixerRef.current) {
+      mixerRef.current.update(delta)
+    }
+
+    if (isJumping) {
+      // Simple jump animation: move up then down
+      setPosition(prevPosition => {
+        const newY = prevPosition[1] + delta * 10
+        // Check if the model has reached the peak of the jump
+        if (newY >= 2) {
+          setIsJumping(false) // Start falling
+        }
+        return [prevPosition[0], newY <= 0 ? 0 : newY, prevPosition[2]] // Reset Y position after jump
+      })
+    } else {
+      // Bring the model back down if it's in the air
+      setPosition(prevPosition => [prevPosition[0], Math.max(0, prevPosition[1] - delta * 10), prevPosition[2]])
+    }
+  })
 
   useLayoutEffect(() => {
     if (props.meshScale) {
@@ -515,7 +533,6 @@ const ObstacleManager = React.forwardRef(({ what }, playerRef) => {
     }
   })
 
-  console.info(segments)
   return (
     <>
       {segments.map(({ z, side }, index) => (
@@ -530,6 +547,45 @@ const ObstacleManager = React.forwardRef(({ what }, playerRef) => {
   )
 })
 
+function CameraController() {
+  const { camera, set } = useThree()
+  const [is2D, setIs2D] = useState(false)
+  const perspCamera = new THREE.PerspectiveCamera(50, 16 / 9, 0.1, 1000)
+
+  useEffect(() => {
+    const toggleCamera = event => {
+      if (event.code === 'Space') {
+        setIs2D(!is2D)
+      }
+    }
+
+    window.addEventListener('keydown', toggleCamera)
+
+    return () => {
+      window.removeEventListener('keydown', toggleCamera)
+    }
+  }, [is2D])
+
+  useEffect(() => {
+    if (is2D) {
+      perspCamera.position.set(-20, 0, 0)
+      perspCamera.lookAt(20, 0, 0)
+      set({ camera: perspCamera })
+    } else {
+      perspCamera.position.set(0, 0.8, -3)
+      perspCamera.lookAt(0, 0, 0)
+      set({ camera: perspCamera })
+    }
+  }, [is2D])
+
+  useFrame(() => {
+    camera.lookAt(-100, 200, 500)
+    camera.updateProjectionMatrix()
+  })
+
+  return null
+}
+
 const ThreeCanary = props => {
   const playerRef = useRef()
 
@@ -539,6 +595,8 @@ const ThreeCanary = props => {
 
   return (
     <Canvas shadows dpr={[1, 2]} camera={{ position: config.cameraPosition, fov: 50 }} performance={{ min: 0.1 }}>
+      <CameraController />
+
       <Lights config={config} />
       {/* <fog attach="fog" args={[brandPalette.ciano, 4.5, 20]} /> */}
       {/* <gridHelper position={config.gridPosition} color={brandPalette.black} args={[40, 40]} /> */}
@@ -566,7 +624,7 @@ const ThreeCanary = props => {
             luminanceSmoothing={config.bloom.luminanceSmoothing}
             intensity={config.bloom.intensity}
           />
-          <Glitch delay={config.glitch.delay} strength={config.glitch.strength} duration={config.glitch.duration} />
+          {/* <Glitch delay={config.glitch.delay} strength={config.glitch.strength} duration={config.glitch.duration} /> */}
         </EffectComposer>
       </Suspense>
 
