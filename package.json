@@ -1,14 +1,18 @@
 {
-  "name": "@kappasigmamu/canary-component",
-  "version": "0.4.7",
-  "description": "React Component that renders the KappaSigmaMu Canary in 3D",
+  "name": "canary-global-game-jam",
+  "version": "0.0.1",
+  "description": "A game using ThreeJS for Global Game Jam 2024",
   "keywords": [
     "kusama",
     "blockchain",
     "polkadot",
     "react",
     "threejs",
-    "3d"
+    "3d",
+    "ggj",
+    "global game jam",
+    "aw",
+    "anything world"
   ],
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -18,7 +22,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/KappaSigmaMu/canary-component.git"
+    "url": "git+https://github.com/laurogripa/global-game-jam-2024.git"
   },
   "dependencies": {
     "@babel/polyfill": "7.12.1",
@@ -55,9 +59,12 @@
     "not op_mini all"
   ],
   "bugs": {
-    "url": "https://github.com/KappaSigmaMu/canary-component/issues"
+    "url": "https://github.com/laurogripa/global-game-jam-2024/issues"
   },
-  "homepage": "https://github.com/KappaSigmaMu/canary-component#readme",
+  "homepage": "https://github.com/laurogripa/global-game-jam-2024#readme",
   "author": "Vilson Vieira",
+  "contributors": [
+    "Lauro Gripa"
+  ],
   "license": "MIT"
 }
