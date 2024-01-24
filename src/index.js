@@ -1,44 +1,35 @@
-import React from "react"
-import { createRoot } from "react-dom/client"
-import { ThreeCanary, defaultConfig } from "./lib/ThreeCanary"
+import React from 'react'
+import { createRoot } from 'react-dom/client'
+import { Game, defaultConfig } from './lib/Game'
 
-import "./styles.css"
+import './styles.css'
 
 // Utils
 
-const choose = (choices) => {
+const choose = choices => {
   let index = Math.floor(Math.random() * choices.length)
   return choices[index]
 }
 
-const nodesDataFactory = (n) => {
+const nodesDataFactory = n => {
   let data = []
   for (let i = 0; i < n; i += 1) {
     data.push({
-      "id": Math.floor(Math.random() * 100),
-      "name": choose([
-        "Arthur C. Clarke",
-        "Douglas Adams",
-        "Isaac Asimov"]),
-      "level": choose([
-        "human",
-        "cyborg"]),
-      "hash": choose([
-        "0x08eded6a76d84e309e3f09705ea2853f",
-        "0xdeadbeefe6a76d84e309e3f09705ea28589"]),
-      "img": choose([
-        "/assets/t1.jpg",
-        "/assets/t2.jpg"])
+      id: Math.floor(Math.random() * 100),
+      name: choose(['Arthur C. Clarke', 'Douglas Adams', 'Isaac Asimov']),
+      level: choose(['human', 'cyborg']),
+      hash: choose(['0x08eded6a76d84e309e3f09705ea2853f', '0xdeadbeefe6a76d84e309e3f09705ea28589']),
+      img: choose(['/assets/t1.jpg', '/assets/t2.jpg'])
     })
   }
-  return data;
+  return data
 }
 
 // Example hosting component
 
 class App extends React.Component {
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
       nodesData: nodesDataFactory(150),
       nodeSelected: null
@@ -46,46 +37,41 @@ class App extends React.Component {
   }
 
   render() {
-
     return (
       <>
         <div
-          className={"App"}
+          className={'App'}
           style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            height: "100%"
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            height: '100%'
           }}
         >
-          <ThreeCanary
-            objectUrl={defaultConfig["canary"].objectUrl}
+          <Game
+            objectUrl={defaultConfig['canary'].objectUrl}
             nodes={this.state.nodesData}
-            onNodeClick={(nodeId) => {
-              console.log("onNodeClick", nodeId)
-            }
-            }
-            config={defaultConfig["canary"]}
+            onNodeClick={nodeId => {
+              console.log('onNodeClick', nodeId)
+            }}
+            config={defaultConfig['canary']}
           />
 
           <div
-            className={"Info"}
+            className={'Info'}
             style={{
               padding: 10,
-              color: this.state.nodeSelected ?
-                this.state.nodeSelected.color : "#ffffff"
+              color: this.state.nodeSelected ? this.state.nodeSelected.color : '#ffffff'
             }}
           >
-            {this.state.nodeSelected ?
-              this.state.nodeSelected.name : ""}
+            {this.state.nodeSelected ? this.state.nodeSelected.name : ''}
           </div>
         </div>
       </>
     )
   }
-
 }
 
-const rootElement = document.getElementById("root")
+const rootElement = document.getElementById('root')
 const root = createRoot(rootElement)
 root.render(<App />)

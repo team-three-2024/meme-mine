@@ -52,4 +52,11 @@ const canaryConfig = {
   }
 }
 
-export { canaryConfig }
+const brandPalette = {
+  ciano: '#01ffff',
+  magenta: '#e6007a',
+  white: '#ffffff',
+  black: '#000000'
+}
+
+export { brandPalette, canaryConfig }

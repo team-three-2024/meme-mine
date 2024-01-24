@@ -1,20 +1,14 @@
-import { useGLTF, useHelper, OrbitControls } from '@react-three/drei'
+import { useGLTF, OrbitControls } from '@react-three/drei'
 import { Canvas, useFrame, useThree, useLoader } from '@react-three/fiber'
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
 import React, { useRef, useState, Suspense, useEffect, useLayoutEffect } from 'react'
 import * as THREE from 'three'
 import { TextureLoader } from 'three'
-import { canaryConfig } from './CanaryConfig'
+import { Lights } from '../components/Lights'
+import { brandPalette, canaryConfig } from '../config'
 
 const defaultConfig = {
   canary: canaryConfig
-}
-
-const brandPalette = {
-  ciano: '#01ffff',
-  magenta: '#e6007a',
-  white: '#ffffff',
-  black: '#000000'
 }
 
 const random = (min, max) => Math.floor(Math.random() * (max - min)) + min
@@ -114,75 +108,6 @@ const Model = React.forwardRef((props, modelRef) => {
     </mesh>
   )
 })
-
-const Lights = ({ config }) => {
-  const groupL = useRef()
-  const groupR = useRef()
-  const front = useRef()
-  const lightL = useRef()
-  const lightR = useRef()
-  const lightF = useRef()
-
-  useFrame(state => {
-    const t = state.clock.getElapsedTime()
-
-    // storm effect
-    let currentPosition = 15
-    if (parseInt(t) % 4 === 1) {
-      currentPosition = (Math.random() * 15) | 0
-    }
-
-    groupL.current.position.x = (Math.sin(t) / 4) * currentPosition
-    groupL.current.position.y = (Math.cos(t) / 4) * currentPosition
-    groupL.current.position.z = (Math.cos(t) / 4) * currentPosition
-
-    groupR.current.position.x = (Math.cos(t) / 4) * 10
-    groupR.current.position.y = (Math.sin(t) / 4) * 10
-    groupR.current.position.z = (Math.sin(t) / 4) * 10
-
-    front.current.position.x = (Math.sin(t) / 4) * 10
-    front.current.position.y = (Math.cos(t) / 4) * 10
-    front.current.position.z = (Math.sin(t) / 4) * 10
-  })
-
-  if (config.debug === true) {
-    useHelper(lightL, THREE.PointLightHelper)
-    useHelper(lightR, THREE.PointLightHelper)
-    useHelper(lightF, THREE.PointLightHelper)
-  }
-
-  return (
-    <>
-      <group ref={groupL}>
-        <pointLight
-          ref={lightL}
-          color={brandPalette[config.pointLight.color[0]]}
-          position={config.pointLight.position}
-          distance={config.pointLight.distance}
-          intensity={config.pointLight.intensity[0]}
-        />
-      </group>
-      <group ref={groupR}>
-        <pointLight
-          ref={lightR}
-          color={brandPalette[config.pointLight.color[1]]}
-          position={config.pointLight.position}
-          distance={config.pointLight.distance}
-          intensity={config.pointLight.intensity[1]}
-        />
-      </group>
-      <group ref={front}>
-        <pointLight
-          ref={lightF}
-          color={brandPalette[config.pointLight.color[2]]}
-          position={config.pointLight.position}
-          distance={config.pointLight.distance}
-          intensity={config.pointLight.intensity[2]}
-        />
-      </group>
-    </>
-  )
-}
 
 const PathSegment = React.forwardRef(({ positionZ }, ref) => {
   return (
@@ -338,7 +263,7 @@ function CameraController() {
   return null
 }
 
-const ThreeCanary = props => {
+const Game = props => {
   const playerRef = useRef()
 
   const config = props.config ? props.config : defaultConfig['canary']
@@ -380,4 +305,4 @@ const ThreeCanary = props => {
   )
 }
 
-export { ThreeCanary, defaultConfig }
+export { Game, defaultConfig }

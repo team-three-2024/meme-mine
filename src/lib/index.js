@@ -1,3 +1,3 @@
-import { ThreeCanary, defaultConfig } from './ThreeCanary'
+import { Game, defaultConfig } from './Game'
 
-export { ThreeCanary, defaultConfig }
+export { Game, defaultConfig }
