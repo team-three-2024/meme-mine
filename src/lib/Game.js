@@ -7,16 +7,10 @@ import { Canary } from '../components/Canary'
 import { Lights } from '../components/Lights'
 import { Obstacle } from '../components/Obstacle'
 import { Path } from '../components/Path'
-import { canaryConfig } from '../config'
+import { canaryConfig as config } from '../config'
 
-const defaultConfig = {
-  canary: canaryConfig
-}
-
-const Game = props => {
+const Game = () => {
   const playerRef = useRef()
-
-  const config = props.config ? props.config : defaultConfig['canary']
 
   return (
     <Canvas shadows dpr={[1, 2]} camera={{ position: config.cameraPosition, fov: 50 }} performance={{ min: 0.1 }}>
@@ -30,8 +24,8 @@ const Game = props => {
 
       <Suspense fallback={null}>
         <Canary
+          animation="walk"
           scale={config.model.scale}
-          objectUrl={props.objectUrl}
           meshColorIndex={config.meshColorIndex}
           meshScale={config.meshScale}
           model={config.model}
@@ -53,4 +47,4 @@ const Game = props => {
   )
 }
 
-export { Game, defaultConfig }
+export { Game }

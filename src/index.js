@@ -1,6 +1,6 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import { Game, defaultConfig } from './lib/Game'
+import { Game } from './lib/Game'
 
 import './styles.css'
 
@@ -21,7 +21,7 @@ class App extends React.Component {
             height: '100%'
           }}
         >
-          <Game objectUrl={defaultConfig['canary'].objectUrl} config={defaultConfig['canary']} />
+          <Game />
         </div>
       </>
     )
