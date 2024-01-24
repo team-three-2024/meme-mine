@@ -5,13 +5,11 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { useGLTF, useHelper, Instances, Instance, OrbitControls, Html } from '@react-three/drei'
 import { EffectComposer, Bloom, Glitch } from '@react-three/postprocessing'
 import { canaryConfig } from './CanaryConfig'
-import { gilConfig } from './GilConfig'
 import { useLoader } from '@react-three/fiber'
 import { TextureLoader } from 'three'
 
 const defaultConfig = {
-  canary: canaryConfig,
-  gil: gilConfig
+  canary: canaryConfig
 }
 
 const color = new THREE.Color()
