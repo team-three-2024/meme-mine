@@ -1,114 +1,18 @@
-import { useGLTF, OrbitControls } from '@react-three/drei'
+import { OrbitControls } from '@react-three/drei'
 import { Canvas, useFrame, useThree, useLoader } from '@react-three/fiber'
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
-import React, { useRef, useState, Suspense, useEffect, useLayoutEffect } from 'react'
+import React, { useRef, useState, Suspense, useEffect } from 'react'
 import * as THREE from 'three'
 import { TextureLoader } from 'three'
+import { Canary } from '../components/Canary'
 import { Lights } from '../components/Lights'
-import { brandPalette, canaryConfig } from '../config'
+import { canaryConfig } from '../config'
 
 const defaultConfig = {
   canary: canaryConfig
 }
 
 const random = (min, max) => Math.floor(Math.random() * (max - min)) + min
-
-const Model = React.forwardRef((props, modelRef) => {
-  const [position, setPosition] = useState([0, 0, 0])
-  const [isJumping, setIsJumping] = useState(false)
-
-  const { scene, nodes, materials, animations } = useGLTF(props.objectUrl)
-
-  const mixerRef = useRef()
-
-  useEffect(() => {
-    if (modelRef.current) {
-      mixerRef.current = new THREE.AnimationMixer(modelRef.current)
-    }
-  }, [modelRef])
-
-  useEffect(() => {
-    if (mixerRef.current && animations) {
-      animations.forEach(clip => {
-        const action = mixerRef.current.clipAction(clip)
-        action.timeScale = 3
-        action.play()
-      })
-    }
-
-    return () => {
-      if (mixerRef.current) {
-        mixerRef.current.stopAllAction()
-      }
-    }
-  }, [animations])
-
-  useEffect(() => {
-    const handleKeyDown = event => {
-      if (event.key === 'ArrowRight') {
-        setPosition(prevPosition => [prevPosition[0] - 1, prevPosition[1], prevPosition[2]])
-      } else if (event.key === 'ArrowLeft') {
-        setPosition(prevPosition => [prevPosition[0] + 1, prevPosition[1], prevPosition[2]])
-      }
-      if (event.key === 'ArrowUp' && !isJumping && position[1] === 0) {
-        setIsJumping(true)
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [position])
-
-  useFrame((state, delta) => {
-    if (mixerRef.current) {
-      mixerRef.current.update(delta)
-    }
-
-    if (isJumping) {
-      // Simple jump animation: move up then down
-      setPosition(prevPosition => {
-        const newY = prevPosition[1] + delta * 10
-        // Check if the model has reached the peak of the jump
-        if (newY >= 2) {
-          setIsJumping(false) // Start falling
-        }
-        return [prevPosition[0], newY <= 0 ? 0 : newY, prevPosition[2]] // Reset Y position after jump
-      })
-    } else {
-      // Bring the model back down if it's in the air
-      setPosition(prevPosition => [prevPosition[0], Math.max(0, prevPosition[1] - delta * 10), prevPosition[2]])
-    }
-  })
-
-  useLayoutEffect(() => {
-    if (props.meshScale) {
-      if (nodes.canary) {
-        nodes.canary.scale.set(4, 4, 4)
-      }
-    }
-
-    scene.traverse(obj => {
-      obj.type === 'Mesh' && (obj.receiveShadow = obj.castShadow = true)
-    })
-
-    Object.assign(materials[props.model.material], {
-      wireframe: false,
-      metalness: props.model.metalness,
-      roughness: props.model.moughness,
-      opacity: props.model.opacity,
-      color: new THREE.Color(brandPalette[props.model.color])
-    })
-  }, [scene, nodes, materials])
-
-  return (
-    <mesh position={position}>
-      <primitive ref={modelRef} object={scene} {...props} />
-    </mesh>
-  )
-})
 
 const PathSegment = React.forwardRef(({ positionZ }, ref) => {
   return (
@@ -175,10 +79,10 @@ const ObstacleSegment = React.forwardRef(({ positionZ, side }, ref) => {
 })
 
 const ObstacleManager = React.forwardRef((_, playerRef) => {
-  const [segments, setSegments] = useState([])
+  const [obstacles, setObstacles] = useState([])
   const [gamePosition, setGamePosition] = useState(0)
 
-  const visibleSegments = 5
+  const visibleObstacles = 5
   const lastSegmentRef = useRef()
   const clockRef = useRef({ elapsedTime: 0, delta: 0 })
 
@@ -190,35 +94,32 @@ const ObstacleManager = React.forwardRef((_, playerRef) => {
       if (clockRef.current.delta >= 0.05) {
         clockRef.current.elapsedTime = clock.getElapsedTime()
         setGamePosition(gamePosition => gamePosition + 1)
-        setSegments(prevSegments => prevSegments.map(segment => ({ z: segment.z - 1, side: segment.side })))
+        setObstacles(prevObstacles => prevObstacles.map(segment => ({ z: segment.z - 1, side: segment.side })))
       }
 
       const lastSegmentZ = lastSegmentRef.current ? lastSegmentRef.current.position.z : 0
 
-      // Generate new segments if needed
-      if (segments.length < visibleSegments || gamePosition % visibleSegments > lastSegmentZ) {
-        // const sides = ['left', 'center', 'right']
+      if (obstacles.length < visibleObstacles || gamePosition % visibleObstacles > lastSegmentZ) {
         const segmentGap = random(10, 50)
-        const segmentSide = Math.floor(Math.random() * 3) - 1
-        const newSegmentZ = { z: lastSegmentZ + segmentGap, side: segmentSide }
-        setSegments(prevSegments => [...prevSegments, newSegmentZ])
+        const Obstacleside = Math.floor(Math.random() * 3) - 1
+        const newSegmentZ = { z: lastSegmentZ + segmentGap, side: Obstacleside }
+        setObstacles(prevObstacles => [...prevObstacles, newSegmentZ])
       }
 
-      // Remove segments that are far behind the player
-      if (segments.length > visibleSegments) {
-        setSegments(prevSegments => prevSegments.slice(1))
+      if (obstacles.length > visibleObstacles) {
+        setObstacles(prevObstacles => prevObstacles.slice(1))
       }
     }
   })
 
   return (
     <>
-      {segments.map(({ z, side }, index) => (
+      {obstacles.map(({ z, side }, index) => (
         <ObstacleSegment
           key={index}
           positionZ={z}
           side={side}
-          ref={index === segments.length - 1 ? lastSegmentRef : undefined}
+          ref={index === obstacles.length - 1 ? lastSegmentRef : undefined}
         />
       ))}
     </>
@@ -280,7 +181,7 @@ const Game = props => {
       <ObstacleManager ref={playerRef} />
 
       <Suspense fallback={null}>
-        <Model
+        <Canary
           scale={config.model.scale}
           objectUrl={props.objectUrl}
           meshColorIndex={config.meshColorIndex}
