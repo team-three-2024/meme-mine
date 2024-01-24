@@ -274,8 +274,6 @@ const Game = props => {
       <CameraController />
 
       <Lights config={config} />
-      {/* <fog attach="fog" args={[brandPalette.ciano, 4.5, 20]} /> */}
-      {/* <gridHelper position={config.gridPosition} color={brandPalette.black} args={[40, 40]} /> */}
 
       <PathManager ref={playerRef} />
 
