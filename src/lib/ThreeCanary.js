@@ -1,12 +1,11 @@
-import * as THREE from 'three'
+import { useGLTF, useHelper, Instances, Instance, OrbitControls, Html } from '@react-three/drei'
+import { Canvas, useFrame, useThree, useLoader } from '@react-three/fiber'
+import { EffectComposer, Bloom, Glitch } from '@react-three/postprocessing'
 import React, { useMemo, useRef, useState, Suspense, useEffect, useLayoutEffect } from 'react'
 import styled, { keyframes } from 'styled-components'
-import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { useGLTF, useHelper, Instances, Instance, OrbitControls, Html } from '@react-three/drei'
-import { EffectComposer, Bloom, Glitch } from '@react-three/postprocessing'
-import { canaryConfig } from './CanaryConfig'
-import { useLoader } from '@react-three/fiber'
+import * as THREE from 'three'
 import { TextureLoader } from 'three'
+import { canaryConfig } from './CanaryConfig'
 
 const defaultConfig = {
   canary: canaryConfig

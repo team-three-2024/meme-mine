@@ -61,7 +61,7 @@
     "react-dom": "*"
   },
   "scripts": {
-    "start": "NODE_OPTIONS=--openssl-legacy-provider react-scripts start",
+    "start": "SKIP_PREFLIGHT_CHECK=true NODE_OPTIONS=--openssl-legacy-provider react-scripts start",
     "build": "rm -rf dist && NODE_OPTIONS=--openssl-legacy-provider NODE_ENV=production babel src/lib public/assets --out-dir dist --copy-files --ignore __tests__,spec.js,test.js,__snapshots__",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",

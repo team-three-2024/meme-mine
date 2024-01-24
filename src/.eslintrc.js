@@ -1,23 +1,16 @@
 module.exports = {
-  parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaFeatures: { jsx: true },
-    ecmaVersion: 2022,
-    project: 'tsconfig.json',
+    ecmaVersion: 2020,
     sourceType: 'module'
   },
   settings: { react: { version: 'detect' } },
-  plugins: ['@typescript-eslint/eslint-plugin', 'import'],
-  extends: [
-    'plugin:@typescript-eslint/eslint-recommended',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:import/typescript',
-    'plugin:react/recommended'
-  ],
+  plugins: ['import', 'react'],
+  extends: ['eslint:recommended', 'plugin:react/recommended'],
   root: true,
   env: {
-    jest: true,
-    node: true
+    browser: true,
+    jest: true
   },
   overrides: [
     {
@@ -28,24 +21,6 @@ module.exports = {
     }
   ],
   rules: {
-    '@typescript-eslint/camelcase': 0,
-    '@typescript-eslint/explicit-function-return-type': 0,
-    '@typescript-eslint/explicit-member-accessibility': ['warn', { overrides: { constructors: 'no-public' } }],
-    '@typescript-eslint/explicit-module-boundary-types': 0,
-    '@typescript-eslint/member-ordering': 'warn',
-    '@typescript-eslint/naming-convention': [
-      'warn',
-      {
-        selector: 'interface',
-        format: ['PascalCase']
-      }
-    ],
-    '@typescript-eslint/no-inferrable-types': 'warn',
-    '@typescript-eslint/no-unused-vars': 'warn',
-    '@typescript-eslint/ban-ts-comment': 'off',
-    '@typescript-eslint/ban-ts-ignore': 'off',
-    '@typescript-eslint/no-explicit-any': 'off',
-    '@typescript-eslint/no-non-null-assertion': 'off',
     'import/newline-after-import': ['warn'],
     'import/no-default-export': ['warn'],
     'import/order': [

@@ -1,5 +1,5 @@
 {
   "compilerOptions": {
-    "module": "es2022"
+    "module": "es2020"
   }
 }
