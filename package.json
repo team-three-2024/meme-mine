@@ -30,6 +30,7 @@
     "@react-three/fiber": "7.0.26",
     "@react-three/postprocessing": "2.1.6",
     "@types/three": "0.136.0",
+    "babel-eslint": "^10.1.0",
     "core-js": "^3.19.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -40,7 +41,20 @@
     "@babel/cli": "^7.15.7",
     "@babel/core": "7.12.3",
     "@babel/preset-env": "^7.15.6",
+    "eslint": "^7.11.0",
+    "eslint-config-react-app": "^6.0.0",
+    "eslint-plugin-flowtype": "^5.2.0",
+    "eslint-plugin-import": "^2.23.4",
+    "eslint-plugin-jest": "^24.1.0",
+    "eslint-plugin-jsx-a11y": "^6.3.1",
+    "eslint-plugin-react": "^7.24.0",
+    "eslint-plugin-react-hooks": "^4.2.0",
+    "eslint-plugin-testing-library": "^3.9.2",
+    "eslint-webpack-plugin": "^2.5.2",
     "react-scripts": "2.0.3"
+  },
+  "overrides": {
+    "three": "0.136.0"
   },
   "peerDependencies": {
     "react": "*",
@@ -50,7 +64,15 @@
     "start": "NODE_OPTIONS=--openssl-legacy-provider react-scripts start",
     "build": "rm -rf dist && NODE_OPTIONS=--openssl-legacy-provider NODE_ENV=production babel src/lib public/assets --out-dir dist --copy-files --ignore __tests__,spec.js,test.js,__snapshots__",
     "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "lint:fix": "eslint \"{src,apps,libs,test}/**/*.{js,jsx}\" --fix",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.{js,jsx}\""
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
   },
   "browserslist": [
     ">0.2%",
