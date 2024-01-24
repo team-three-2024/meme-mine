@@ -89,10 +89,11 @@ const Model = React.forwardRef((props, modelRef) => {
         nodes.canary.scale.set(4, 4, 4)
       }
     }
+
     scene.traverse(obj => {
       obj.type === 'Mesh' && (obj.receiveShadow = obj.castShadow = true)
     })
-    // 0.8 0.2
+
     Object.assign(materials[props.model.material], {
       wireframe: false,
       metalness: props.model.metalness,
@@ -118,7 +119,7 @@ const PathSegment = React.forwardRef(({ positionZ }, ref) => {
   )
 })
 
-const PathManager = React.forwardRef(({ what }, playerRef) => {
+const PathManager = React.forwardRef((_, playerRef) => {
   const [segments, setSegments] = useState([])
   const [gamePosition, setGamePosition] = useState(0)
 
@@ -173,7 +174,7 @@ const ObstacleSegment = React.forwardRef(({ positionZ, side }, ref) => {
   )
 })
 
-const ObstacleManager = React.forwardRef(({ what }, playerRef) => {
+const ObstacleManager = React.forwardRef((_, playerRef) => {
   const [segments, setSegments] = useState([])
   const [gamePosition, setGamePosition] = useState(0)
 
@@ -276,9 +277,9 @@ const Game = props => {
       {/* <fog attach="fog" args={[brandPalette.ciano, 4.5, 20]} /> */}
       {/* <gridHelper position={config.gridPosition} color={brandPalette.black} args={[40, 40]} /> */}
 
-      <PathManager ref={playerRef} what="what" />
+      <PathManager ref={playerRef} />
 
-      <ObstacleManager ref={playerRef} what="what" />
+      <ObstacleManager ref={playerRef} />
 
       <Suspense fallback={null}>
         <Model

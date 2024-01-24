@@ -41,6 +41,12 @@ module.exports = {
     'no-multiple-empty-lines': ['warn', { max: 1 }],
     'no-useless-rename': 'warn',
     'object-shorthand': 'warn',
+    'react/display-name': 'off',
+    // There's an issue with @react-three/fiber where eslint yields false negatives for mesh and other tags
+    // Issue: https://github.com/jsx-eslint/eslint-plugin-react/issues/3423
+    // Turn `no-unknown-property` back on again after the issue is fixed
+    'react/no-unknown-property': 'off',
+    'react/prop-types': 'off',
     'react/react-in-jsx-scope': 'off',
     semi: ['error', 'never']
   }
