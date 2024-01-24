@@ -10,7 +10,8 @@ module.exports = {
   root: true,
   env: {
     browser: true,
-    jest: true
+    jest: true,
+    node: true
   },
   overrides: [
     {
