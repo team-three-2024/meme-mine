@@ -24,7 +24,7 @@ self.__precacheManifest = [
     "url": "/meme-mine/static/media/index.a045c5b8.mjs"
   },
   {
-    "revision": "9ac7f9574ce698f77ddb10711f9084ac",
+    "revision": "1252b718e731aa3a0104ca3a378cc579",
     "url": "/meme-mine/index.html"
   }
 ];
