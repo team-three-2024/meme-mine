@@ -4,6 +4,7 @@ import { EffectComposer, Bloom } from '@react-three/postprocessing'
 import React, { useEffect, useRef, useState, Suspense } from 'react'
 import ReactDOM from 'react-dom'
 import styled from 'styled-components'
+import { GameOverScreen } from './GameOverScreen'
 import { CameraController } from '../components/CameraController'
 import { Canary } from '../components/Canary'
 import { Lights } from '../components/Lights'
@@ -12,9 +13,26 @@ import { Path } from '../components/Path'
 import { canaryConfig as config } from '../config'
 
 const Game = () => {
+  const [showGameOverScreen, setShowGameOverScreen] = useState(true)
   const [score, setScore] = useState(0)
   const startTimeRef = useRef(performance.now())
   const playerRef = useRef()
+
+  useEffect(() => {
+    if (showGameOverScreen) {
+      const handleKeyPress = event => {
+        if (event.key === 'Enter') {
+          setShowGameOverScreen(false)
+        }
+      }
+
+      document.addEventListener('keydown', handleKeyPress)
+
+      return () => {
+        document.removeEventListener('keydown', handleKeyPress)
+      }
+    }
+  })
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -24,7 +42,9 @@ const Game = () => {
     return () => clearInterval(interval)
   }, [])
 
-  return (
+  return !showGameOverScreen ? (
+    <GameOverScreen />
+  ) : (
     <>
       <Canvas shadows dpr={[1, 2]} camera={{ position: config.cameraPosition, fov: 50 }} performance={{ min: 0.1 }}>
         <CameraController />

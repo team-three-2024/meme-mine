@@ -5,34 +5,52 @@ import * as THREE from 'three'
 import { brandPalette, canaryConfig } from '../config'
 import { assetURL } from '../helpers/url'
 
-const Canary = React.forwardRef((props, ref) => {
+const Canary = React.forwardRef((props, playerRef) => {
   const initialPosition = props.position ? props.position : [0, 0, 0]
+
   const [position, setPosition] = useState(initialPosition)
   const [isJumping, setIsJumping] = useState(false)
 
-  const glb = canaryConfig.objectUrl[props.animation]
+  let animation = props.animation
+  let speed = props.speed
+  let reversed = props.reversed
+
+  if (props.animation === 'dead') {
+    animation = 'idle'
+    speed = 0
+    reversed = true
+  }
+
+  const glb = canaryConfig.objectUrl[animation]
   const { scene, nodes, materials, animations } = useGLTF(assetURL(glb))
 
-  const mixerRef = useRef()
+  const animationRef = useRef()
+  const meshRef = useRef()
 
   useEffect(() => {
-    if (ref.current) {
-      mixerRef.current = new THREE.AnimationMixer(ref.current)
+    if (meshRef.current && reversed) {
+      meshRef.current.rotation.x = Math.PI / 0.85
     }
-  }, [ref])
+  }, [])
 
   useEffect(() => {
-    if (mixerRef.current && animations) {
+    if (playerRef.current) {
+      animationRef.current = new THREE.AnimationMixer(playerRef.current)
+    }
+  }, [playerRef])
+
+  useEffect(() => {
+    if (animationRef.current && animations) {
       animations.forEach(clip => {
-        const action = mixerRef.current.clipAction(clip)
-        action.timeScale = props.speed
+        const action = animationRef.current.clipAction(clip)
+        action.timeScale = speed
         action.play()
       })
     }
 
     return () => {
-      if (mixerRef.current) {
-        mixerRef.current.stopAllAction()
+      if (animationRef.current) {
+        animationRef.current.stopAllAction()
       }
     }
   }, [animations])
@@ -57,8 +75,8 @@ const Canary = React.forwardRef((props, ref) => {
   }, [position])
 
   useFrame((_, delta) => {
-    if (mixerRef.current) {
-      mixerRef.current.update(delta)
+    if (animationRef.current) {
+      animationRef.current.update(delta)
     }
 
     if (isJumping) {
@@ -98,8 +116,8 @@ const Canary = React.forwardRef((props, ref) => {
   }, [scene, nodes, materials])
 
   return (
-    <mesh position={position}>
-      <primitive ref={ref} object={scene} {...props} />
+    <mesh position={position} ref={meshRef}>
+      <primitive ref={playerRef} object={scene} {...props} />
     </mesh>
   )
 })
