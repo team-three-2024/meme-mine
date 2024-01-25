@@ -22,7 +22,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/laurogripa/global-game-jam-2024.git"
+    "url": "git+https://github.com/team-three-2024/meme-mine.git"
   },
   "dependencies": {
     "@babel/polyfill": "7.12.1",
@@ -51,6 +51,7 @@
     "eslint-plugin-react-hooks": "^4.2.0",
     "eslint-plugin-testing-library": "^3.9.2",
     "eslint-webpack-plugin": "^2.5.2",
+    "gh-pages": "^6.1.1",
     "react-scripts": "2.0.3"
   },
   "overrides": {
@@ -62,11 +63,13 @@
   },
   "scripts": {
     "start": "SKIP_PREFLIGHT_CHECK=true NODE_OPTIONS=--openssl-legacy-provider react-scripts start",
-    "build": "rm -rf dist && NODE_OPTIONS=--openssl-legacy-provider NODE_ENV=production babel src/lib public/assets --out-dir dist --copy-files --ignore __tests__,spec.js,test.js,__snapshots__",
+    "build": "SKIP_PREFLIGHT_CHECK=true NODE_OPTIONS=--openssl-legacy-provider react-scripts build",
+    "dist": "rm -rf dist && NODE_OPTIONS=--openssl-legacy-provider NODE_ENV=production babel src/lib public/assets --out-dir dist --copy-files --ignore __tests__,spec.js,test.js,__snapshots__",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "lint:fix": "eslint \"{src,apps,libs,test}/**/*.{js,jsx}\" --fix",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.{js,jsx}\""
+    "lint": "eslint \"{src,apps,libs,test}/**/*.{js,jsx}\"",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
@@ -81,9 +84,9 @@
     "not op_mini all"
   ],
   "bugs": {
-    "url": "https://github.com/laurogripa/global-game-jam-2024/issues"
+    "url": "https://github.com/team-three-2024/meme-mine/issues"
   },
-  "homepage": "https://github.com/laurogripa/global-game-jam-2024#readme",
+  "homepage": "https://team-three-2024.github.io/meme-mine",
   "author": "Vilson Vieira",
   "contributors": [
     "Lauro Gripa"

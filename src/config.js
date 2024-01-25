@@ -1,8 +1,8 @@
 const canaryConfig = {
   objectUrl: {
-    hop: '/assets/canary_hop.glb',
-    idle: '/assets/canary_idle.glb',
-    walk: '/assets/canary_walk.glb'
+    hop: `${process.env.PUBLIC_URL}/assets/canary_hop.glb`,
+    idle: `${process.env.PUBLIC_URL}/assets/canary_idle.glb`,
+    walk: `${process.env.PUBLIC_URL}/assets/canary_walk.glb`
   },
   nodeCoords: 'canary.geometry.attributes.position',
   nodeSigns: [1, -1, -1],

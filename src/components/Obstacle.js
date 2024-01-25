@@ -6,7 +6,7 @@ import { TextureLoader } from 'three'
 const random = (min, max) => Math.floor(Math.random() * (max - min)) + min
 
 const ObstacleSegment = React.forwardRef(({ positionZ, side }, ref) => {
-  const texture = useLoader(TextureLoader, 'assets/sbf.jpeg')
+  const texture = useLoader(TextureLoader, `${process.env.PUBLIC_URL}/assets/sbf.jpeg`)
 
   return (
     <mesh position={[side, 0, positionZ]} rotation={[0, 0, 0]} ref={ref}>
