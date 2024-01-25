@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import React, { useState, useRef, useEffect, useLayoutEffect } from 'react'
 import * as THREE from 'three'
 import { brandPalette, canaryConfig } from '../config'
+import { assetURL } from '../helpers/url'
 
 const Canary = React.forwardRef((props, ref) => {
   const initialPosition = props.position ? props.position : [0, 0, 0]
@@ -10,7 +11,7 @@ const Canary = React.forwardRef((props, ref) => {
   const [isJumping, setIsJumping] = useState(false)
 
   const glb = canaryConfig.objectUrl[props.animation]
-  const { scene, nodes, materials, animations } = useGLTF(glb)
+  const { scene, nodes, materials, animations } = useGLTF(assetURL(glb))
 
   const mixerRef = useRef()
 

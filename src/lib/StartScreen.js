@@ -77,7 +77,7 @@ const blinkAnimation = keyframes`
 
 const OverlayContainer = styled.div`
   position: absolute;
-  top: 0;
+  top: 25px;
   left: 0;
   width: 100%;
   height: 100%;
@@ -95,7 +95,7 @@ const Title = styled.h1`
 
 const Subtitle = styled.h2`
   color: #fff;
-  margin-top: 100px;
+  margin-top: 125px;
   text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
   animation: ${blinkAnimation} 1500ms linear infinite;
 `
