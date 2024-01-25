@@ -5,7 +5,8 @@ import * as THREE from 'three'
 import { brandPalette, canaryConfig } from '../config'
 
 const Canary = React.forwardRef((props, ref) => {
-  const [position, setPosition] = useState([0, 0, 0])
+  const initialPosition = props.position ? props.position : [0, 0, 0]
+  const [position, setPosition] = useState(initialPosition)
   const [isJumping, setIsJumping] = useState(false)
 
   const glb = canaryConfig.objectUrl[props.animation]
@@ -23,7 +24,7 @@ const Canary = React.forwardRef((props, ref) => {
     if (mixerRef.current && animations) {
       animations.forEach(clip => {
         const action = mixerRef.current.clipAction(clip)
-        action.timeScale = 3
+        action.timeScale = props.speed
         action.play()
       })
     }

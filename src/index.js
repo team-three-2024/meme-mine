@@ -1,14 +1,10 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import { Game } from './lib/Game'
+import { StartScreen } from './lib/StartScreen'
 
 import './styles.css'
 
 class App extends React.Component {
-  constructor(props) {
-    super(props)
-  }
-
   render() {
     return (
       <>
@@ -21,7 +17,7 @@ class App extends React.Component {
             height: '100%'
           }}
         >
-          <Game />
+          <StartScreen />
         </div>
       </>
     )

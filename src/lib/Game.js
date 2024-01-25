@@ -25,6 +25,7 @@ const Game = () => {
       <Suspense fallback={null}>
         <Canary
           animation="walk"
+          speed="3"
           scale={config.model.scale}
           meshColorIndex={config.meshColorIndex}
           meshScale={config.meshScale}
