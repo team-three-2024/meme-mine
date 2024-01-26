@@ -8,7 +8,7 @@ import { GameOverScreen } from './GameOverScreen'
 import { CameraController } from '../components/CameraController'
 import { Canary } from '../components/Canary'
 import { Lights } from '../components/Lights'
-import { Obstacle } from '../components/Obstacle'
+import { Obstacles } from '../components/Obstacle'
 import { Path } from '../components/Path'
 import { canaryConfig as config } from '../config'
 
@@ -53,7 +53,7 @@ const Game = () => {
 
         <Path ref={playerRef} />
 
-        <Obstacle ref={playerRef} />
+        <Obstacles ref={playerRef} />
 
         <Suspense fallback={null}>
           <Canary
