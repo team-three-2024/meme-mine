@@ -1,7 +1,7 @@
 {
   "main.css": "/meme-mine/static/css/main.cf959df9.chunk.css",
-  "main.js": "/meme-mine/static/js/main.8342e159.chunk.js",
-  "main.js.map": "/meme-mine/static/js/main.8342e159.chunk.js.map",
+  "main.js": "/meme-mine/static/js/main.978cb0ee.chunk.js",
+  "main.js.map": "/meme-mine/static/js/main.978cb0ee.chunk.js.map",
   "static/js/1.b03b9485.chunk.js": "/meme-mine/static/js/1.b03b9485.chunk.js",
   "static/js/1.b03b9485.chunk.js.map": "/meme-mine/static/js/1.b03b9485.chunk.js.map",
   "runtime~main.js": "/meme-mine/static/js/runtime~main.2437c755.js",
@@ -10,6 +10,6 @@
   "static/media/index.mjs": "/meme-mine/static/media/index.a045c5b8.mjs",
   "static/css/main.cf959df9.chunk.css.map": "/meme-mine/static/css/main.cf959df9.chunk.css.map",
   "index.html": "/meme-mine/index.html",
-  "precache-manifest.806f4c5cae0f1011b51bfa8eb886a6ce.js": "/meme-mine/precache-manifest.806f4c5cae0f1011b51bfa8eb886a6ce.js",
+  "precache-manifest.3eacf5239b4c6de7f6203eaf618ceb1b.js": "/meme-mine/precache-manifest.3eacf5239b4c6de7f6203eaf618ceb1b.js",
   "service-worker.js": "/meme-mine/service-worker.js"
 }
