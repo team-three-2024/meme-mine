@@ -18,3 +18,25 @@ body,
 body {
   background: #202025;
 }
+
+div#webcam_holder {
+  position: absolute;
+  top: 30px;
+  right: 10px;
+  width: 320px;
+  height: 300px;
+  rotate: 10deg;
+}
+
+div#webcam_holder p {
+  color: white;
+  top: -50px;
+  left: 10px;
+  position: relative;
+
+}
+
+video#webcam {
+  opacity: 0.8;
+  width: 320px;
+}
