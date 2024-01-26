@@ -10,6 +10,7 @@ import { Canary } from '../components/Canary'
 import { Lights } from '../components/Lights'
 import { Obstacles } from '../components/Obstacle'
 import { Path } from '../components/Path'
+import { usePreloadedVideos } from '../components/Videos'
 import { canaryConfig as config } from '../config'
 
 const Game = () => {
@@ -17,6 +18,8 @@ const Game = () => {
   const [score, setScore] = useState(0)
   const startTimeRef = useRef(performance.now())
   const playerRef = useRef()
+  const videoURLs = ['cat1.mp4', 'cat2.mp4', 'cat3.mp4']
+  const videos = usePreloadedVideos(videoURLs)
 
   useEffect(() => {
     if (showGameOverScreen) {
@@ -42,6 +45,10 @@ const Game = () => {
     return () => clearInterval(interval)
   }, [])
 
+  if (videos.length !== videoURLs.length) {
+    return <div>Loading Videos...</div>
+  }
+
   return !showGameOverScreen ? (
     <GameOverScreen />
   ) : (
@@ -53,7 +60,7 @@ const Game = () => {
 
         <Path ref={playerRef} />
 
-        <Obstacles ref={playerRef} />
+        <Obstacles videos={videos} ref={playerRef} />
 
         <Suspense fallback={null}>
           <Canary
