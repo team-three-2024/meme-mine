@@ -1,15 +1,15 @@
 {
-  "main.css": "/meme-mine/static/css/main.cf959df9.chunk.css",
-  "main.js": "/meme-mine/static/js/main.2857e380.chunk.js",
-  "main.js.map": "/meme-mine/static/js/main.2857e380.chunk.js.map",
-  "static/js/1.b03b9485.chunk.js": "/meme-mine/static/js/1.b03b9485.chunk.js",
-  "static/js/1.b03b9485.chunk.js.map": "/meme-mine/static/js/1.b03b9485.chunk.js.map",
-  "runtime~main.js": "/meme-mine/static/js/runtime~main.2437c755.js",
-  "runtime~main.js.map": "/meme-mine/static/js/runtime~main.2437c755.js.map",
-  "static/media/bidi.mjs": "/meme-mine/static/media/bidi.fd3f95b8.mjs",
-  "static/media/index.mjs": "/meme-mine/static/media/index.a045c5b8.mjs",
-  "static/css/main.cf959df9.chunk.css.map": "/meme-mine/static/css/main.cf959df9.chunk.css.map",
-  "index.html": "/meme-mine/index.html",
-  "precache-manifest.a105d28e4b9d29d83eb0ab5a2c2916c1.js": "/meme-mine/precache-manifest.a105d28e4b9d29d83eb0ab5a2c2916c1.js",
-  "service-worker.js": "/meme-mine/service-worker.js"
+  "main.css": "/static/css/main.cf959df9.chunk.css",
+  "main.js": "/static/js/main.1f492c5c.chunk.js",
+  "main.js.map": "/static/js/main.1f492c5c.chunk.js.map",
+  "static/js/1.b397f94d.chunk.js": "/static/js/1.b397f94d.chunk.js",
+  "static/js/1.b397f94d.chunk.js.map": "/static/js/1.b397f94d.chunk.js.map",
+  "runtime~main.js": "/static/js/runtime~main.229c360f.js",
+  "runtime~main.js.map": "/static/js/runtime~main.229c360f.js.map",
+  "static/media/bidi.mjs": "/static/media/bidi.fd3f95b8.mjs",
+  "static/media/index.mjs": "/static/media/index.a045c5b8.mjs",
+  "static/css/main.cf959df9.chunk.css.map": "/static/css/main.cf959df9.chunk.css.map",
+  "index.html": "/index.html",
+  "precache-manifest.62b16aefff97c3a4fdfc11ff0deb4350.js": "/precache-manifest.62b16aefff97c3a4fdfc11ff0deb4350.js",
+  "service-worker.js": "/service-worker.js"
 }
