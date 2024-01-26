@@ -2,6 +2,17 @@ import { useFrame } from '@react-three/fiber'
 import React, { useState, useRef } from 'react'
 import * as THREE from 'three'
 
+const SideSegment = React.forwardRef(({ positionZ, side }, ref) => {
+  const positionX = side === 'left' ? -1.5 : 1.5
+
+  return (
+    <mesh position={[positionX, 0, positionZ]} rotation={[Math.PI / 2, 0, 0]} ref={ref}>
+      <planeGeometry args={[0.1, 1000]} />
+      <meshBasicMaterial color={0xffffff} side={THREE.DoubleSide} />
+    </mesh>
+  )
+})
+
 const PathSegment = React.forwardRef(({ positionZ }, ref) => {
   return (
     <mesh position={[0, -0.52, positionZ]} rotation={[Math.PI / 2, 0, 0]} ref={ref}>
@@ -49,7 +60,11 @@ const Path = React.forwardRef((_, playerRef) => {
   return (
     <>
       {segments.map((z, index) => (
-        <PathSegment key={index} positionZ={z} ref={index === segments.length - 1 ? lastSegmentRef : undefined} />
+        <>
+          <PathSegment key={index} positionZ={z} ref={index === segments.length - 1 ? lastSegmentRef : undefined} />
+          <SideSegment positionZ={z} side="left" />
+          <SideSegment positionZ={z} side="right" />
+        </>
       ))}
     </>
   )
