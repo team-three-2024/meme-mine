@@ -1,8 +1,8 @@
-import { useFrame, useThree } from '@react-three/fiber'
+import { useFrame } from '@react-three/fiber'
 import React, { useEffect, useState, useRef } from 'react'
 import * as THREE from 'three'
 import { Box3, VideoTexture } from 'three'
-import { addBoundingBoxHelper, useBoundingBox } from './BoundingBox'
+import { useBoundingBox } from './BoundingBox'
 
 const random = (min, max) => Math.floor(Math.random() * (max - min)) + min
 
