@@ -9,6 +9,7 @@ const Obstacle = React.forwardRef(({ positionZ, side, video, handleObstacleRef }
   const videoRef = useRef()
   const textureRef = useRef()
   const obstacleRef = useRef()
+  console.log(ref)
 
   useEffect(() => {
     video.play()
