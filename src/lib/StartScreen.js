@@ -14,21 +14,30 @@ const StartScreen = () => {
 
   const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
 
-  if (isTouchDevice) {
-    document.addEventListener('touchstart', setScreenTouched(true))
-  }
-
   useEffect(() => {
     const handleKeyPress = event => {
-      if (event.key === 'Enter' || screenTouched) {
+      if (event.key === 'Enter') {
+        setShowStartScreen(false)
+      }
+    }
+
+    const handleTouch = event => {
+      if (event.type === 'touchstart') {
         setShowStartScreen(false)
       }
     }
 
     document.addEventListener('keydown', handleKeyPress)
 
+    if (isTouchDevice) {
+      document.addEventListener('touchstart', handleTouch)
+    }
+
     return () => {
       document.removeEventListener('keydown', handleKeyPress)
+      if (isTouchDevice) {
+        document.addEventListener('touchstart', setScreenTouched(false))
+      }
     }
   }, [])
 
