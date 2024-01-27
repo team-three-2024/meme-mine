@@ -6,49 +6,77 @@ import { useBoundingBox } from './BoundingBox'
 
 const random = (min, max) => Math.floor(Math.random() * (max - min)) + min
 
-const Obstacle = React.forwardRef(({ positionZ, side, video }, ref) => {
+const Obstacle = React.forwardRef(({ positionZ, side, video, handleObstacleRef }, ref) => {
   const videoRef = useRef()
-  const texture = useRef()
+  const textureRef = useRef()
+  const obstacleRef = useRef()
 
   useEffect(() => {
     video.play()
     videoRef.current = video
-    texture.current = new VideoTexture(video)
+    textureRef.current = new VideoTexture(video)
+
+    handleObstacleRef(positionZ, obstacleRef)
   }, [])
 
   useFrame(() => {
-    if (texture.current) {
-      texture.current.needsUpdate = true
+    if (textureRef.current) {
+      textureRef.current.needsUpdate = true
     }
   })
 
   return (
-    <mesh position={[side, 0, positionZ]} rotation={[0, 0, 0]} ref={ref}>
-      <planeGeometry args={[1.2, 1.2]} />
-      <meshBasicMaterial map={texture.current} side={THREE.DoubleSide} />
+    <mesh position={[side, 0, positionZ]} rotation={[0, 0, 0]} ref={obstacleRef}>
+      <circleGeometry args={[0.6, 32]} />
+      <meshBasicMaterial map={textureRef.current} side={THREE.DoubleSide} />
     </mesh>
   )
 })
 
 const Obstacles = React.forwardRef(({ videos }, playerRef) => {
   const [obstacles, setObstacles] = useState([])
-  const obstacleRefs = []
-  const [gamePosition, setGamePosition] = useState(0)
 
-  const visibleObstacles = 8
-  const lastObstacleRef = useRef()
+  const visibleObstacles = 5
   const clockRef = useRef({ elapsedTime: 0, delta: 0 })
 
-  const playerBox = useBoundingBox(playerRef)
+  const handleObstacleRef = (obstacleIdentifier, ref) => {
+    setObstacles(prevObstacles => {
+      return prevObstacles.map(obstacle => {
+        if (obstacle.z === obstacleIdentifier) {
+          if (ref.current) {
+            return { ...obstacle, ref }
+          }
+        }
+        return obstacle
+      })
+    })
+  }
 
-  useFrame(() => {
+  const playerBox = useBoundingBox(playerRef)
+  // const { scene } = useThree()
+
+  // useEffect(() => {
+  //   if (playerRef.current) {
+  //     const helper = addBoundingBoxHelper(playerRef.current, scene)
+
+  //     return () => scene.remove(helper)
+  //   }
+  // }, [playerRef.current, scene])
+
+  useFrame(state => {
+    const { clock } = state
+    clockRef.current.delta = clock.getElapsedTime() - clockRef.current.elapsedTime
+    if (clockRef.current.delta < 1) return
+
     let collisionDetected = false
-    obstacleRefs.forEach(ref => {
-      if (playerRef && ref) {
-        const obstacleBox = new Box3().setFromObject(ref.current)
-        if (playerBox && obstacleBox) {
-          if (playerBox.intersectsBox(obstacleBox)) {
-            collisionDetected = true
+    obstacles.forEach(obstacle => {
+      if (playerRef && obstacle.ref) {
+        if (obstacle.ref && obstacle.ref.current) {
+          const obstacleBox = new Box3().setFromObject(obstacle.ref.current)
+          if (playerBox && obstacleBox) {
+            console.info(playerBox.min, playerBox.max)
+            console.info(obstacleBox.min, obstacleBox.max)
+            collisionDetected = playerBox.min.z - 1 <= obstacleBox.max.z && playerBox.max.z - 1 >= obstacleBox.min.z
           }
         }
       }
@@ -63,26 +91,33 @@ const Obstacles = React.forwardRef(({ videos }, playerRef) => {
     clockRef.current.delta = clock.getElapsedTime() - clockRef.current.elapsedTime
 
     if (playerRef.current) {
-      if (clockRef.current.delta >= 0.05) {
+      // Move obstacles and clean up old ones
+      if (clockRef.current.delta >= 0.1) {
         clockRef.current.elapsedTime = clock.getElapsedTime()
-        setGamePosition(gamePosition => gamePosition + 1)
-        setObstacles(prevObstacles => prevObstacles.map(obstacle => ({ z: obstacle.z - 1, side: obstacle.side })))
+        setObstacles(
+          prevObstacles =>
+            prevObstacles
+              .map(obstacle => ({
+                ...obstacle,
+                z: obstacle.z - 1
+              }))
+              .filter(obstacle => obstacle.z >= -10) // -10 is the screen limit
+        )
       }
 
-      const lastObstacleZ = lastObstacleRef.current ? lastObstacleRef.current.position.z : 0
+      // Create new obstacles
+      if (obstacles.length < visibleObstacles) {
+        const initialPosition = 0
+        const obstacleGap = random(20, 120)
+        const obstacleside = Math.floor(Math.random() * 3) - 1
 
-      if (obstacles.length < visibleObstacles || gamePosition % visibleObstacles > lastObstacleZ) {
-        const obstacleGap = random(10, 50)
-        const Obstacleside = Math.floor(Math.random() * 3) - 1
-        const newObstacleZ = { z: lastObstacleZ + obstacleGap, side: Obstacleside }
-        setObstacles(prevObstacles => [...prevObstacles, newObstacleZ])
-      }
+        const newObstacle = {
+          z: initialPosition + obstacleGap,
+          side: obstacleside,
+          ref: null
+        }
 
-      if (obstacles.length > visibleObstacles) {
-        setObstacles(prevObstacles => {
-          console.info(prevObstacles)
-          return prevObstacles.slice(1)
-        })
+        setObstacles(prevObstacles => [...prevObstacles, newObstacle])
       }
     }
   })
@@ -90,16 +125,15 @@ const Obstacles = React.forwardRef(({ videos }, playerRef) => {
   return (
     <>
       {obstacles.map(({ z, side }, index) => {
-        const obstacleRef = index === obstacles.length - 1 ? lastObstacleRef : undefined
-        obstacleRefs.push(obstacleRef)
         return (
           <Obstacle
             key={index}
             positionZ={z}
             side={side}
             playerRef={playerRef}
-            ref={obstacleRef}
+            ref={playerRef}
             video={videos[Math.floor(Math.random() * videos.length)]}
+            handleObstacleRef={handleObstacleRef}
           />
         )
       })}
