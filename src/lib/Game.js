@@ -1,14 +1,13 @@
 import { OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
-import { EffectComposer, Bloom } from '@react-three/postprocessing'
-import React, { useEffect, useRef, useState, Suspense } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
 import styled from 'styled-components'
 import { GameOverScreen } from './GameOverScreen'
 import { CameraController } from '../components/CameraController'
 import { Canary } from '../components/Canary'
 import { Lights } from '../components/Lights'
-import { Obstacles } from '../components/Obstacle'
+import { Obstacles } from '../components/Obstacles'
 import { Path } from '../components/Path'
 import { usePreloadedVideos } from '../components/Videos'
 import { canaryConfig as config } from '../config'
@@ -62,26 +61,15 @@ const Game = () => {
 
         <Obstacles videos={videos} ref={playerRef} />
 
-        <Suspense fallback={null}>
-          <Canary
-            animation="walk"
-            speed="3"
-            scale={config.model.scale}
-            meshColorIndex={config.meshColorIndex}
-            meshScale={config.meshScale}
-            model={config.model}
-            ref={playerRef}
-          />
-
-          <EffectComposer multisampling={16}>
-            <Bloom
-              kernelSize={config.bloom.kernelSize}
-              luminanceThreshold={config.bloom.luminanceThreshold}
-              luminanceSmoothing={config.bloom.luminanceSmoothing}
-              intensity={config.bloom.intensity}
-            />
-          </EffectComposer>
-        </Suspense>
+        <Canary
+          animation="walk"
+          speed="3"
+          scale={config.model.scale}
+          meshColorIndex={config.meshColorIndex}
+          meshScale={config.meshScale}
+          model={config.model}
+          ref={playerRef}
+        />
 
         <OrbitControls minPolarAngle={Math.PI / 2.8} maxPolarAngle={Math.PI / 1.8} />
       </Canvas>
