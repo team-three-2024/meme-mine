@@ -9,7 +9,7 @@ import { GameOverScreen } from './GameOverScreen'
 import { CameraController } from '../components/CameraController'
 import { Canary } from '../components/Canary'
 import { Lights } from '../components/Lights'
-import { Obstacle } from '../components/Obstacle'
+import { Obstacles } from '../components/Obstacle'
 import { Path } from '../components/Path'
 import { usePreloadedVideos } from '../components/Videos'
 import { canaryConfig as config } from '../config'
@@ -51,9 +51,6 @@ const Game = () => {
 
     return () => clearInterval(interval)
   }, [])
-  if (videos.length !== videoURLs.length) {
-    return <div>Loading Videos...</div>
-  }
 
   useEffect(() => {
     const loadModels = async () => {
@@ -104,6 +101,10 @@ const Game = () => {
         }
       }
     }, 100)
+  }
+
+  if (videos.length !== videoURLs.length) {
+    return <div>Loading Videos...</div>
   }
 
   return !showGameOverScreen ? (
