@@ -5,11 +5,11 @@ const useBoundingBox = ref => {
   const [box, setBox] = useState(null)
 
   useEffect(() => {
-    if (ref.current) {
+    if (ref && ref.current) {
       const newBox = new THREE.Box3().setFromObject(ref.current)
       setBox(newBox)
     }
-  }, [ref, ref.current])
+  }, [ref])
 
   return box
 }

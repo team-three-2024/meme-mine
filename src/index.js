@@ -1,7 +1,6 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import styled from 'styled-components'
-import { ModelProvider } from './context/ModelContext'
 import { StartScreen } from './lib/StartScreen'
 
 import './styles.css'
@@ -15,11 +14,9 @@ const StyledApp = styled.div`
 
 const App = () => {
   return (
-    <ModelProvider>
-      <StyledApp>
-        <StartScreen />
-      </StyledApp>
-    </ModelProvider>
+    <StyledApp>
+      <StartScreen />
+    </StyledApp>
   )
 }
 

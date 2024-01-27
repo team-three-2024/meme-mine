@@ -60,11 +60,11 @@ const Path = React.forwardRef((_, playerRef) => {
   return (
     <>
       {segments.map((z, index) => (
-        <>
-          <PathSegment key={index} positionZ={z} ref={index === segments.length - 1 ? lastSegmentRef : undefined} />
+        <React.Fragment key={index}>
+          <PathSegment positionZ={z} ref={index === segments.length - 1 ? lastSegmentRef : undefined} />
           <SideSegment positionZ={z} side="left" />
           <SideSegment positionZ={z} side="right" />
-        </>
+        </React.Fragment>
       ))}
     </>
   )
