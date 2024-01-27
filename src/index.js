@@ -13,6 +13,9 @@ class App extends React.Component {
     this.state = {
       captureVideo: false,
     }
+    this.videoRef = null;
+    this.videoWidth = 320;
+    this.videoHeight = 240;
   }
 
   handleKeyPress = event => {
@@ -25,9 +28,6 @@ class App extends React.Component {
   async componentDidMount() {
     await this.loadModels();
     this.videoRef = React.createRef();
-    this.videoWidth = 320;
-    this.videoHeight = 240;
-
     window.addEventListener('keydown', this.handleKeyPress)
   }
 
@@ -52,7 +52,6 @@ class App extends React.Component {
     navigator.mediaDevices
         .getUserMedia({ video: { width: this.videoWidth } })
         .then(stream => {
-          console.log(this.videoRef)
           if (this.videoRef.current) {
             let video = this.videoRef.current;
             video.srcObject = stream;
