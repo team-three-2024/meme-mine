@@ -3,9 +3,9 @@ import { createRoot } from 'react-dom/client'
 import styled from 'styled-components'
 import { ModelProvider } from './context/ModelContext'
 import { StartScreen } from './lib/StartScreen'
+
 import './styles.css'
 
-// Styled component
 const StyledApp = styled.div`
   display: flex;
   flex-direction: column;
