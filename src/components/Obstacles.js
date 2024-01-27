@@ -92,7 +92,7 @@ const Obstacles = React.forwardRef(({ videos }, playerRef) => {
 
     if (playerRef.current) {
       // Move obstacles and clean up old ones
-      if (clockRef.current.delta >= 1) {
+      if (clockRef.current.delta >= 0.1) {
         clockRef.current.elapsedTime = clock.getElapsedTime()
         setObstacles(
           prevObstacles =>
