@@ -1,8 +1,7 @@
 import { OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
-import { EffectComposer, Bloom } from '@react-three/postprocessing'
 import * as faceapi from 'face-api.js'
-import React, { useEffect, useRef, useState, Suspense } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
 import styled from 'styled-components'
 import { GameOverScreen } from './GameOverScreen'
@@ -137,26 +136,15 @@ const Game = () => {
 
         <Obstacles videos={videos} ref={playerRef} />
 
-        <Suspense fallback={null}>
-          <Canary
-            animation="walk"
-            speed="3"
-            scale={config.model.scale}
-            meshColorIndex={config.meshColorIndex}
-            meshScale={config.meshScale}
-            model={config.model}
-            ref={playerRef}
-          />
-
-          <EffectComposer multisampling={16}>
-            <Bloom
-              kernelSize={config.bloom.kernelSize}
-              luminanceThreshold={config.bloom.luminanceThreshold}
-              luminanceSmoothing={config.bloom.luminanceSmoothing}
-              intensity={config.bloom.intensity}
-            />
-          </EffectComposer>
-        </Suspense>
+        <Canary
+          animation="walk"
+          speed="3"
+          scale={config.model.scale}
+          meshColorIndex={config.meshColorIndex}
+          meshScale={config.meshScale}
+          model={config.model}
+          ref={playerRef}
+        />
 
         <OrbitControls minPolarAngle={Math.PI / 2.8} maxPolarAngle={Math.PI / 1.8} />
       </Canvas>
