@@ -1,5 +1,6 @@
 import { OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
+import * as faceapi from 'face-api.js'
 import React, { useEffect, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
 import styled from 'styled-components'
@@ -19,12 +20,17 @@ const Game = () => {
   const playerRef = useRef()
   const videoURLs = ['cat1.mp4', 'cat2.mp4', 'cat3.mp4']
   const videos = usePreloadedVideos(videoURLs)
+  const videoRef = useRef()
+  const videoWidth = 320
+  const videoHeight = 240
+  const [captureVideo, setCaptureVideo] = useState(false)
 
   useEffect(() => {
     if (showGameOverScreen) {
       const handleKeyPress = event => {
         if (event.key === 'Enter') {
           setShowGameOverScreen(false)
+          if (!captureVideo) startVideo()
         }
       }
 
@@ -44,6 +50,57 @@ const Game = () => {
     return () => clearInterval(interval)
   }, [])
 
+  useEffect(() => {
+    const loadModels = async () => {
+      Promise.all([
+        faceapi.nets.faceExpressionNet.loadFromUri('/models'),
+        faceapi.nets.faceRecognitionNet.loadFromUri('/models'),
+        faceapi.nets.ssdMobilenetv1.loadFromUri('/models'),
+        faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
+        faceapi.nets.mtcnn.loadFromUri('/models'),
+        faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
+        faceapi.nets.faceLandmark68TinyNet.loadFromUri('/models'),
+        faceapi.nets.ageGenderNet.loadFromUri('/models')
+      ])
+    }
+    loadModels()
+  }, [])
+
+  function startVideo() {
+    setCaptureVideo(true)
+
+    navigator.mediaDevices
+      .getUserMedia({ video: { width: videoWidth } })
+      .then(stream => {
+        if (videoRef.current) {
+          let video = videoRef.current
+          video.srcObject = stream
+          video.play()
+        }
+      })
+      .catch(err => {
+        console.error(err)
+      })
+  }
+
+  function handleVideoOnPlay() {
+    setInterval(async () => {
+      if (videoRef) {
+        const detections = await faceapi
+          .detectSingleFace(videoRef.current, new faceapi.TinyFaceDetectorOptions())
+          .withFaceLandmarks()
+          .withFaceExpressions()
+        if (detections) {
+          if (detections.expressions.happy > 0.6) {
+            window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }))
+          } else if (detections.expressions.surprised > 0.6) {
+            window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }))
+          }
+        }
+      }
+    }, 100)
+  }
+
   if (videos.length !== videoURLs.length) {
     return <div>Loading Videos...</div>
   }
@@ -52,6 +109,24 @@ const Game = () => {
     <GameOverScreen />
   ) : (
     <>
+      {captureVideo ? (
+        <div id="webcam_holder">
+          <video id="webcam" ref={videoRef} height={videoHeight} width={videoWidth} onPlay={handleVideoOnPlay} />
+          <p>
+            <span role="img" aria-label="surprised face">
+              😲
+            </span>
+            /
+            <span role="img" aria-label="happy face">
+              😆
+            </span>{' '}
+            to jump!
+          </p>
+        </div>
+      ) : (
+        <button onClick={() => startVideo()}>Start Video</button>
+      )}
+
       <Canvas shadows dpr={[1, 2]} camera={{ position: config.cameraPosition, fov: 50 }} performance={{ min: 0.1 }}>
         <CameraController />
 
