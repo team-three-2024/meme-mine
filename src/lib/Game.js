@@ -14,10 +14,10 @@ import { usePreloadedVideos } from '../components/Videos'
 import { canaryConfig as config } from '../config'
 
 const Game = () => {
+  const [canaryRef, setCanaryRef] = useState(null)
   const [showGameOverScreen, setShowGameOverScreen] = useState(true)
   const [score, setScore] = useState(0)
   const startTimeRef = useRef(performance.now())
-  const playerRef = useRef()
   const videoURLs = [
     'memes/3j1cVdG8uWR82e8OJG.mp4',
     'memes/3o6Ztg2MgUkcXyCgtG.mp4',
@@ -32,6 +32,12 @@ const Game = () => {
   const videoWidth = 320
   const videoHeight = 240
   const [captureVideo, setCaptureVideo] = useState(false)
+
+  const handleCanaryRef = ref => {
+    if (ref.current) {
+      setCanaryRef(ref)
+    }
+  }
 
   useEffect(() => {
     if (showGameOverScreen) {
@@ -140,9 +146,9 @@ const Game = () => {
 
         <Lights config={config} />
 
-        <Path ref={playerRef} />
+        <Path ref={canaryRef} />
 
-        <Obstacles videos={videos} ref={playerRef} />
+        <Obstacles videos={videos} ref={canaryRef} />
 
         <Canary
           animation="walk"
@@ -151,7 +157,8 @@ const Game = () => {
           meshColorIndex={config.meshColorIndex}
           meshScale={config.meshScale}
           model={config.model}
-          ref={playerRef}
+          ref={canaryRef}
+          handleCanaryRef={handleCanaryRef}
         />
 
         <OrbitControls minPolarAngle={Math.PI / 2.8} maxPolarAngle={Math.PI / 1.8} />

@@ -34,7 +34,7 @@ const Path = React.forwardRef((_, playerRef) => {
     const { clock } = state
     clockRef.current.delta = clock.getElapsedTime() - clockRef.current.elapsedTime
 
-    if (playerRef.current) {
+    if (playerRef && playerRef.current) {
       if (clockRef.current.delta >= 0.05) {
         clockRef.current.elapsedTime = clock.getElapsedTime()
         setGamePosition(gamePosition => gamePosition + 1)

@@ -1,8 +1,7 @@
-import { useFrame } from '@react-three/fiber'
+import { useFrame, useThree } from '@react-three/fiber'
 import React, { useEffect, useState, useRef } from 'react'
 import * as THREE from 'three'
 import { Box3, VideoTexture } from 'three'
-import { useBoundingBox } from './BoundingBox'
 
 const random = (min, max) => Math.floor(Math.random() * (max - min)) + min
 
@@ -33,7 +32,7 @@ const Obstacle = React.forwardRef(({ positionZ, side, video, handleObstacleRef }
   )
 })
 
-const Obstacles = React.forwardRef(({ videos }, playerRef) => {
+const Obstacles = React.forwardRef(({ videos }, canaryRef) => {
   const [obstacles, setObstacles] = useState([])
 
   const visibleObstacles = 5
@@ -52,45 +51,59 @@ const Obstacles = React.forwardRef(({ videos }, playerRef) => {
     })
   }
 
-  const playerBox = useBoundingBox(playerRef)
-  // const { scene } = useThree()
-
-  // useEffect(() => {
-  //   if (playerRef.current) {
-  //     const helper = addBoundingBoxHelper(playerRef.current, scene)
-
-  //     return () => scene.remove(helper)
-  //   }
-  // }, [playerRef.current, scene])
+  const { scene } = useThree()
 
   useFrame(state => {
     const { clock } = state
     clockRef.current.delta = clock.getElapsedTime() - clockRef.current.elapsedTime
-    if (clockRef.current.delta < 1) return
 
-    let collisionDetected = false
-    obstacles.forEach(obstacle => {
-      if (playerRef && obstacle.ref) {
+    if (canaryRef && canaryRef.current) {
+      const playerBox = new Box3().setFromObject(canaryRef.current)
+
+      // Transform the original bounding box to match the model inside
+      const scaleFactor = 0.23
+      const center = new THREE.Vector3()
+      const size = new THREE.Vector3()
+      playerBox.getCenter(center)
+      playerBox.getSize(size)
+
+      // Scale the size
+      size.multiplyScalar(scaleFactor)
+      const rotatedSize = new THREE.Vector3(size.x, size.z, size.y)
+      const scaledRotatedPlayerBox = new THREE.Box3()
+      scaledRotatedPlayerBox.setFromCenterAndSize(center, rotatedSize)
+
+      // Add helper
+      const geometry = new THREE.BoxGeometry(size.x, size.z, size.y)
+      const material = new THREE.MeshBasicMaterial({ color: 0xffff00, wireframe: true })
+      const boxHelper = new THREE.Mesh(geometry, material)
+      boxHelper.position.copy(center)
+      scene.add(boxHelper)
+
+      let collisionDetected = false
+      obstacles.forEach(obstacle => {
         if (obstacle.ref && obstacle.ref.current) {
           const obstacleBox = new Box3().setFromObject(obstacle.ref.current)
-          if (playerBox && obstacleBox) {
-            console.info(playerBox.min, playerBox.max)
-            console.info(obstacleBox.min, obstacleBox.max)
-            collisionDetected = playerBox.min.z - 1 <= obstacleBox.max.z && playerBox.max.z - 1 >= obstacleBox.min.z
+          const obstacleHelper = new THREE.BoxHelper(obstacle.ref.current, 0xffff00)
+          scene.add(obstacleHelper)
+
+          if (scaledRotatedPlayerBox && obstacleBox) {
+            collisionDetected = scaledRotatedPlayerBox.intersectsBox(obstacleBox)
           }
         }
-      }
-      if (collisionDetected) {
-        console.log('Collision Detected')
-      }
-    })
+
+        if (collisionDetected) {
+          console.log('Collision Detected')
+        }
+      })
+    }
   })
 
   useFrame(state => {
     const { clock } = state
     clockRef.current.delta = clock.getElapsedTime() - clockRef.current.elapsedTime
 
-    if (playerRef.current) {
+    if (canaryRef && canaryRef.current) {
       // Move obstacles and clean up old ones
       if (clockRef.current.delta >= 0.1) {
         clockRef.current.elapsedTime = clock.getElapsedTime()
@@ -130,8 +143,8 @@ const Obstacles = React.forwardRef(({ videos }, playerRef) => {
             key={index}
             positionZ={z}
             side={side}
-            playerRef={playerRef}
-            ref={playerRef}
+            canaryRef={canaryRef}
+            ref={canaryRef}
             video={videos[Math.floor(Math.random() * videos.length)]}
             handleObstacleRef={handleObstacleRef}
           />
