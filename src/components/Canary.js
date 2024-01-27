@@ -58,9 +58,15 @@ const Canary = React.forwardRef((props, playerRef) => {
   useEffect(() => {
     const handleKeyDown = event => {
       if (event.key === 'ArrowRight') {
-        setPosition(prevPosition => [prevPosition[0] - 1, prevPosition[1], prevPosition[2]])
+        setPosition(prevPosition => {
+          if (prevPosition[0] !== -1) return [prevPosition[0] - 1, prevPosition[1], prevPosition[2]]
+          else return prevPosition
+        })
       } else if (event.key === 'ArrowLeft') {
-        setPosition(prevPosition => [prevPosition[0] + 1, prevPosition[1], prevPosition[2]])
+        setPosition(prevPosition => {
+          if (prevPosition[0] !== 1) return [prevPosition[0] + 1, prevPosition[1], prevPosition[2]]
+          else return prevPosition
+        })
       }
       if (event.key === 'ArrowUp' && !isJumping && position[1] === 0) {
         setIsJumping(true)

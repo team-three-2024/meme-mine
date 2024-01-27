@@ -11,6 +11,7 @@ import { Canary } from '../components/Canary'
 import { Lights } from '../components/Lights'
 import { Obstacle } from '../components/Obstacle'
 import { Path } from '../components/Path'
+import { usePreloadedVideos } from '../components/Videos'
 import { canaryConfig as config } from '../config'
 // import { set } from 'core-js/core/dict'
 
@@ -19,6 +20,8 @@ const Game = () => {
   const [score, setScore] = useState(0)
   const startTimeRef = useRef(performance.now())
   const playerRef = useRef()
+  const videoURLs = ['cat1.mp4', 'cat2.mp4', 'cat3.mp4']
+  const videos = usePreloadedVideos(videoURLs)
   const videoRef = useRef()
   const videoWidth = 320
   const videoHeight = 240
@@ -48,6 +51,9 @@ const Game = () => {
 
     return () => clearInterval(interval)
   }, [])
+  if (videos.length !== videoURLs.length) {
+    return <div>Loading Videos...</div>
+  }
 
   useEffect(() => {
     const loadModels = async () => {
@@ -60,7 +66,7 @@ const Game = () => {
         faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
         faceapi.nets.faceLandmark68TinyNet.loadFromUri('/models'),
         faceapi.nets.ageGenderNet.loadFromUri('/models')
-      ])//.then(setModelsLoaded(true));
+      ])
     }
     loadModels();
   }, []);
@@ -135,7 +141,7 @@ const Game = () => {
 
         <Path ref={playerRef} />
 
-        <Obstacle ref={playerRef} />
+        <Obstacles videos={videos} ref={playerRef} />
 
         <Suspense fallback={null}>
           <Canary

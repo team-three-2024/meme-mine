@@ -1,29 +1,62 @@
-import { useLoader, useFrame } from '@react-three/fiber'
-import React, { useState, useRef } from 'react'
+import { useFrame } from '@react-three/fiber'
+import React, { useEffect, useState, useRef } from 'react'
 import * as THREE from 'three'
-import { TextureLoader } from 'three'
-import { assetURL } from '../helpers/url'
+import { Box3, VideoTexture } from 'three'
+import { useBoundingBox } from '../components/BoundingBox'
 
 const random = (min, max) => Math.floor(Math.random() * (max - min)) + min
 
-const ObstacleSegment = React.forwardRef(({ positionZ, side }, ref) => {
-  const texture = useLoader(TextureLoader, assetURL('sbf.jpeg'))
+const Obstacle = React.forwardRef(({ positionZ, side, video }, ref) => {
+  const videoRef = useRef()
+  const texture = useRef()
+
+  useEffect(() => {
+    video.play()
+    videoRef.current = video
+    texture.current = new VideoTexture(video)
+  }, [])
+
+  useFrame(() => {
+    if (texture.current) {
+      texture.current.needsUpdate = true
+    }
+  })
 
   return (
     <mesh position={[side, 0, positionZ]} rotation={[0, 0, 0]} ref={ref}>
       <planeGeometry args={[1.2, 1.2]} />
-      <meshBasicMaterial map={texture} side={THREE.DoubleSide} />
+      <meshBasicMaterial map={texture.current} side={THREE.DoubleSide} />
     </mesh>
   )
 })
 
-const Obstacle = React.forwardRef((_, playerRef) => {
+const Obstacles = React.forwardRef(({ videos }, playerRef) => {
   const [obstacles, setObstacles] = useState([])
+  const obstacleRefs = []
   const [gamePosition, setGamePosition] = useState(0)
 
-  const visibleObstacles = 5
+  const visibleObstacles = 8
   const lastSegmentRef = useRef()
   const clockRef = useRef({ elapsedTime: 0, delta: 0 })
+
+  const playerBox = useBoundingBox(playerRef)
+
+  useFrame(() => {
+    let collisionDetected = false
+    obstacleRefs.forEach(ref => {
+      if (playerRef && ref) {
+        const obstacleBox = new Box3().setFromObject(ref.current)
+        if (playerBox && obstacleBox) {
+          if (playerBox.intersectsBox(obstacleBox)) {
+            collisionDetected = true
+          }
+        }
+      }
+      if (collisionDetected) {
+        console.log('Collision Detected')
+      }
+    })
+  })
 
   useFrame(state => {
     const { clock } = state
@@ -53,16 +86,22 @@ const Obstacle = React.forwardRef((_, playerRef) => {
 
   return (
     <>
-      {obstacles.map(({ z, side }, index) => (
-        <ObstacleSegment
-          key={index}
-          positionZ={z}
-          side={side}
-          ref={index === obstacles.length - 1 ? lastSegmentRef : undefined}
-        />
-      ))}
+      {obstacles.map(({ z, side }, index) => {
+        const obstacleRef = index === obstacles.length - 1 ? lastSegmentRef : undefined
+        obstacleRefs.push(obstacleRef)
+        return (
+          <Obstacle
+            key={index}
+            positionZ={z}
+            side={side}
+            playerRef={playerRef}
+            ref={obstacleRef}
+            video={videos[Math.floor(Math.random() * videos.length)]}
+          />
+        )
+      })}
     </>
   )
 })
 
-export { Obstacle }
+export { Obstacles }
