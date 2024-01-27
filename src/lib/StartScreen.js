@@ -11,10 +11,17 @@ import { canaryConfig as config } from '../config'
 
 const StartScreen = () => {
   const [showStartScreen, setShowStartScreen] = useState(true)
+  const [screenTouched, setScreenTouched] = useState(false)
+
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
+
+  if (isTouchDevice) {
+    document.addEventListener('touchstart', setScreenTouched(true))
+  }
 
   useEffect(() => {
     const handleKeyPress = event => {
-      if (event.key === 'Enter') {
+      if (event.key === 'Enter' || screenTouched) {
         setShowStartScreen(false)
       }
     }
