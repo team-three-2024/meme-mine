@@ -15,7 +15,7 @@ import { canaryConfig as config } from '../config'
 
 const Game = () => {
   const [canaryRef, setCanaryRef] = useState(null)
-  const [showGameOverScreen, setShowGameOverScreen] = useState(true)
+  const [isGameOver, setIsGameOver] = useState(false)
   const [score, setScore] = useState(0)
   const startTimeRef = useRef(performance.now())
   const videoURLs = [
@@ -39,11 +39,13 @@ const Game = () => {
     }
   }
 
+  const handleGameOver = isGameOver => setIsGameOver(isGameOver)
+
   useEffect(() => {
-    if (showGameOverScreen) {
+    if (!isGameOver) {
       const handleKeyPress = event => {
         if (event.key === 'Enter') {
-          setShowGameOverScreen(false)
+          setIsGameOver(false)
           if (!captureVideo) startVideo()
         }
       }
@@ -119,7 +121,7 @@ const Game = () => {
     return <div>Loading Videos...</div>
   }
 
-  return !showGameOverScreen ? (
+  return isGameOver ? (
     <GameOverScreen />
   ) : (
     <>
@@ -148,7 +150,7 @@ const Game = () => {
 
         <Path ref={canaryRef} />
 
-        <Obstacles videos={videos} ref={canaryRef} />
+        <Obstacles videos={videos} handleGameOver={handleGameOver} ref={canaryRef} />
 
         <Canary
           animation="walk"
@@ -161,7 +163,12 @@ const Game = () => {
           handleCanaryRef={handleCanaryRef}
         />
 
-        <OrbitControls minPolarAngle={Math.PI / 2.8} maxPolarAngle={Math.PI / 1.8} />
+        <OrbitControls
+          minPolarAngle={Math.PI / 2.8}
+          maxPolarAngle={Math.PI / 1.8}
+          enableZoom={false}
+          enableRotate={false}
+        />
       </Canvas>
       {ReactDOM.createPortal(
         <ScoreContainer>

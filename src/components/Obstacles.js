@@ -32,7 +32,7 @@ const Obstacle = React.forwardRef(({ positionZ, side, video, handleObstacleRef }
   )
 })
 
-const Obstacles = React.forwardRef(({ videos }, canaryRef) => {
+const Obstacles = React.forwardRef(({ videos, handleGameOver }, canaryRef) => {
   const [obstacles, setObstacles] = useState([])
 
   const visibleObstacles = 5
@@ -74,18 +74,18 @@ const Obstacles = React.forwardRef(({ videos }, canaryRef) => {
       scaledRotatedPlayerBox.setFromCenterAndSize(center, rotatedSize)
 
       // Add helper
-      const geometry = new THREE.BoxGeometry(size.x, size.z, size.y)
-      const material = new THREE.MeshBasicMaterial({ color: 0xffff00, wireframe: true })
-      const boxHelper = new THREE.Mesh(geometry, material)
-      boxHelper.position.copy(center)
-      scene.add(boxHelper)
+      // const geometry = new THREE.BoxGeometry(size.x, size.z, size.y)
+      // const material = new THREE.MeshBasicMaterial({ color: 0xffff00, wireframe: true })
+      // const boxHelper = new THREE.Mesh(geometry, material)
+      // boxHelper.position.copy(center)
+      // scene.add(boxHelper)
 
       let collisionDetected = false
       obstacles.forEach(obstacle => {
         if (obstacle.ref && obstacle.ref.current) {
           const obstacleBox = new Box3().setFromObject(obstacle.ref.current)
-          const obstacleHelper = new THREE.BoxHelper(obstacle.ref.current, 0xffff00)
-          scene.add(obstacleHelper)
+          // const obstacleHelper = new THREE.BoxHelper(obstacle.ref.current, 0xffff00)
+          // scene.add(obstacleHelper)
 
           if (scaledRotatedPlayerBox && obstacleBox) {
             collisionDetected = scaledRotatedPlayerBox.intersectsBox(obstacleBox)
@@ -93,7 +93,7 @@ const Obstacles = React.forwardRef(({ videos }, canaryRef) => {
         }
 
         if (collisionDetected) {
-          console.log('Collision Detected')
+          handleGameOver(true)
         }
       })
     }
