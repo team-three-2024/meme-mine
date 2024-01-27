@@ -1,27 +1,26 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
+import styled from 'styled-components'
+import { ModelProvider } from './context/ModelContext'
 import { StartScreen } from './lib/StartScreen'
-
 import './styles.css'
 
-class App extends React.Component {
-  render() {
-    return (
-      <>
-        <div
-          className={'App'}
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            height: '100%'
-          }}
-        >
-          <StartScreen />
-        </div>
-      </>
-    )
-  }
+// Styled component
+const StyledApp = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+`
+
+const App = () => {
+  return (
+    <ModelProvider>
+      <StyledApp>
+        <StartScreen />
+      </StyledApp>
+    </ModelProvider>
+  )
 }
 
 const rootElement = document.getElementById('root')
