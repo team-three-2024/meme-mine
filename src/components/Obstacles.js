@@ -51,7 +51,7 @@ const Obstacles = React.forwardRef(({ videos, handleGameOver }, canaryRef) => {
     })
   }
 
-  const { scene } = useThree()
+  // const { scene } = useThree()
 
   useFrame(state => {
     const { clock } = state
