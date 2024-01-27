@@ -1,7 +1,7 @@
-import * as faceapi from 'face-api.js'
 import { OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
+import * as faceapi from 'face-api.js'
 import React, { useEffect, useRef, useState, Suspense } from 'react'
 import ReactDOM from 'react-dom'
 import styled from 'styled-components'
@@ -13,7 +13,6 @@ import { Obstacles } from '../components/Obstacle'
 import { Path } from '../components/Path'
 import { usePreloadedVideos } from '../components/Videos'
 import { canaryConfig as config } from '../config'
-// import { set } from 'core-js/core/dict'
 
 const Game = () => {
   const [showGameOverScreen, setShowGameOverScreen] = useState(true)
@@ -65,8 +64,8 @@ const Game = () => {
         faceapi.nets.ageGenderNet.loadFromUri('/models')
       ])
     }
-    loadModels();
-  }, []);
+    loadModels()
+  }, [])
 
   function startVideo() {
     setCaptureVideo(true)
@@ -111,29 +110,23 @@ const Game = () => {
     <GameOverScreen />
   ) : (
     <>
-          {captureVideo ? (
-            <div id="webcam_holder">
-              <video
-                id="webcam"
-                ref={videoRef}
-                height={videoHeight}
-                width={videoWidth}
-                onPlay={handleVideoOnPlay}
-              />
-              <p>
-                <span role="img" aria-label="surprised face">
-                  😲
-                </span>
-                /
-                <span role="img" aria-label="happy face">
-                  😆
-                </span>{' '}
-                to jump!
-              </p>
-            </div>
-          ) : (
-            <button onClick={() => startVideo()}>Start Video</button>
-          )}
+      {captureVideo ? (
+        <div id="webcam_holder">
+          <video id="webcam" ref={videoRef} height={videoHeight} width={videoWidth} onPlay={handleVideoOnPlay} />
+          <p>
+            <span role="img" aria-label="surprised face">
+              😲
+            </span>
+            /
+            <span role="img" aria-label="happy face">
+              😆
+            </span>{' '}
+            to jump!
+          </p>
+        </div>
+      ) : (
+        <button onClick={() => startVideo()}>Start Video</button>
+      )}
 
       <Canvas shadows dpr={[1, 2]} camera={{ position: config.cameraPosition, fov: 50 }} performance={{ min: 0.1 }}>
         <CameraController />
