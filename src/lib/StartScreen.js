@@ -10,7 +10,6 @@ import { canaryConfig as config } from '../config'
 
 const StartScreen = () => {
   const [showStartScreen, setShowStartScreen] = useState(true)
-  const [screenTouched, setScreenTouched] = useState(false)
 
   const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
 
@@ -36,7 +35,7 @@ const StartScreen = () => {
     return () => {
       document.removeEventListener('keydown', handleKeyPress)
       if (isTouchDevice) {
-        document.addEventListener('touchstart', setScreenTouched(false))
+        document.addEventListener('touchstart', handleTouch)
       }
     }
   }, [])
