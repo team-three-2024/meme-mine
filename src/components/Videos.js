@@ -5,14 +5,16 @@ function usePreloadedVideos(videoURLs) {
   const [videos, setVideos] = useState([])
 
   useEffect(() => {
-    const videoElements = videoURLs.map(url => ({
-      src: assetURL(url),
-      videoElement: null,
-      loaded: false
-    }))
+    const cleanupFunctions = []
 
-    videoElements.forEach(videoObj => {
-      const videoElement = document.createElement('video')
+    const videoElements = videoURLs.map(url => {
+      const videoObj = {
+        src: assetURL(url),
+        videoElement: document.createElement('video'),
+        loaded: false
+      }
+
+      const { videoElement } = videoObj
       videoElement.src = videoObj.src
       videoElement.preload = 'auto'
       videoElement.muted = true
@@ -21,9 +23,7 @@ function usePreloadedVideos(videoURLs) {
       videoElement.setAttribute('playsinline', '')
 
       const onCanPlayThrough = () => {
-        videoObj.videoElement = videoElement
         videoObj.loaded = true
-
         const allVideosLoaded = videoElements.every(v => v.loaded)
         if (allVideosLoaded) {
           setVideos(videoElements.map(v => v.videoElement))
@@ -33,10 +33,14 @@ function usePreloadedVideos(videoURLs) {
       videoElement.addEventListener('canplaythrough', onCanPlayThrough)
       videoElement.load()
 
-      return () => {
-        videoElement.removeEventListener('canplaythrough', onCanPlayThrough)
-      }
+      cleanupFunctions.push(() => videoElement.removeEventListener('canplaythrough', onCanPlayThrough))
+
+      return videoObj
     })
+
+    return () => {
+      cleanupFunctions.forEach(cleanup => cleanup())
+    }
   }, [videoURLs])
 
   return videos

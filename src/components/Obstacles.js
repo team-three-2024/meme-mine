@@ -2,7 +2,7 @@ import { useFrame } from '@react-three/fiber'
 import React, { useEffect, useState, useRef } from 'react'
 import * as THREE from 'three'
 import { Box3, VideoTexture } from 'three'
-import { useBoundingBox } from '../components/BoundingBox'
+import { useBoundingBox } from './BoundingBox'
 
 const random = (min, max) => Math.floor(Math.random() * (max - min)) + min
 
@@ -36,7 +36,7 @@ const Obstacles = React.forwardRef(({ videos }, playerRef) => {
   const [gamePosition, setGamePosition] = useState(0)
 
   const visibleObstacles = 8
-  const lastSegmentRef = useRef()
+  const lastObstacleRef = useRef()
   const clockRef = useRef({ elapsedTime: 0, delta: 0 })
 
   const playerBox = useBoundingBox(playerRef)
@@ -66,20 +66,23 @@ const Obstacles = React.forwardRef(({ videos }, playerRef) => {
       if (clockRef.current.delta >= 0.05) {
         clockRef.current.elapsedTime = clock.getElapsedTime()
         setGamePosition(gamePosition => gamePosition + 1)
-        setObstacles(prevObstacles => prevObstacles.map(segment => ({ z: segment.z - 1, side: segment.side })))
+        setObstacles(prevObstacles => prevObstacles.map(obstacle => ({ z: obstacle.z - 1, side: obstacle.side })))
       }
 
-      const lastSegmentZ = lastSegmentRef.current ? lastSegmentRef.current.position.z : 0
+      const lastObstacleZ = lastObstacleRef.current ? lastObstacleRef.current.position.z : 0
 
-      if (obstacles.length < visibleObstacles || gamePosition % visibleObstacles > lastSegmentZ) {
-        const segmentGap = random(10, 50)
+      if (obstacles.length < visibleObstacles || gamePosition % visibleObstacles > lastObstacleZ) {
+        const obstacleGap = random(10, 50)
         const Obstacleside = Math.floor(Math.random() * 3) - 1
-        const newSegmentZ = { z: lastSegmentZ + segmentGap, side: Obstacleside }
-        setObstacles(prevObstacles => [...prevObstacles, newSegmentZ])
+        const newObstacleZ = { z: lastObstacleZ + obstacleGap, side: Obstacleside }
+        setObstacles(prevObstacles => [...prevObstacles, newObstacleZ])
       }
 
       if (obstacles.length > visibleObstacles) {
-        setObstacles(prevObstacles => prevObstacles.slice(1))
+        setObstacles(prevObstacles => {
+          console.info(prevObstacles)
+          return prevObstacles.slice(1)
+        })
       }
     }
   })
@@ -87,7 +90,7 @@ const Obstacles = React.forwardRef(({ videos }, playerRef) => {
   return (
     <>
       {obstacles.map(({ z, side }, index) => {
-        const obstacleRef = index === obstacles.length - 1 ? lastSegmentRef : undefined
+        const obstacleRef = index === obstacles.length - 1 ? lastObstacleRef : undefined
         obstacleRefs.push(obstacleRef)
         return (
           <Obstacle
