@@ -19,10 +19,10 @@ const Game = () => {
   const startTimeRef = useRef(performance.now())
   const playerRef = useRef()
   const videoURLs = [
-    'memes/3j1cVdG8uWR82e8OJG.mp4',
-    'memes/3o6Ztg2MgUkcXyCgtG.mp4',
-    'memes/WRQBXSCnEFJIuxktnw.mp4',
-    'memes/xkvttzvWDPMEEXAJB1.mp4',
+    'memes/really_girl.mp4',
+    'memes/candy_cotton_girl.mp4',
+    'memes/hard_math.mp4',
+    'memes/how_to_play.mp4',
     'memes/cat1.mp4',
     'memes/cat2.mp4',
     'memes/cat3.mp4'
