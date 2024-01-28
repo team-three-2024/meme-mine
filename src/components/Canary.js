@@ -17,7 +17,8 @@ const Canary = props => {
     jump: useRef(null),
     move: useRef(null),
     footstep1: useRef(null),
-    footstep2: useRef(null)
+    footstep2: useRef(null),
+    main: useRef(null)
   }
 
   const playTrack = track => {
@@ -55,6 +56,7 @@ const Canary = props => {
     audioTracks.move.current = new Audio(assetURL('audio/canary_swooshleftandright.mp3'))
     audioTracks.footstep1.current = new Audio(assetURL('audio/canary_footstep1.mp3'))
     audioTracks.footstep2.current = new Audio(assetURL('audio/canary_footstep2.mp3'))
+    audioTracks.main.current = new Audio(assetURL('audio/canary_in_a_meme_mine.mp3'))
 
     Object.values(audioTracks).forEach(audioTrack => {
       if (audioTrack.current) {
@@ -91,6 +93,11 @@ const Canary = props => {
         action.timeScale = speed
         action.play()
       })
+    }
+
+    // it means the game started
+    if (props.speed == 3) {
+      playTrack(audioTracks.main)
     }
 
     return () => {
