@@ -224,6 +224,7 @@ const Title = styled.h1`
   color: #fff;
   text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 `
+
 const Subtitle = styled.h2`
   color: #fff;
   margin-top: 300px;
