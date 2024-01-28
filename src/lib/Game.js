@@ -13,7 +13,7 @@ import { Path } from '../components/Path'
 import { usePreloadedVideos } from '../components/Videos'
 import { canaryConfig as config } from '../config'
 
-const Game = () => {
+const Game = props => {
   const [canaryRef, setCanaryRef] = useState(null)
   const [isGameOver, setIsGameOver] = useState(false)
   const [score, setScore] = useState(0)
@@ -28,10 +28,6 @@ const Game = () => {
     'memes/cat3.mp4'
   ]
   const videos = usePreloadedVideos(videoURLs)
-  const videoRef = useRef()
-  const videoWidth = 320
-  const videoHeight = 240
-  const [captureVideo, setCaptureVideo] = useState(false)
 
   const handleCanaryRef = ref => {
     if (ref.current) {
@@ -40,23 +36,6 @@ const Game = () => {
   }
 
   const handleGameOver = isGameOver => setIsGameOver(isGameOver)
-
-  useEffect(() => {
-    if (!isGameOver) {
-      const handleKeyPress = event => {
-        if (event.key === 'Enter') {
-          setIsGameOver(false)
-          if (!captureVideo) startVideo()
-        }
-      }
-
-      document.addEventListener('keydown', handleKeyPress)
-
-      return () => {
-        document.removeEventListener('keydown', handleKeyPress)
-      }
-    }
-  })
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -84,42 +63,6 @@ const Game = () => {
     loadModels()
   }, [])
 
-  function startVideo() {
-    setCaptureVideo(true)
-
-    navigator.mediaDevices
-      .getUserMedia({ video: { width: videoWidth } })
-      .then(stream => {
-        if (videoRef.current) {
-          let video = videoRef.current
-          video.srcObject = stream
-          video.play()
-        }
-      })
-      .catch(err => {
-        console.error(err)
-      })
-  }
-
-  function handleVideoOnPlay() {
-    setInterval(async () => {
-      if (videoRef) {
-        const detections = await faceapi
-          .detectSingleFace(videoRef.current, new faceapi.TinyFaceDetectorOptions())
-          .withFaceLandmarks()
-          .withFaceExpressions()
-        if (detections) {
-          console.info(detections.expressions)
-          if (detections.expressions.happy > 0.6) {
-            window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }))
-          } else if (detections.expressions.surprised > 0.6) {
-            window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }))
-          }
-        }
-      }
-    }, 100)
-  }
-
   if (videos.length !== videoURLs.length) {
     return <div>Loading Videos...</div>
   }
@@ -128,22 +71,29 @@ const Game = () => {
     <GameOverScreen />
   ) : (
     <>
-      {captureVideo ? (
+      {props.captureVideo && (
         <div id="webcam_holder">
-          <video id="webcam" ref={videoRef} height={videoHeight} width={videoWidth} onPlay={handleVideoOnPlay} />
+          <video
+            id="webcam"
+            ref={props.videoRef}
+            height={props.videoHeight}
+            width={props.videoWidth}
+            onPlay={props.handleVideoOnPlay}
+          />
           <p>
-            <span role="img" aria-label="surprised face">
-              😲
+            <span role="img" aria-label="angry face">
+              😬 to move left
             </span>
-            /
+            <br />
+            <span role="img" aria-label="surprised face">
+              😲 to move right
+            </span>
+            <br />
             <span role="img" aria-label="happy face">
-              😆
-            </span>{' '}
-            to jump!
+              😆 to jump!
+            </span>
           </p>
         </div>
-      ) : (
-        <button onClick={() => startVideo()}>Start Video</button>
       )}
 
       <Canvas shadows dpr={[1, 2]} camera={{ position: config.cameraPosition, fov: 50 }} performance={{ min: 0.1 }}>
