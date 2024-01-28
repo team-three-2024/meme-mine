@@ -77,6 +77,9 @@ const Canary = React.forwardRef((props, ref) => {
       if (event.key === 'ArrowUp' && !isJumping && position[1] === 0) {
         setIsJumping(true)
       }
+      if (event.key === 'ArrowDown') {
+        event.preventDefault()
+      }
     }
 
     window.addEventListener('keydown', handleKeyDown)
