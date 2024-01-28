@@ -5,8 +5,10 @@ import * as THREE from 'three'
 import { brandPalette, canaryConfig } from '../config'
 import { assetURL } from '../helpers/url'
 
-const Canary = React.forwardRef((props, ref) => {
+const Canary = props => {
   const initialPosition = props.position ? props.position : [0, 0, 0]
+  const canJump = props.canJump ? props.canJump : true
+  const canMove = props.canMove ? props.canMove : true
 
   const [position, setPosition] = useState(initialPosition)
   const [isJumping, setIsJumping] = useState(false)
@@ -63,19 +65,23 @@ const Canary = React.forwardRef((props, ref) => {
 
   useEffect(() => {
     const handleKeyDown = event => {
-      if (event.key === 'ArrowRight') {
-        setPosition(prevPosition => {
-          if (prevPosition[0] !== -1) return [prevPosition[0] - 1, prevPosition[1], prevPosition[2]]
-          else return prevPosition
-        })
-      } else if (event.key === 'ArrowLeft') {
-        setPosition(prevPosition => {
-          if (prevPosition[0] !== 1) return [prevPosition[0] + 1, prevPosition[1], prevPosition[2]]
-          else return prevPosition
-        })
+      if (canMove) {
+        if (event.key === 'ArrowRight') {
+          setPosition(prevPosition => {
+            if (prevPosition[0] !== -1) return [prevPosition[0] - 1, prevPosition[1], prevPosition[2]]
+            else return prevPosition
+          })
+        } else if (event.key === 'ArrowLeft') {
+          setPosition(prevPosition => {
+            if (prevPosition[0] !== 1) return [prevPosition[0] + 1, prevPosition[1], prevPosition[2]]
+            else return prevPosition
+          })
+        }
       }
-      if (event.key === 'ArrowUp' && !isJumping && position[1] === 0) {
-        setIsJumping(true)
+      if (canJump) {
+        if (event.key === 'ArrowUp' && !isJumping && position[1] === 0) {
+          setIsJumping(true)
+        }
       }
       if (event.key === 'ArrowDown') {
         event.preventDefault()
@@ -132,9 +138,9 @@ const Canary = React.forwardRef((props, ref) => {
 
   return (
     <mesh position={position} ref={meshRef}>
-      <primitive ref={ref} object={scene} {...props} />
+      <primitive object={scene} {...props} />
     </mesh>
   )
-})
+}
 
 export { Canary }
