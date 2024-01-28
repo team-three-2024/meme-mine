@@ -67,7 +67,7 @@ const Game = ({ videos }) => {
 
         <Canary
           animation="walk"
-          speed="3"
+          speed={3}
           scale={config.model.scale}
           meshColorIndex={config.meshColorIndex}
           meshScale={config.meshScale}

@@ -96,7 +96,7 @@ const Canary = props => {
     }
 
     // it means the game started
-    if (props.speed == 3) {
+    if (props.speed === 3) {
       playTrack(audioTracks.main)
     }
 
