@@ -1,7 +1,6 @@
 import { OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
-import { EffectComposer, Bloom } from '@react-three/postprocessing'
-import React, { useRef, Suspense } from 'react'
+import React, { useEffect, useRef } from 'react'
 import ReactDOM from 'react-dom'
 import styled, { keyframes } from 'styled-components'
 import { Canary } from '../components/Canary'
@@ -11,31 +10,34 @@ import { canaryConfig as config } from '../config'
 const GameOverScreen = () => {
   const playerRef = useRef()
 
+  useEffect(() => {
+    const handleKeyPress = event => {
+      if (event.key === 'Enter') {
+        window.location.reload()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyPress)
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyPress)
+    }
+  }, [])
+
   return (
     <>
       <Canvas shadows dpr={[1, 2]} camera={{ position: [3, 1, 0], fov: 50 }} performance={{ min: 0.1 }}>
         <Lights config={config} />
 
-        <Suspense fallback={null}>
-          <Canary
-            animation="dead"
-            position={[0, 0.2, 0]}
-            scale={config.model.scale}
-            meshColorIndex={config.meshColorIndex}
-            meshScale={config.meshScale}
-            model={config.model}
-            ref={playerRef}
-          />
-
-          <EffectComposer multisampling={16}>
-            <Bloom
-              kernelSize={config.bloom.kernelSize}
-              luminanceThreshold={config.bloom.luminanceThreshold}
-              luminanceSmoothing={config.bloom.luminanceSmoothing}
-              intensity={config.bloom.intensity}
-            />
-          </EffectComposer>
-        </Suspense>
+        <Canary
+          animation="dead"
+          position={[0, 0.2, 0]}
+          scale={config.model.scale}
+          meshColorIndex={config.meshColorIndex}
+          meshScale={config.meshScale}
+          model={config.model}
+          ref={playerRef}
+        />
 
         <OrbitControls minPolarAngle={Math.PI / 2.8} maxPolarAngle={Math.PI / 1.8} />
       </Canvas>

@@ -1,6 +1,7 @@
-import { useFrame } from '@react-three/fiber'
+import { useFrame, useThree } from '@react-three/fiber'
 import React, { useState, useRef } from 'react'
 import * as THREE from 'three'
+import { cleanUp } from '../helpers/clean'
 
 const SideSegment = React.forwardRef(({ positionZ, side }, ref) => {
   const positionX = side === 'left' ? -1.5 : 1.5
@@ -30,11 +31,13 @@ const Path = React.forwardRef((_, playerRef) => {
   const lastSegmentRef = useRef()
   const clockRef = useRef({ elapsedTime: 0, delta: 0 })
 
+  const { scene } = useThree()
+
   useFrame(state => {
     const { clock } = state
     clockRef.current.delta = clock.getElapsedTime() - clockRef.current.elapsedTime
 
-    if (playerRef.current) {
+    if (playerRef && playerRef.current) {
       if (clockRef.current.delta >= 0.05) {
         clockRef.current.elapsedTime = clock.getElapsedTime()
         setGamePosition(gamePosition => gamePosition + 1)
@@ -53,6 +56,7 @@ const Path = React.forwardRef((_, playerRef) => {
       // Remove segments that are far behind the player
       if (segments.length > visibleSegments) {
         setSegments(prevSegments => prevSegments.slice(1))
+        cleanUp(scene)
       }
     }
   })

@@ -5,7 +5,7 @@ import * as THREE from 'three'
 import { brandPalette, canaryConfig } from '../config'
 import { assetURL } from '../helpers/url'
 
-const Canary = React.forwardRef((props, playerRef) => {
+const Canary = React.forwardRef((props, ref) => {
   const initialPosition = props.position ? props.position : [0, 0, 0]
 
   const [position, setPosition] = useState(initialPosition)
@@ -28,16 +28,22 @@ const Canary = React.forwardRef((props, playerRef) => {
   const meshRef = useRef()
 
   useEffect(() => {
+    if (props.handleCanaryRef) {
+      props.handleCanaryRef(meshRef)
+    }
+  }, [meshRef])
+
+  useEffect(() => {
     if (meshRef.current && reversed) {
       meshRef.current.rotation.x = Math.PI / 0.85
     }
   }, [])
 
   useEffect(() => {
-    if (playerRef.current) {
-      animationRef.current = new THREE.AnimationMixer(playerRef.current)
+    if (meshRef && meshRef.current) {
+      animationRef.current = new THREE.AnimationMixer(meshRef.current)
     }
-  }, [playerRef])
+  }, [meshRef])
 
   useEffect(() => {
     if (animationRef.current && animations) {
@@ -88,7 +94,7 @@ const Canary = React.forwardRef((props, playerRef) => {
     if (isJumping) {
       // Simple jump animation: move up then down
       setPosition(prevPosition => {
-        const newY = prevPosition[1] + delta * 10
+        const newY = prevPosition[1] + delta * 5
         // Check if the model has reached the peak of the jump
         if (newY >= 2) {
           setIsJumping(false) // Start falling
@@ -123,7 +129,7 @@ const Canary = React.forwardRef((props, playerRef) => {
 
   return (
     <mesh position={position} ref={meshRef}>
-      <primitive ref={playerRef} object={scene} {...props} />
+      <primitive ref={ref} object={scene} {...props} />
     </mesh>
   )
 })

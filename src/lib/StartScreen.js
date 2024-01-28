@@ -1,6 +1,5 @@
 import { OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
-import { EffectComposer, Bloom } from '@react-three/postprocessing'
 import React, { useState, useEffect, useRef, Suspense } from 'react'
 import ReactDOM from 'react-dom'
 import styled, { keyframes } from 'styled-components'
@@ -12,6 +11,8 @@ import { canaryConfig as config } from '../config'
 const StartScreen = () => {
   const [showStartScreen, setShowStartScreen] = useState(true)
 
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
+
   useEffect(() => {
     const handleKeyPress = event => {
       if (event.key === 'Enter') {
@@ -19,10 +20,23 @@ const StartScreen = () => {
       }
     }
 
+    const handleTouch = event => {
+      if (event.type === 'touchstart') {
+        setShowStartScreen(false)
+      }
+    }
+
     document.addEventListener('keydown', handleKeyPress)
+
+    if (isTouchDevice) {
+      document.addEventListener('touchstart', handleTouch)
+    }
 
     return () => {
       document.removeEventListener('keydown', handleKeyPress)
+      if (isTouchDevice) {
+        document.addEventListener('touchstart', handleTouch)
+      }
     }
   }, [])
 
@@ -33,27 +47,16 @@ const StartScreen = () => {
       <Canvas shadows dpr={[1, 2]} camera={{ position: [3, 1, 3], fov: 50 }} performance={{ min: 0.1 }}>
         <Lights config={config} />
 
-        <Suspense fallback={null}>
-          <Canary
-            animation="idle"
-            speed="1"
-            position={[0, 0.2, 0]}
-            scale={config.model.scale}
-            meshColorIndex={config.meshColorIndex}
-            meshScale={config.meshScale}
-            model={config.model}
-            ref={playerRef}
-          />
-
-          <EffectComposer multisampling={16}>
-            <Bloom
-              kernelSize={config.bloom.kernelSize}
-              luminanceThreshold={config.bloom.luminanceThreshold}
-              luminanceSmoothing={config.bloom.luminanceSmoothing}
-              intensity={config.bloom.intensity}
-            />
-          </EffectComposer>
-        </Suspense>
+        <Canary
+          animation="idle"
+          speed="1"
+          position={[0, 0.2, 0]}
+          scale={config.model.scale}
+          meshColorIndex={config.meshColorIndex}
+          meshScale={config.meshScale}
+          model={config.model}
+          ref={playerRef}
+        />
 
         <OrbitControls minPolarAngle={Math.PI / 2.8} maxPolarAngle={Math.PI / 1.8} />
       </Canvas>
@@ -66,7 +69,9 @@ const StartScreen = () => {
       )}
     </>
   ) : (
-    <Game />
+    <Suspense fallback={null}>
+      <Game />
+    </Suspense>
   )
 }
 

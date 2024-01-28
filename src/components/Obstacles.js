@@ -1,12 +1,12 @@
-import { useFrame } from '@react-three/fiber'
+import { useFrame, useThree } from '@react-three/fiber'
 import React, { useEffect, useState, useRef } from 'react'
 import * as THREE from 'three'
 import { Box3, VideoTexture } from 'three'
-import { useBoundingBox } from './BoundingBox'
+import { cleanUp } from '../helpers/clean'
 
 const random = (min, max) => Math.floor(Math.random() * (max - min)) + min
 
-const Obstacle = React.forwardRef(({ positionZ, side, video, handleObstacleRef }, ref) => {
+const Obstacle = ({ positionZ, side, video, handleObstacleRef }) => {
   const videoRef = useRef()
   const textureRef = useRef()
   const obstacleRef = useRef()
@@ -15,9 +15,11 @@ const Obstacle = React.forwardRef(({ positionZ, side, video, handleObstacleRef }
     video.play()
     videoRef.current = video
     textureRef.current = new VideoTexture(video)
-
-    handleObstacleRef(positionZ, obstacleRef)
   }, [])
+
+  useEffect(() => {
+    handleObstacleRef(positionZ, obstacleRef)
+  }, [positionZ])
 
   useFrame(() => {
     if (textureRef.current) {
@@ -31,9 +33,9 @@ const Obstacle = React.forwardRef(({ positionZ, side, video, handleObstacleRef }
       <meshBasicMaterial map={textureRef.current} side={THREE.DoubleSide} />
     </mesh>
   )
-})
+}
 
-const Obstacles = React.forwardRef(({ videos }, playerRef) => {
+const Obstacles = React.forwardRef(({ videos, handleGameOver }, canaryRef) => {
   const [obstacles, setObstacles] = useState([])
 
   const visibleObstacles = 5
@@ -52,45 +54,48 @@ const Obstacles = React.forwardRef(({ videos }, playerRef) => {
     })
   }
 
-  const playerBox = useBoundingBox(playerRef)
-  // const { scene } = useThree()
-
-  // useEffect(() => {
-  //   if (playerRef.current) {
-  //     const helper = addBoundingBoxHelper(playerRef.current, scene)
-
-  //     return () => scene.remove(helper)
-  //   }
-  // }, [playerRef.current, scene])
-
   useFrame(state => {
     const { clock } = state
     clockRef.current.delta = clock.getElapsedTime() - clockRef.current.elapsedTime
-    if (clockRef.current.delta < 1) return
 
-    let collisionDetected = false
-    obstacles.forEach(obstacle => {
-      if (playerRef && obstacle.ref) {
+    if (canaryRef && canaryRef.current) {
+      const playerBox = new Box3().setFromObject(canaryRef.current)
+
+      // Transform the original bounding box to match the model inside
+      const scaleFactor = 0.23
+      const center = new THREE.Vector3()
+      const size = new THREE.Vector3()
+      playerBox.getCenter(center)
+      playerBox.getSize(size)
+
+      // Scale the size
+      size.multiplyScalar(scaleFactor)
+      const rotatedSize = new THREE.Vector3(size.x, size.z, size.y)
+      const scaledRotatedPlayerBox = new THREE.Box3()
+      scaledRotatedPlayerBox.setFromCenterAndSize(center, rotatedSize)
+
+      let collisionDetected = false
+      obstacles.forEach(obstacle => {
         if (obstacle.ref && obstacle.ref.current) {
           const obstacleBox = new Box3().setFromObject(obstacle.ref.current)
-          if (playerBox && obstacleBox) {
-            console.info(playerBox.min, playerBox.max)
-            console.info(obstacleBox.min, obstacleBox.max)
-            collisionDetected = playerBox.min.z - 1 <= obstacleBox.max.z && playerBox.max.z - 1 >= obstacleBox.min.z
+          if (scaledRotatedPlayerBox && obstacleBox) {
+            collisionDetected = scaledRotatedPlayerBox.intersectsBox(obstacleBox)
           }
         }
-      }
-      if (collisionDetected) {
-        console.log('Collision Detected')
-      }
-    })
+        if (collisionDetected) {
+          handleGameOver(true)
+        }
+      })
+    }
   })
+
+  const { scene } = useThree()
 
   useFrame(state => {
     const { clock } = state
     clockRef.current.delta = clock.getElapsedTime() - clockRef.current.elapsedTime
 
-    if (playerRef.current) {
+    if (canaryRef && canaryRef.current) {
       // Move obstacles and clean up old ones
       if (clockRef.current.delta >= 0.1) {
         clockRef.current.elapsedTime = clock.getElapsedTime()
@@ -103,6 +108,7 @@ const Obstacles = React.forwardRef(({ videos }, playerRef) => {
               }))
               .filter(obstacle => obstacle.z >= -10) // -10 is the screen limit
         )
+        cleanUp(scene)
       }
 
       // Create new obstacles
@@ -130,8 +136,6 @@ const Obstacles = React.forwardRef(({ videos }, playerRef) => {
             key={index}
             positionZ={z}
             side={side}
-            playerRef={playerRef}
-            ref={playerRef}
             video={videos[Math.floor(Math.random() * videos.length)]}
             handleObstacleRef={handleObstacleRef}
           />
