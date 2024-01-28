@@ -13,7 +13,6 @@ import { WebcamProvider } from '../context/GameContext'
 const StartScreen = () => {
   const [showStartScreen, setShowStartScreen] = useState(true)
   const [showSelectMode, setShowSelectedMode] = useState(true)
-  const [gameMode, setGameMode] = useState('keyboard')
   const videoRef = useRef()
   const videoWidth = 320
   const videoHeight = 240
@@ -67,7 +66,6 @@ const StartScreen = () => {
   const handleGameMode = gameMode => {
     if (gameMode === 'webcam') {
       startVideo()
-      setGameMode('webcam')
     }
     setShowSelectedMode(false)
   }
@@ -97,7 +95,6 @@ const StartScreen = () => {
           .withFaceLandmarks()
           .withFaceExpressions()
         if (detections) {
-          console.info(detections.expressions)
           if (detections.expressions.angry > 0.5) {
             window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft' }))
           }
@@ -113,8 +110,6 @@ const StartScreen = () => {
       }
     }, 100)
   }
-
-  const playerRef = useRef()
 
   return (
     <WebcamProvider>
@@ -150,7 +145,6 @@ const StartScreen = () => {
               meshColorIndex={config.meshColorIndex}
               meshScale={config.meshScale}
               model={config.model}
-              ref={playerRef}
             />
 
             <OrbitControls minPolarAngle={Math.PI / 2.8} maxPolarAngle={Math.PI / 1.8} />

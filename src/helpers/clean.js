@@ -8,7 +8,6 @@ function cleanUp(scene) {
   })
 
   objectsToRemove.forEach(object => {
-    console.log('Removing object: ', object)
     scene.remove(object)
 
     if (object.geometry) {

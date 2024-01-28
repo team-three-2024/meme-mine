@@ -87,7 +87,6 @@ const Game = () => {
           meshColorIndex={config.meshColorIndex}
           meshScale={config.meshScale}
           model={config.model}
-          ref={canaryRef}
           handleCanaryRef={handleCanaryRef}
         />
 
