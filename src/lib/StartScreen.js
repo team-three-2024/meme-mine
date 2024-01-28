@@ -136,15 +136,15 @@ const StartScreen = () => {
           <video id="webcam" ref={videoRef} height={videoHeight} width={videoWidth} onPlay={handleVideoOnPlay} />
           <p>
             <span role="img" aria-label="angry face">
-              😬 to move left
+              😬😠 (angry) to move left
             </span>
             <br />
             <span role="img" aria-label="surprised face">
-              😲 to move right
+              😲 (surprised) to move right
             </span>
             <br />
             <span role="img" aria-label="happy face">
-              😆 to jump!
+              😆 (happy) to jump!
             </span>
           </p>
         </div>

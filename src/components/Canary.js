@@ -101,6 +101,10 @@ const Canary = props => {
   }, [animations])
 
   useEffect(() => {
+    playTrack(audioTracks.move)
+  }, [position[0]])
+
+  useEffect(() => {
     const handleKeyDown = event => {
       if (canMove) {
         if (event.key === 'ArrowRight') {
@@ -108,13 +112,11 @@ const Canary = props => {
             if (prevPosition[0] !== -1) return [prevPosition[0] - 1, prevPosition[1], prevPosition[2]]
             else return prevPosition
           })
-          playTrack(audioTracks.move)
         } else if (event.key === 'ArrowLeft') {
           setPosition(prevPosition => {
             if (prevPosition[0] !== 1) return [prevPosition[0] + 1, prevPosition[1], prevPosition[2]]
             else return prevPosition
           })
-          playTrack(audioTracks.move)
         }
       }
       if (canJump) {
@@ -152,7 +154,10 @@ const Canary = props => {
       })
     } else {
       // Bring the model back down if it's in the air
-      setPosition(prevPosition => [prevPosition[0], Math.max(0, prevPosition[1] - delta * 10), prevPosition[2]])
+      setPosition(prevPosition => {
+        if (prevPosition[1] !== 0) return [prevPosition[0], Math.max(0, prevPosition[1] - delta * 10), prevPosition[2]]
+        else return prevPosition
+      })
     }
   })
 
