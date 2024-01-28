@@ -1,6 +1,6 @@
 {
   "name": "canary-global-game-jam",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A game using ThreeJS for Global Game Jam 2024",
   "keywords": [
     "kusama",
