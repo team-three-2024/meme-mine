@@ -7,6 +7,7 @@ import styled, { keyframes } from 'styled-components'
 import { Game } from './Game'
 import { Canary } from '../components/Canary'
 import { Lights } from '../components/Lights'
+import { usePreloadedVideos } from '../components/Videos'
 import { canaryConfig as config } from '../config'
 import { WebcamProvider } from '../context/GameContext'
 
@@ -111,6 +112,13 @@ const StartScreen = () => {
     }, 100)
   }
 
+  const numberOfVideos = 5
+  const videos = usePreloadedVideos(numberOfVideos)
+
+  if (videos.length < numberOfVideos) {
+    return <div>Loading Videos...</div>
+  }
+
   return (
     <WebcamProvider>
       {captureVideo && (
@@ -176,7 +184,7 @@ const StartScreen = () => {
         </>
       ) : (
         <Suspense fallback={null}>
-          <Game videoRef={videoRef} videoHeight={videoHeight} videoWidth={videoWidth} captureVideo={captureVideo} />
+          <Game videos={videos} />
         </Suspense>
       )}
     </WebcamProvider>

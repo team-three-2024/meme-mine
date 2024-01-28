@@ -10,24 +10,13 @@ import { Canary } from '../components/Canary'
 import { Lights } from '../components/Lights'
 import { Obstacles } from '../components/Obstacles'
 import { Path } from '../components/Path'
-import { usePreloadedVideos } from '../components/Videos'
 import { canaryConfig as config } from '../config'
 
-const Game = () => {
+const Game = ({ videos }) => {
   const [canaryRef, setCanaryRef] = useState(null)
   const [isGameOver, setIsGameOver] = useState(false)
   const [score, setScore] = useState(0)
   const startTimeRef = useRef(performance.now())
-  const videoURLs = [
-    'memes/really_girl.mp4',
-    'memes/candy_cotton_girl.mp4',
-    'memes/hard_math.mp4',
-    'memes/how_to_play.mp4',
-    'memes/cat1.mp4',
-    'memes/cat2.mp4',
-    'memes/cat3.mp4'
-  ]
-  const videos = usePreloadedVideos(videoURLs)
 
   const handleCanaryRef = ref => {
     if (ref.current) {
@@ -62,10 +51,6 @@ const Game = () => {
     }
     loadModels()
   }, [])
-
-  if (videos.length !== videoURLs.length) {
-    return <div>Loading Videos...</div>
-  }
 
   return isGameOver ? (
     <GameOverScreen />

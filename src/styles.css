@@ -1,7 +1,3 @@
-canvas {
-  border: 1px solid #333;
-}
-
 * {
   box-sizing: border-box;
 }
@@ -22,7 +18,7 @@ body {
 div#webcam_holder {
   position: absolute;
   top: 30px;
-  right: 10px;
+  right: 30px;
   width: 320px;
   height: 300px;
   rotate: 10deg;
@@ -31,7 +27,7 @@ div#webcam_holder {
 div#webcam_holder p {
   color: white;
   top: -110px;
-  left: 10px;
+  margin-left: 10px;
   position: relative;
 
 }
