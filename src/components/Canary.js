@@ -7,8 +7,8 @@ import { assetURL } from '../helpers/url'
 
 const Canary = props => {
   const initialPosition = props.position ? props.position : [0, 0, 0]
-  const canJump = props.canJump ? props.canJump : true
-  const canMove = props.canMove ? props.canMove : true
+  const canJump = props.canJump !== undefined ? props.canJump : true
+  const canMove = props.canMove !== undefined ? props.canMove : true
 
   const [position, setPosition] = useState(initialPosition)
   const [isJumping, setIsJumping] = useState(false)
