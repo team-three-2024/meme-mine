@@ -8,6 +8,7 @@ import { Game } from './Game'
 import { Canary } from '../components/Canary'
 import { Lights } from '../components/Lights'
 import { canaryConfig as config } from '../config'
+import { WebcamProvider } from '../context/GameContext'
 
 const StartScreen = () => {
   const [showStartScreen, setShowStartScreen] = useState(true)
@@ -115,8 +116,8 @@ const StartScreen = () => {
 
   const playerRef = useRef()
 
-  return showStartScreen ? (
-    <>
+  return (
+    <WebcamProvider>
       {captureVideo && (
         <div id="webcam_holder">
           <video id="webcam" ref={videoRef} height={videoHeight} width={videoWidth} onPlay={handleVideoOnPlay} />
@@ -136,51 +137,55 @@ const StartScreen = () => {
         </div>
       )}
 
-      <Canvas shadows dpr={[1, 2]} camera={{ position: [3, 1, 3], fov: 50 }} performance={{ min: 0.1 }}>
-        <Lights config={config} />
+      {showStartScreen ? (
+        <>
+          <Canvas shadows dpr={[1, 2]} camera={{ position: [3, 1, 3], fov: 50 }} performance={{ min: 0.1 }}>
+            <Lights config={config} />
 
-        <Canary
-          animation="idle"
-          speed="1"
-          position={[0, 0.2, 0]}
-          scale={config.model.scale}
-          meshColorIndex={config.meshColorIndex}
-          meshScale={config.meshScale}
-          model={config.model}
-          ref={playerRef}
-        />
+            <Canary
+              animation="idle"
+              speed="1"
+              position={[0, 0.2, 0]}
+              scale={config.model.scale}
+              meshColorIndex={config.meshColorIndex}
+              meshScale={config.meshScale}
+              model={config.model}
+              ref={playerRef}
+            />
 
-        <OrbitControls minPolarAngle={Math.PI / 2.8} maxPolarAngle={Math.PI / 1.8} />
-      </Canvas>
-      {ReactDOM.createPortal(
-        showSelectMode ? (
-          <OverlayContainer>
-            <Title>canary in a meme mine</Title>
-            <Subtitle>select game mode:</Subtitle>
-            <ControllerOption onClick={() => handleGameMode('keyboard')}>
-              <span role="img" aria-label="keyboard">
-                ⌨️ keyboard
-              </span>
-            </ControllerOption>
-            <ControllerOption onClick={() => handleGameMode('webcam')}>
-              <span role="img" aria-label="webcam">
-                📷 webcam
-              </span>
-            </ControllerOption>
-          </OverlayContainer>
-        ) : (
-          <OverlayContainer>
-            <Title>canary in a meme mine</Title>
-            <AnimatedSubtitle>get ready and press enter to start</AnimatedSubtitle>
-          </OverlayContainer>
-        ),
-        document.body
+            <OrbitControls minPolarAngle={Math.PI / 2.8} maxPolarAngle={Math.PI / 1.8} />
+          </Canvas>
+          {ReactDOM.createPortal(
+            showSelectMode ? (
+              <OverlayContainer>
+                <Title>canary in a meme mine</Title>
+                <Subtitle>select game mode:</Subtitle>
+                <ControllerOption onClick={() => handleGameMode('keyboard')}>
+                  <span role="img" aria-label="keyboard">
+                    ⌨️ keyboard
+                  </span>
+                </ControllerOption>
+                <ControllerOption onClick={() => handleGameMode('webcam')}>
+                  <span role="img" aria-label="webcam">
+                    📷 webcam
+                  </span>
+                </ControllerOption>
+              </OverlayContainer>
+            ) : (
+              <OverlayContainer>
+                <Title>canary in a meme mine</Title>
+                <AnimatedSubtitle>get ready and press enter to start</AnimatedSubtitle>
+              </OverlayContainer>
+            ),
+            document.body
+          )}
+        </>
+      ) : (
+        <Suspense fallback={null}>
+          <Game videoRef={videoRef} videoHeight={videoHeight} videoWidth={videoWidth} captureVideo={captureVideo} />
+        </Suspense>
       )}
-    </>
-  ) : (
-    <Suspense fallback={null}>
-      <Game videoRef={videoRef} videoHeight={videoHeight} videoWidth={videoWidth} captureVideo={captureVideo} />
-    </Suspense>
+    </WebcamProvider>
   )
 }
 

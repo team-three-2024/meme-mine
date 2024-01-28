@@ -13,7 +13,7 @@ import { Path } from '../components/Path'
 import { usePreloadedVideos } from '../components/Videos'
 import { canaryConfig as config } from '../config'
 
-const Game = props => {
+const Game = () => {
   const [canaryRef, setCanaryRef] = useState(null)
   const [isGameOver, setIsGameOver] = useState(false)
   const [score, setScore] = useState(0)
@@ -71,31 +71,6 @@ const Game = props => {
     <GameOverScreen />
   ) : (
     <>
-      {props.captureVideo && (
-        <div id="webcam_holder">
-          <video
-            id="webcam"
-            ref={props.videoRef}
-            height={props.videoHeight}
-            width={props.videoWidth}
-            onPlay={props.handleVideoOnPlay}
-          />
-          <p>
-            <span role="img" aria-label="angry face">
-              😬 to move left
-            </span>
-            <br />
-            <span role="img" aria-label="surprised face">
-              😲 to move right
-            </span>
-            <br />
-            <span role="img" aria-label="happy face">
-              😆 to jump!
-            </span>
-          </p>
-        </div>
-      )}
-
       <Canvas shadows dpr={[1, 2]} camera={{ position: config.cameraPosition, fov: 50 }} performance={{ min: 0.1 }}>
         <CameraController />
 
