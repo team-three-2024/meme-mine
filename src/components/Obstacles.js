@@ -1,23 +1,25 @@
-import { useFrame } from '@react-three/fiber'
+import { useFrame, useThree } from '@react-three/fiber'
 import React, { useEffect, useState, useRef } from 'react'
 import * as THREE from 'three'
 import { Box3, VideoTexture } from 'three'
+import { cleanUp } from '../helpers/clean'
 
 const random = (min, max) => Math.floor(Math.random() * (max - min)) + min
 
-const Obstacle = React.forwardRef(({ positionZ, side, video, handleObstacleRef }, ref) => {
+const Obstacle = ({ positionZ, side, video, handleObstacleRef }) => {
   const videoRef = useRef()
   const textureRef = useRef()
   const obstacleRef = useRef()
-  console.log(ref)
 
   useEffect(() => {
     video.play()
     videoRef.current = video
     textureRef.current = new VideoTexture(video)
-
-    handleObstacleRef(positionZ, obstacleRef)
   }, [])
+
+  useEffect(() => {
+    handleObstacleRef(positionZ, obstacleRef)
+  }, [positionZ])
 
   useFrame(() => {
     if (textureRef.current) {
@@ -31,7 +33,7 @@ const Obstacle = React.forwardRef(({ positionZ, side, video, handleObstacleRef }
       <meshBasicMaterial map={textureRef.current} side={THREE.DoubleSide} />
     </mesh>
   )
-})
+}
 
 const Obstacles = React.forwardRef(({ videos, handleGameOver }, canaryRef) => {
   const [obstacles, setObstacles] = useState([])
@@ -51,8 +53,6 @@ const Obstacles = React.forwardRef(({ videos, handleGameOver }, canaryRef) => {
       })
     })
   }
-
-  // const { scene } = useThree()
 
   useFrame(state => {
     const { clock } = state
@@ -74,31 +74,22 @@ const Obstacles = React.forwardRef(({ videos, handleGameOver }, canaryRef) => {
       const scaledRotatedPlayerBox = new THREE.Box3()
       scaledRotatedPlayerBox.setFromCenterAndSize(center, rotatedSize)
 
-      // Add helper
-      // const geometry = new THREE.BoxGeometry(size.x, size.z, size.y)
-      // const material = new THREE.MeshBasicMaterial({ color: 0xffff00, wireframe: true })
-      // const boxHelper = new THREE.Mesh(geometry, material)
-      // boxHelper.position.copy(center)
-      // scene.add(boxHelper)
-
       let collisionDetected = false
       obstacles.forEach(obstacle => {
         if (obstacle.ref && obstacle.ref.current) {
           const obstacleBox = new Box3().setFromObject(obstacle.ref.current)
-          // const obstacleHelper = new THREE.BoxHelper(obstacle.ref.current, 0xffff00)
-          // scene.add(obstacleHelper)
-
           if (scaledRotatedPlayerBox && obstacleBox) {
             collisionDetected = scaledRotatedPlayerBox.intersectsBox(obstacleBox)
           }
         }
-
         if (collisionDetected) {
           handleGameOver(true)
         }
       })
     }
   })
+
+  const { scene } = useThree()
 
   useFrame(state => {
     const { clock } = state
@@ -117,6 +108,7 @@ const Obstacles = React.forwardRef(({ videos, handleGameOver }, canaryRef) => {
               }))
               .filter(obstacle => obstacle.z >= -10) // -10 is the screen limit
         )
+        cleanUp(scene)
       }
 
       // Create new obstacles
@@ -144,8 +136,6 @@ const Obstacles = React.forwardRef(({ videos, handleGameOver }, canaryRef) => {
             key={index}
             positionZ={z}
             side={side}
-            canaryRef={canaryRef}
-            ref={canaryRef}
             video={videos[Math.floor(Math.random() * videos.length)]}
             handleObstacleRef={handleObstacleRef}
           />
