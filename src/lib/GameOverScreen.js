@@ -1,6 +1,6 @@
 import { OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect } from 'react'
 import ReactDOM from 'react-dom'
 import styled, { keyframes } from 'styled-components'
 import { Canary } from '../components/Canary'
@@ -8,8 +8,6 @@ import { Lights } from '../components/Lights'
 import { canaryConfig as config } from '../config'
 
 const GameOverScreen = () => {
-  const playerRef = useRef()
-
   useEffect(() => {
     const handleKeyPress = event => {
       if (event.key === 'Enter') {
@@ -31,12 +29,13 @@ const GameOverScreen = () => {
 
         <Canary
           animation="dead"
+          canMove={false}
+          canJump={false}
           position={[0, 0.2, 0]}
           scale={config.model.scale}
           meshColorIndex={config.meshColorIndex}
           meshScale={config.meshScale}
           model={config.model}
-          ref={playerRef}
         />
 
         <OrbitControls minPolarAngle={Math.PI / 2.8} maxPolarAngle={Math.PI / 1.8} />
