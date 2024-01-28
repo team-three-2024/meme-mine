@@ -7,11 +7,26 @@ import { assetURL } from '../helpers/url'
 
 const Canary = props => {
   const initialPosition = props.position ? props.position : [0, 0, 0]
-  const canJump = props.canJump ? props.canJump : true
-  const canMove = props.canMove ? props.canMove : true
+  const canJump = props.canJump !== undefined ? props.canJump : true
+  const canMove = props.canMove !== undefined ? props.canMove : true
 
   const [position, setPosition] = useState(initialPosition)
   const [isJumping, setIsJumping] = useState(false)
+
+  const audioTracks = {
+    jump: useRef(null),
+    move: useRef(null),
+    footstep1: useRef(null),
+    footstep2: useRef(null)
+  }
+
+  const playTrack = track => {
+    if (track.current) {
+      track.current.pause()
+      track.current.currentTime = 0
+      track.current.play()
+    }
+  }
 
   let animation = props.animation
   let speed = props.speed
@@ -36,6 +51,28 @@ const Canary = props => {
   }, [meshRef])
 
   useEffect(() => {
+    audioTracks.jump.current = new Audio(assetURL('audio/canary_jump.mp3'))
+    audioTracks.move.current = new Audio(assetURL('audio/canary_swooshleftandright.mp3'))
+    audioTracks.footstep1.current = new Audio(assetURL('audio/canary_footstep1.mp3'))
+    audioTracks.footstep2.current = new Audio(assetURL('audio/canary_footstep2.mp3'))
+
+    Object.values(audioTracks).forEach(audioTrack => {
+      if (audioTrack.current) {
+        audioTrack.current.load()
+      }
+    })
+    return () => {
+      Object.values(audioTracks).forEach(audioTrack => {
+        if (audioTrack.current) {
+          audioTrack.current.pause()
+          audioTrack.current.removeAttribute('src')
+          audioTrack.current.load()
+        }
+      })
+    }
+  }, [])
+
+  useEffect(() => {
     if (meshRef.current && reversed) {
       meshRef.current.rotation.x = Math.PI / 0.85
     }
@@ -45,7 +82,7 @@ const Canary = props => {
     if (meshRef && meshRef.current) {
       animationRef.current = new THREE.AnimationMixer(meshRef.current)
     }
-  }, [meshRef])
+  }, [animation, meshRef])
 
   useEffect(() => {
     if (animationRef.current && animations) {
@@ -62,6 +99,10 @@ const Canary = props => {
       }
     }
   }, [animations])
+
+  useEffect(() => {
+    playTrack(audioTracks.move)
+  }, [position[0]])
 
   useEffect(() => {
     const handleKeyDown = event => {
@@ -81,6 +122,7 @@ const Canary = props => {
       if (canJump) {
         if (event.key === 'ArrowUp' && !isJumping && position[1] === 0) {
           setIsJumping(true)
+          playTrack(audioTracks.jump)
         }
       }
       if (event.key === 'ArrowDown') {
@@ -93,7 +135,7 @@ const Canary = props => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [props, position])
+  }, [canMove, canJump, position])
 
   useFrame((_, delta) => {
     if (animationRef.current) {
@@ -112,7 +154,10 @@ const Canary = props => {
       })
     } else {
       // Bring the model back down if it's in the air
-      setPosition(prevPosition => [prevPosition[0], Math.max(0, prevPosition[1] - delta * 10), prevPosition[2]])
+      setPosition(prevPosition => {
+        if (prevPosition[1] !== 0) return [prevPosition[0], Math.max(0, prevPosition[1] - delta * 10), prevPosition[2]]
+        else return prevPosition
+      })
     }
   })
 
