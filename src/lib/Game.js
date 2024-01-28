@@ -11,6 +11,7 @@ import { Lights } from '../components/Lights'
 import { Obstacles } from '../components/Obstacles'
 import { Path } from '../components/Path'
 import { canaryConfig as config } from '../config'
+import { prefix } from '../helpers/url'
 
 const Game = ({ videos }) => {
   const [canaryRef, setCanaryRef] = useState(null)
@@ -39,14 +40,14 @@ const Game = ({ videos }) => {
   useEffect(() => {
     const loadModels = async () => {
       Promise.all([
-        faceapi.nets.faceExpressionNet.loadFromUri('/models'),
-        faceapi.nets.faceRecognitionNet.loadFromUri('/models'),
-        faceapi.nets.ssdMobilenetv1.loadFromUri('/models'),
-        faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
-        faceapi.nets.mtcnn.loadFromUri('/models'),
-        faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
-        faceapi.nets.faceLandmark68TinyNet.loadFromUri('/models'),
-        faceapi.nets.ageGenderNet.loadFromUri('/models')
+        faceapi.nets.faceExpressionNet.loadFromUri(prefix('/models')),
+        faceapi.nets.faceRecognitionNet.loadFromUri(prefix('/models')),
+        faceapi.nets.ssdMobilenetv1.loadFromUri(prefix('/models')),
+        faceapi.nets.tinyFaceDetector.loadFromUri(prefix('/models')),
+        faceapi.nets.mtcnn.loadFromUri(prefix('/models')),
+        faceapi.nets.faceLandmark68Net.loadFromUri(prefix('/models')),
+        faceapi.nets.faceLandmark68TinyNet.loadFromUri(prefix('/models')),
+        faceapi.nets.ageGenderNet.loadFromUri(prefix('/models'))
       ])
     }
     loadModels()
@@ -67,7 +68,7 @@ const Game = ({ videos }) => {
 
         <Canary
           animation="walk"
-          speed="3"
+          speed={3}
           scale={config.model.scale}
           meshColorIndex={config.meshColorIndex}
           meshScale={config.meshScale}
