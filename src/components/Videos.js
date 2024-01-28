@@ -3,7 +3,7 @@ import { assetURL } from '../helpers/url'
 
 function usePreloadedVideos(numberOfVideos) {
   const [videos, setVideos] = useState([])
-  const [loadingProgress, setLoadingProgress] = useState(0) // Track loading progress
+  const [loadingProgress, setLoadingProgress] = useState(0)
 
   useEffect(() => {
     const cleanupFunctions = []
@@ -66,7 +66,7 @@ function usePreloadedVideos(numberOfVideos) {
       const onCanPlayThrough = () => {
         videoObj.loaded = true
         const loadedVideosCount = videoElements.filter(v => v.loaded).length
-        setLoadingProgress((loadedVideosCount / numberOfVideos) * 100) // Update progress
+        setLoadingProgress((loadedVideosCount / numberOfVideos) * 100)
 
         if (loadedVideosCount === numberOfVideos) {
           setVideos(videoElements.map(v => v.videoElement))

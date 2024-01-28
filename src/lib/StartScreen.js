@@ -23,6 +23,10 @@ const StartScreen = () => {
   const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
 
   useEffect(() => {
+    if (showSelectMode) {
+      return
+    }
+
     const handleKeyPress = event => {
       if (event.key === 'Enter') {
         setShowStartScreen(false)
@@ -47,7 +51,7 @@ const StartScreen = () => {
         document.addEventListener('touchstart', handleTouch)
       }
     }
-  }, [])
+  }, [showSelectMode, setShowSelectedMode])
 
   useEffect(() => {
     const loadModels = async () => {
