@@ -1,5 +1,7 @@
 # A game using ThreeJS for Global Game Jam 2024
 
+[PLAY LATEST VERSION HERE!](https://deploy-preview-10--stupendous-sorbet-30f8e2.netlify.app/)
+
 ## Developing
 
 Make sure you have Node.js >= v18.15.0 installed (see `nvm`):
