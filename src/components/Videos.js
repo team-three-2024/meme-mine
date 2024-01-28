@@ -3,6 +3,7 @@ import { assetURL } from '../helpers/url'
 
 function usePreloadedVideos(numberOfVideos) {
   const [videos, setVideos] = useState([])
+  const [loadingProgress, setLoadingProgress] = useState(0) // Track loading progress
 
   useEffect(() => {
     const cleanupFunctions = []
@@ -64,8 +65,10 @@ function usePreloadedVideos(numberOfVideos) {
 
       const onCanPlayThrough = () => {
         videoObj.loaded = true
-        const allVideosLoaded = videoElements.every(v => v.loaded)
-        if (allVideosLoaded) {
+        const loadedVideosCount = videoElements.filter(v => v.loaded).length
+        setLoadingProgress((loadedVideosCount / numberOfVideos) * 100) // Update progress
+
+        if (loadedVideosCount === numberOfVideos) {
           setVideos(videoElements.map(v => v.videoElement))
         }
       }
@@ -83,7 +86,7 @@ function usePreloadedVideos(numberOfVideos) {
     }
   }, [numberOfVideos])
 
-  return videos
+  return { videos, loadingProgress }
 }
 
 export { usePreloadedVideos }

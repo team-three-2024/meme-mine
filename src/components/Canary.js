@@ -93,7 +93,7 @@ const Canary = props => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [position])
+  }, [props, position])
 
   useFrame((_, delta) => {
     if (animationRef.current) {
