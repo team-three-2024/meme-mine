@@ -156,7 +156,7 @@ const StartScreen = () => {
             <Lights config={config} />
 
             <Canary
-              animation="idle"
+              animation={showSelectMode ? 'idle' : 'walk'}
               speed="1"
               position={[0, 0.2, 0]}
               scale={config.model.scale}
