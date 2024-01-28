@@ -60,7 +60,9 @@ const Game = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setScore(parseInt((performance.now() - startTimeRef.current) / 100))
+      if (startTimeRef) {
+        setScore(parseInt((performance.now() - startTimeRef.current) / 100))
+      }
     }, 10)
 
     return () => clearInterval(interval)
@@ -107,6 +109,7 @@ const Game = () => {
           .withFaceLandmarks()
           .withFaceExpressions()
         if (detections) {
+          console.info(detections.expressions)
           if (detections.expressions.happy > 0.6) {
             window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }))
           } else if (detections.expressions.surprised > 0.6) {
