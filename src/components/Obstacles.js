@@ -12,10 +12,15 @@ const Obstacle = ({ positionZ, side, video, handleObstacleRef }) => {
   const obstacleRef = useRef()
 
   useEffect(() => {
-    video.play()
     videoRef.current = video
     textureRef.current = new VideoTexture(video)
   }, [])
+
+  useFrame(() => {
+    if (!video.isPlaying) {
+      // video.play()
+    }
+  })
 
   useEffect(() => {
     handleObstacleRef(positionZ, obstacleRef)

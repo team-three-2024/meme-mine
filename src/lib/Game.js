@@ -1,6 +1,8 @@
 import { OrbitControls } from '@react-three/drei'
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useFrame } from '@react-three/fiber'
+import { EffectComposer, Glitch } from '@react-three/postprocessing'
 import * as faceapi from 'face-api.js'
+import { GlitchMode } from 'postprocessing'
 import React, { useEffect, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
 import styled from 'styled-components'
@@ -8,6 +10,7 @@ import { GameOverScreen } from './GameOverScreen'
 import { CameraController } from '../components/CameraController'
 import { Canary } from '../components/Canary'
 import { Lights } from '../components/Lights'
+import { Noise } from '../components/Noise'
 import { Obstacles } from '../components/Obstacles'
 import { Path } from '../components/Path'
 import { canaryConfig as config } from '../config'
@@ -17,7 +20,8 @@ const Game = ({ videos }) => {
   const [canaryRef, setCanaryRef] = useState(null)
   const [isGameOver, setIsGameOver] = useState(false)
   const [score, setScore] = useState(0)
-  const startTimeRef = useRef(performance.now())
+  const [isGlitching, setIsGlitching] = useState(false)
+  const [mode, setMode] = useState('3D')
 
   const handleCanaryRef = ref => {
     if (ref.current) {
@@ -28,14 +32,36 @@ const Game = ({ videos }) => {
   const handleGameOver = isGameOver => setIsGameOver(isGameOver)
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (startTimeRef) {
-        setScore(parseInt((performance.now() - startTimeRef.current) / 100))
-      }
-    }, 10)
+    const changeOpacity = () => {
+      setIsGlitching(true)
 
-    return () => clearInterval(interval)
+      setTimeout(() => {
+        setMode(prevMode => (prevMode === '2D' ? '3D' : '2D'))
+      }, 800)
+
+      setTimeout(() => {
+        setIsGlitching(false)
+
+        const randomDelay = Math.random() * 5000
+        setTimeout(changeOpacity, randomDelay)
+      }, 1000)
+    }
+
+    const initialDelay = Math.random() * 5000
+    const timeoutId = setTimeout(changeOpacity, initialDelay)
+
+    return () => clearTimeout(timeoutId)
   }, [])
+
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     if (startTimeRef) {
+  //       setScore(score => score + 1)
+  //     }
+  //   }, 10)
+
+  //   return () => clearInterval(interval)
+  // }, [])
 
   useEffect(() => {
     const loadModels = async () => {
@@ -53,18 +79,30 @@ const Game = ({ videos }) => {
     loadModels()
   }, [])
 
+  let opacity = 0
+  let isGlitchActive = false
+
+  if (isGlitching) {
+    opacity = 0.5
+    isGlitchActive = true
+  }
+
+  const gameRef = useRef()
+
   return isGameOver ? (
     <GameOverScreen />
   ) : (
     <>
       <Canvas shadows dpr={[1, 2]} camera={{ position: config.cameraPosition, fov: 50 }} performance={{ min: 0.1 }}>
-        <CameraController />
+        <CameraController mode={mode} />
 
         <Lights config={config} />
 
         <Path ref={canaryRef} />
 
         <Obstacles videos={videos} handleGameOver={handleGameOver} ref={canaryRef} />
+
+        {/* <Score setScore={setScore} /> */}
 
         <Canary
           animation="walk"
@@ -76,6 +114,18 @@ const Game = ({ videos }) => {
           handleCanaryRef={handleCanaryRef}
         />
 
+        <Noise mode={mode} opacity={opacity} ref={gameRef} />
+
+        <EffectComposer>
+          <Glitch
+            dtSize={128}
+            mode={GlitchMode.SPORADIC}
+            delay={[0, 0]}
+            duration={[1000, 1000]}
+            active={isGlitchActive}
+          />
+        </EffectComposer>
+
         <OrbitControls
           minPolarAngle={Math.PI / 2.8}
           maxPolarAngle={Math.PI / 1.8}
@@ -85,12 +135,20 @@ const Game = ({ videos }) => {
       </Canvas>
       {ReactDOM.createPortal(
         <ScoreContainer>
-          <Score>Score: {score}</Score>
+          <ScoreDisplay>Score: {score}</ScoreDisplay>
         </ScoreContainer>,
         document.body
       )}
     </>
   )
+}
+
+const Score = props => {
+  useFrame(() => {
+    props.setScore(score => score + 1)
+  })
+
+  return null
 }
 
 const ScoreContainer = styled.div`
@@ -106,7 +164,7 @@ const ScoreContainer = styled.div`
   pointer-events: none;
 `
 
-const Score = styled.h1`
+const ScoreDisplay = styled.h1`
   color: #fff;
   text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 `
