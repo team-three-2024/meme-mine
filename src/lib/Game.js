@@ -46,12 +46,12 @@ const Game = ({ videos }) => {
       setTimeout(() => {
         setIsGlitching(false)
 
-        const randomDelay = Math.random() * 5000
+        const randomDelay = 1000 + Math.random() * 5000
         setTimeout(glitchOut, randomDelay)
       }, 1000)
     }
 
-    const initialDelay = Math.random() * 5000
+    const initialDelay = 1000 + Math.random() * 7500
     const timeoutId = setTimeout(glitchOut, initialDelay)
 
     return () => clearTimeout(timeoutId)
