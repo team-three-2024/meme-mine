@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import React, { useState, useRef, useEffect, useLayoutEffect } from 'react'
 import * as THREE from 'three'
 import { brandPalette, canaryConfig } from '../config'
+import { playTrack } from '../helpers/track'
 import { assetURL } from '../helpers/url'
 
 const Canary = props => {
@@ -20,14 +21,6 @@ const Canary = props => {
     footstep1: useRef(null),
     footstep2: useRef(null),
     main: useRef(null)
-  }
-
-  const playTrack = track => {
-    if (track.current) {
-      track.current.pause()
-      track.current.currentTime = 0
-      track.current.play()
-    }
   }
 
   let animation = props.animation

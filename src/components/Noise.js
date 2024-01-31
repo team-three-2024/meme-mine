@@ -5,8 +5,6 @@ import { assetURL } from '../helpers/url'
 
 const Noise = React.forwardRef(({ mode, opacity }, ref) => {
   const { size, camera } = useThree()
-  console.info(camera.position)
-
   const noiseTexture = useLoader(THREE.TextureLoader, assetURL('noise.png'))
 
   useFrame(() => {

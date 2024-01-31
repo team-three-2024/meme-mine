@@ -14,7 +14,8 @@ import { Noise } from '../components/Noise'
 import { Obstacles } from '../components/Obstacles'
 import { Path } from '../components/Path'
 import { canaryConfig as config } from '../config'
-import { prefix } from '../helpers/url'
+import { playTrack } from '../helpers/track'
+import { assetURL, prefix } from '../helpers/url'
 
 const Game = ({ videos }) => {
   const [canaryRef, setCanaryRef] = useState(null)
@@ -32,8 +33,11 @@ const Game = ({ videos }) => {
   const handleGameOver = isGameOver => setIsGameOver(isGameOver)
 
   useEffect(() => {
-    const changeOpacity = () => {
+    glitchAudioTrack.current = new Audio(assetURL('audio/glitch.mp3'))
+
+    const glitchOut = () => {
       setIsGlitching(true)
+      playTrack(glitchAudioTrack)
 
       setTimeout(() => {
         setMode(prevMode => (prevMode === '2D' ? '3D' : '2D'))
@@ -43,15 +47,25 @@ const Game = ({ videos }) => {
         setIsGlitching(false)
 
         const randomDelay = Math.random() * 5000
-        setTimeout(changeOpacity, randomDelay)
+        setTimeout(glitchOut, randomDelay)
       }, 1000)
     }
 
     const initialDelay = Math.random() * 5000
-    const timeoutId = setTimeout(changeOpacity, initialDelay)
+    const timeoutId = setTimeout(glitchOut, initialDelay)
 
     return () => clearTimeout(timeoutId)
   }, [])
+
+  useEffect(() => {
+    if (isGameOver) {
+      var id = window.setTimeout(function() {}, 0)
+
+      while (id--) {
+        window.clearTimeout(id)
+      }
+    }
+  }, [isGameOver])
 
   // useEffect(() => {
   //   const interval = setInterval(() => {
@@ -78,6 +92,8 @@ const Game = ({ videos }) => {
     }
     loadModels()
   }, [])
+
+  const glitchAudioTrack = useRef(null)
 
   let opacity = 0
   let isGlitchActive = false
