@@ -7,7 +7,7 @@ import { Canary } from '../components/Canary'
 import { Lights } from '../components/Lights'
 import { canaryConfig as config } from '../config'
 
-const GameOverScreen = () => {
+const GameOverScreen = ({ score }) => {
   useEffect(() => {
     const handleKeyPress = event => {
       if (event.key === 'Enter') {
@@ -44,6 +44,7 @@ const GameOverScreen = () => {
         <OverlayContainer>
           <Title>GAME OVER</Title>
           <Subtitle>press enter to restart</Subtitle>
+          <FinalScore>final score: {score}</FinalScore>
         </OverlayContainer>,
         document.body
       )}
@@ -67,6 +68,12 @@ const OverlayContainer = styled.div`
   justify-content: center;
   align-items: center;
   pointer-events: none;
+`
+
+const FinalScore = styled.h2`
+  color: #fff;
+  margin-top: 10px;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 `
 
 const Title = styled.h1`

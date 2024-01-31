@@ -18,7 +18,7 @@ const Obstacle = ({ positionZ, side, video, handleObstacleRef }) => {
 
   useFrame(() => {
     if (!video.isPlaying) {
-      // video.play()
+      video.play()
     }
   })
 

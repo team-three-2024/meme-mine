@@ -67,16 +67,6 @@ const Game = ({ videos }) => {
     }
   }, [isGameOver])
 
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     if (startTimeRef) {
-  //       setScore(score => score + 1)
-  //     }
-  //   }, 10)
-
-  //   return () => clearInterval(interval)
-  // }, [])
-
   useEffect(() => {
     const loadModels = async () => {
       Promise.all([
@@ -106,7 +96,7 @@ const Game = ({ videos }) => {
   const gameRef = useRef()
 
   return isGameOver ? (
-    <GameOverScreen />
+    <GameOverScreen score={score} />
   ) : (
     <>
       <Canvas shadows dpr={[1, 2]} camera={{ position: config.cameraPosition, fov: 50 }} performance={{ min: 0.1 }}>
@@ -118,7 +108,7 @@ const Game = ({ videos }) => {
 
         <Obstacles videos={videos} handleGameOver={handleGameOver} ref={canaryRef} />
 
-        {/* <Score setScore={setScore} /> */}
+        <Score setScore={setScore} />
 
         <Canary
           animation="walk"
@@ -151,7 +141,7 @@ const Game = ({ videos }) => {
       </Canvas>
       {ReactDOM.createPortal(
         <ScoreContainer>
-          <ScoreDisplay>Score: {score}</ScoreDisplay>
+          <ScoreDisplay>score: {score}</ScoreDisplay>
         </ScoreContainer>,
         document.body
       )}
@@ -169,7 +159,7 @@ const Score = props => {
 
 const ScoreContainer = styled.div`
   position: absolute;
-  top: 25px;
+  top: 250px;
   left: 0;
   width: 100%;
   height: 100%;
