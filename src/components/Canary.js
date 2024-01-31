@@ -12,6 +12,7 @@ const Canary = props => {
 
   const [position, setPosition] = useState(initialPosition)
   const [isJumping, setIsJumping] = useState(false)
+  const [hasSwitchedTrack, setHasSwitchedTrack] = useState(false)
 
   const audioTracks = {
     jump: useRef(null),
@@ -97,12 +98,14 @@ const Canary = props => {
 
     // it means the game started
     if (props.speed === 3) {
+      audioTracks.main.current.loop = true
       playTrack(audioTracks.main)
     }
 
     return () => {
       if (animationRef.current) {
         animationRef.current.stopAllAction()
+        setHasSwitchedTrack(false)
       }
     }
   }, [animations])
@@ -147,6 +150,21 @@ const Canary = props => {
   useFrame((_, delta) => {
     if (animationRef.current) {
       animationRef.current.update(delta)
+
+      if (props.animation === 'walk') {
+        animations.forEach(clip => {
+          const action = animationRef.current.clipAction(clip)
+          action.timeScale = speed
+
+          if (action.time > clip.duration / 2 && !hasSwitchedTrack) {
+            playTrack(audioTracks.footstep2)
+            setHasSwitchedTrack(true)
+          } else if (action.time < clip.duration / 2 && hasSwitchedTrack) {
+            playTrack(audioTracks.footstep1)
+            setHasSwitchedTrack(false)
+          }
+        })
+      }
     }
 
     if (isJumping) {

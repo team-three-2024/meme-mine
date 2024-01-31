@@ -1,5 +1,5 @@
 import { useFrame, useLoader, useThree } from '@react-three/fiber'
-import React, { useEffect } from 'react'
+import React from 'react'
 import * as THREE from 'three'
 import { assetURL } from '../helpers/url'
 
