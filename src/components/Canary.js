@@ -144,7 +144,7 @@ const Canary = props => {
     if (animationRef.current) {
       animationRef.current.update(delta)
 
-      if (props.animation === 'walk') {
+      if (props.animation === 'walk' && props.speed === 1) {
         animations.forEach(clip => {
           const action = animationRef.current.clipAction(clip)
           action.timeScale = speed
@@ -163,9 +163,9 @@ const Canary = props => {
     if (isJumping) {
       // Simple jump animation: move up then down
       setPosition(prevPosition => {
-        const newY = prevPosition[1] + delta * 5
+        const newY = prevPosition[1] + delta * 10
         // Check if the model has reached the peak of the jump
-        if (newY >= 2) {
+        if (newY >= 2.5) {
           setIsJumping(false) // Start falling
         }
         return [prevPosition[0], newY <= 0 ? 0 : newY, prevPosition[2]] // Reset Y position after jump

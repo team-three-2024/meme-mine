@@ -8,18 +8,15 @@ const CameraController = ({ mode }) => {
 
   useEffect(() => {
     if (mode === '2D') {
-      perspCamera.position.set(-20, 0, 0)
-      perspCamera.lookAt(20, 0, 0)
+      perspCamera.position.set(-20, 0, 1)
       set({ camera: perspCamera })
     } else {
       perspCamera.position.set(0, 0.8, -3)
-      perspCamera.lookAt(0, 0, 0)
       set({ camera: perspCamera })
     }
   }, [mode])
 
   useFrame(() => {
-    camera.lookAt(-100, 200, 500)
     camera.updateProjectionMatrix()
   })
 
