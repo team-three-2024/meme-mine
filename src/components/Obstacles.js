@@ -40,7 +40,7 @@ const Obstacle = ({ positionZ, side, video, handleObstacleRef }) => {
   )
 }
 
-const Obstacles = React.forwardRef(({ videos, handleGameOver }, canaryRef) => {
+const Obstacles = React.forwardRef(({ videos, hitPoints, setHitPoints, handleGameOver }, canaryRef) => {
   const [obstacles, setObstacles] = useState([])
 
   const visibleObstacles = 5
@@ -88,7 +88,10 @@ const Obstacles = React.forwardRef(({ videos, handleGameOver }, canaryRef) => {
           }
         }
         if (collisionDetected) {
-          handleGameOver(true)
+          setHitPoints(prevHitPoints => prevHitPoints - 5)
+          if (hitPoints < 1) {
+            handleGameOver(true)
+          }
         }
       })
     }

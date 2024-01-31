@@ -9,6 +9,7 @@ import styled from 'styled-components'
 import { GameOverScreen } from './GameOverScreen'
 import { CameraController } from '../components/CameraController'
 import { Canary } from '../components/Canary'
+import { HealthBar } from '../components/HealthBar'
 import { Lights } from '../components/Lights'
 import { Noise } from '../components/Noise'
 import { Obstacles } from '../components/Obstacles'
@@ -23,6 +24,7 @@ const Game = ({ videos }) => {
   const [score, setScore] = useState(0)
   const [isGlitching, setIsGlitching] = useState(false)
   const [mode, setMode] = useState('3D')
+  const [hitPoints, setHitPoints] = useState(100)
 
   const handleCanaryRef = ref => {
     if (ref.current) {
@@ -106,7 +108,13 @@ const Game = ({ videos }) => {
 
         <Path ref={canaryRef} />
 
-        <Obstacles videos={videos} handleGameOver={handleGameOver} ref={canaryRef} />
+        <Obstacles
+          videos={videos}
+          hitPoints={hitPoints}
+          setHitPoints={setHitPoints}
+          handleGameOver={handleGameOver}
+          ref={canaryRef}
+        />
 
         <Score setScore={setScore} />
 
@@ -142,6 +150,7 @@ const Game = ({ videos }) => {
       {ReactDOM.createPortal(
         <ScoreContainer>
           <ScoreDisplay>score: {score}</ScoreDisplay>
+          <HealthBar health={hitPoints} />
         </ScoreContainer>,
         document.body
       )}
