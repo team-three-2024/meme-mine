@@ -1,11 +1,11 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { createRoot } from 'react-dom/client'
+import { Toaster } from 'react-hot-toast'
 import styled from 'styled-components'
 import { StartScreen } from './lib/StartScreen'
 
 import './styles.css'
-import { Toaster } from 'react-hot-toast'
 
 const StyledApp = styled.div`
   display: flex;
@@ -42,7 +42,7 @@ const OverlayContainer = styled.div`
 const App = () => {
   return (
     <StyledApp>
-      <Toaster position="top-left" />
+      <Toaster />
       <StartScreen />
       {ReactDOM.createPortal(
         <OverlayContainer>

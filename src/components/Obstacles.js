@@ -43,6 +43,8 @@ const Obstacle = ({ positionZ, side, video, handleObstacleRef }) => {
 
 const Obstacles = React.forwardRef(({ videos, setScore, hitPoints, setHitPoints, handleGameOver }, canaryRef) => {
   const [obstacles, setObstacles] = useState([])
+  const [lastBonusToastId, setLastBonusToastId] = useState(null)
+  const [lastDamageToastId, setLastDamageToastId] = useState(null)
 
   const visibleObstacles = 5
   const clockRef = useRef({ elapsedTime: 0, delta: 0 })
@@ -109,35 +111,54 @@ const Obstacles = React.forwardRef(({ videos, setScore, hitPoints, setHitPoints,
             nearBonusDetected.current = scaledRotatedBonusBox.intersectsBox(obstacleBox)
           }
         }
+
         if (collisionDetected.current) {
           setHitPoints(prevHitPoints => prevHitPoints - 5)
-          toast.error('-5 HEALTH', {
-            duration: 2000,
+
+          if (lastDamageToastId) {
+            toast.dismiss(lastDamageToastId)
+          }
+          const newToastId = toast.error('DAMAGE TAKEN', {
+            duration: 2500,
             icon: '💥',
+            position: 'bottom-center',
             style: {
               borderRadius: '10px',
-              background: '#333',
-              color: '#fff'
+              background: 'transparent',
+              color: '#fff',
+              fontWeight: 'bold'
             }
           })
+          setLastDamageToastId(newToastId)
+
           if (hitPoints < 1) {
             handleGameOver(true)
           }
           return
         }
+
         if (nearBonusDetected.current) {
           atLeastOneBonus = true
+
           setScore(prevScore => prevScore + bonusRateRef.current)
+
           if (bonusRateRef.current < 1024) bonusRateRef.current *= 2
-          toast.success(`BONUS ${bonusRateRef.current}`, {
-            duration: 2000,
+
+          if (lastBonusToastId) {
+            toast.dismiss(lastBonusToastId)
+          }
+          const newToastId = toast.success(`BONUS ${bonusRateRef.current}`, {
+            duration: 2500,
             icon: '⭐',
+            position: 'top-center',
             style: {
               borderRadius: '10px',
-              background: '#333',
-              color: '#fff'
+              background: 'transparent',
+              color: '#fff',
+              fontWeight: 'bold'
             }
           })
+          setLastBonusToastId(newToastId)
         }
       })
 
