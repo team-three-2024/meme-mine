@@ -1,5 +1,5 @@
 import { OrbitControls } from '@react-three/drei'
-import { Canvas, useFrame } from '@react-three/fiber'
+import { Canvas } from '@react-three/fiber'
 import { EffectComposer, Glitch } from '@react-three/postprocessing'
 import * as faceapi from 'face-api.js'
 import { GlitchMode } from 'postprocessing'
@@ -25,6 +25,8 @@ const Game = ({ videos }) => {
   const [isGlitching, setIsGlitching] = useState(false)
   const [mode, setMode] = useState('3D')
   const [hitPoints, setHitPoints] = useState(100)
+  const [damage, setDamage] = useState(0)
+  const [bonus, setBonus] = useState(0)
 
   const handleCanaryRef = ref => {
     if (ref.current) {
@@ -42,18 +44,29 @@ const Game = ({ videos }) => {
       playTrack(glitchAudioTrack)
 
       setTimeout(() => {
-        setMode(prevMode => (prevMode === '2D' ? '3D' : '2D'))
+        setMode(prevMode => {
+          const newMode = prevMode === '2D' ? '3D' : '2D'
+
+          let randomDelay
+          if (newMode === '3D') {
+            randomDelay = 20000 + Math.random() * 10000
+          } else {
+            randomDelay = 2000 + Math.random() * 3000
+          }
+
+          // Schedule the next glitchOut after the calculated delay
+          setTimeout(glitchOut, randomDelay)
+
+          return newMode
+        })
       }, 800)
 
       setTimeout(() => {
         setIsGlitching(false)
-
-        const randomDelay = 1000 + Math.random() * 5000
-        setTimeout(glitchOut, randomDelay)
       }, 1000)
     }
 
-    const initialDelay = 1000 + Math.random() * 7500
+    const initialDelay = 20000 + Math.random() * 10000
     const timeoutId = setTimeout(glitchOut, initialDelay)
 
     return () => clearTimeout(timeoutId)
@@ -112,11 +125,12 @@ const Game = ({ videos }) => {
           videos={videos}
           hitPoints={hitPoints}
           setHitPoints={setHitPoints}
+          setScore={setScore}
           handleGameOver={handleGameOver}
+          setBonus={setBonus}
+          setDamage={setDamage}
           ref={canaryRef}
         />
-
-        <Score setScore={setScore} />
 
         <Canary
           animation="walk"
@@ -154,16 +168,15 @@ const Game = ({ videos }) => {
         </ScoreContainer>,
         document.body
       )}
+      {ReactDOM.createPortal(
+        <StatusContainer>
+          <StatusDisplay>damage: {damage}</StatusDisplay>
+          <StatusDisplay>bonus: {bonus}</StatusDisplay>
+        </StatusContainer>,
+        document.body
+      )}
     </>
   )
-}
-
-const Score = props => {
-  useFrame(() => {
-    props.setScore(score => score + 1)
-  })
-
-  return null
 }
 
 const ScoreContainer = styled.div`
@@ -180,6 +193,26 @@ const ScoreContainer = styled.div`
 `
 
 const ScoreDisplay = styled.h1`
+  color: #fff;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+`
+
+const StatusContainer = styled.div`
+  padding: 20px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: end;
+  pointer-events: none;
+`
+
+const StatusDisplay = styled.h1`
+  margin: 0;
   color: #fff;
   text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 `

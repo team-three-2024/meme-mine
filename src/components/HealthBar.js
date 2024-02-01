@@ -18,7 +18,7 @@ const HealthBarContainer = styled.div`
 const Health = styled.div`
   height: 20px;
   width: ${props => props.health}%;
-  background-color: #01ffff;
+  background-color: ${props => (props.health < 50 ? 'red' : '#01ffff')};
   transition: width 0.5s ease-in-out;
 `
 
