@@ -10,7 +10,6 @@ import { Lights } from '../components/Lights'
 import { ProgressBar } from '../components/ProgressBar'
 import { usePreloadedVideos } from '../components/Videos'
 import { canaryConfig as config } from '../config'
-import { WebcamProvider } from '../context/GameContext'
 import { prefix } from '../helpers/url'
 
 const StartScreen = () => {
@@ -131,7 +130,7 @@ const StartScreen = () => {
   }
 
   return (
-    <WebcamProvider>
+    <>
       {captureVideo && (
         <div id="webcam_holder">
           <video id="webcam" ref={videoRef} height={videoHeight} width={videoWidth} onPlay={handleVideoOnPlay} />
@@ -198,7 +197,7 @@ const StartScreen = () => {
           <Game videos={videos} />
         </Suspense>
       )}
-    </WebcamProvider>
+    </>
   )
 }
 
