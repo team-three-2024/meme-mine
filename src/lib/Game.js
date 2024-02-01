@@ -174,7 +174,6 @@ const ScoreContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  pointer-events: none;
 `
 
 const ScoreDisplay = styled.h1`

@@ -68,7 +68,6 @@ const OverlayContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  pointer-events: none;
 `
 
 const FinalScore = styled.h2`

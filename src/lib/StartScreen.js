@@ -198,8 +198,6 @@ const OverlayContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  pointer-events: auto;
-  z-index: 100;
 `
 
 const Title = styled.h1`

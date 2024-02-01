@@ -31,7 +31,6 @@ const OverlayContainer = styled.div`
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
