@@ -7,10 +7,11 @@ import { cleanUp } from '../helpers/clean'
 
 const random = (min, max) => Math.floor(Math.random() * (max - min)) + min
 
-const Obstacle = ({ positionZ, side, video, handleObstacleRef }) => {
+const Obstacle = ({ positionZ, side, videos, handleObstacleRef }) => {
   const videoRef = useRef()
   const textureRef = useRef()
   const obstacleRef = useRef()
+  const video = videos[Math.floor(Math.random() * videos.length)]
 
   useEffect(() => {
     videoRef.current = video
@@ -142,12 +143,12 @@ const Obstacles = React.forwardRef(({ videos, setScore, hitPoints, setHitPoints,
 
           setScore(prevScore => prevScore + bonusRateRef.current)
 
-          if (bonusRateRef.current < 1024) bonusRateRef.current *= 2
+          if (bonusRateRef.current < 256) bonusRateRef.current *= 2
 
           if (lastBonusToastId) {
             toast.dismiss(lastBonusToastId)
           }
-          const newToastId = toast.success(`BONUS ${bonusRateRef.current}`, {
+          const newToastId = toast.success(`BONUS +${bonusRateRef.current}`, {
             duration: 2500,
             icon: '⭐',
             position: 'top-center',
@@ -192,13 +193,15 @@ const Obstacles = React.forwardRef(({ videos, setScore, hitPoints, setHitPoints,
 
       // Create new obstacles
       if (obstacles.length < visibleObstacles) {
-        const initialPosition = 0
-        const obstacleGap = random(20, 120)
-        const obstacleside = Math.floor(Math.random() * 3) - 1
+        const lastObstacle = obstacles[obstacles.length - 1]
+        const lastPosition = lastObstacle ? lastObstacle.z : 0
+        const obstacleGap = random(10, 20)
+        const obstacleSide = Math.floor(Math.random() * 3) - 1
 
         const newObstacle = {
-          z: initialPosition + obstacleGap,
-          side: obstacleside,
+          id: Date.now() + Math.random(),
+          z: lastPosition + obstacleGap,
+          side: obstacleSide,
           ref: null
         }
 
@@ -209,16 +212,8 @@ const Obstacles = React.forwardRef(({ videos, setScore, hitPoints, setHitPoints,
 
   return (
     <>
-      {obstacles.map(({ z, side }, index) => {
-        return (
-          <Obstacle
-            key={index}
-            positionZ={z}
-            side={side}
-            video={videos[Math.floor(Math.random() * videos.length)]}
-            handleObstacleRef={handleObstacleRef}
-          />
-        )
+      {obstacles.map(({ id, z, side }) => {
+        return <Obstacle key={id} positionZ={z} side={side} videos={videos} handleObstacleRef={handleObstacleRef} />
       })}
     </>
   )
