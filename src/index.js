@@ -20,15 +20,21 @@ const Credits = styled.h3`
   text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 `
 
-const Logo = styled.h5`
+const Logo = styled.a`
+  font-size: 14px;
   color: #fff;
   margin: 0;
   text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+  text-decoration: none;
+
+  &:hover {
+    color: #e6007a;
+  }
 `
 
 const OverlayContainer = styled.div`
   position: absolute;
-  top: 0;
+  bottom: 0;
   left: 0;
   width: 100%;
   display: flex;
@@ -46,10 +52,18 @@ const App = () => {
       {ReactDOM.createPortal(
         <OverlayContainer>
           <Credits>powered by</Credits>
-          <Logo>anything world</Logo>
-          <Logo>kusama network</Logo>
-          <Logo>faceapi</Logo>
-          <Logo>giphy</Logo>
+          <Logo href="https://anything.world/" target="_blank" rel="noopener noreferrer">
+            anything world
+          </Logo>
+          <Logo href="https://kusama.network/" target="_blank" rel="noopener noreferrer">
+            kusama network
+          </Logo>
+          <Logo href="https://github.com/justadudewhohacks/face-api.js" target="_blank" rel="noopener noreferrer">
+            face api
+          </Logo>
+          <Logo href="https://giphy.com/" target="_blank" rel="noopener noreferrer">
+            giphy
+          </Logo>
         </OverlayContainer>,
         document.body
       )}
