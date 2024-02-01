@@ -1,10 +1,8 @@
-import { OrbitControls } from '@react-three/drei'
-import { Canvas } from '@react-three/fiber'
+import { Html, OrbitControls } from '@react-three/drei'
 import { EffectComposer, Glitch } from '@react-three/postprocessing'
 import * as faceapi from 'face-api.js'
 import { GlitchMode } from 'postprocessing'
-import React, { Suspense, useEffect, useRef, useState } from 'react'
-import ReactDOM from 'react-dom'
+import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { GameOverScreen } from './GameOverScreen'
 import { CameraController } from '../components/CameraController'
@@ -111,61 +109,57 @@ const Game = ({ videos }) => {
     <GameOverScreen score={score} />
   ) : (
     <>
-      <Suspense fallback="null">
-        <Canvas shadows dpr={[1, 2]} camera={{ position: config.cameraPosition, fov: 50 }} performance={{ min: 0.1 }}>
-          <CameraController mode={mode} />
+      <CameraController mode={mode} />
 
-          <Lights config={config} />
+      <Lights config={config} />
 
-          <Path ref={canaryRef} />
+      <Path ref={canaryRef} />
 
-          <Obstacles
-            mode={mode}
-            videos={videos}
-            hitPoints={hitPoints}
-            setHitPoints={setHitPoints}
-            setScore={setScore}
-            handleGameOver={handleGameOver}
-            ref={canaryRef}
-          />
+      <Obstacles
+        mode={mode}
+        videos={videos}
+        hitPoints={hitPoints}
+        setHitPoints={setHitPoints}
+        setScore={setScore}
+        handleGameOver={handleGameOver}
+        ref={canaryRef}
+      />
 
-          <Canary
-            animation="walk"
-            speed={3}
-            scale={config.model.scale}
-            meshColorIndex={config.meshColorIndex}
-            meshScale={config.meshScale}
-            model={config.model}
-            handleCanaryRef={handleCanaryRef}
-          />
+      <Canary
+        animation="walk"
+        speed={3}
+        scale={config.model.scale}
+        meshColorIndex={config.meshColorIndex}
+        meshScale={config.meshScale}
+        model={config.model}
+        handleCanaryRef={handleCanaryRef}
+      />
 
-          <Noise mode={mode} opacity={opacity} ref={gameRef} />
+      <Noise mode={mode} opacity={opacity} ref={gameRef} />
 
-          <EffectComposer>
-            <Glitch
-              dtSize={128}
-              mode={GlitchMode.SPORADIC}
-              delay={[0, 0]}
-              duration={[1000, 1000]}
-              active={isGlitchActive}
-            />
-          </EffectComposer>
+      <EffectComposer>
+        <Glitch
+          dtSize={128}
+          mode={GlitchMode.SPORADIC}
+          delay={[0, 0]}
+          duration={[1000, 1000]}
+          active={isGlitchActive}
+        />
+      </EffectComposer>
 
-          <OrbitControls
-            minPolarAngle={Math.PI / 2.8}
-            maxPolarAngle={Math.PI / 1.8}
-            enableZoom={false}
-            enableRotate={false}
-          />
-        </Canvas>
-        {ReactDOM.createPortal(
-          <ScoreContainer>
-            <ScoreDisplay>score: {score}</ScoreDisplay>
-            <HealthBar health={hitPoints} />
-          </ScoreContainer>,
-          document.body
-        )}
-      </Suspense>
+      <OrbitControls
+        minPolarAngle={Math.PI / 2.8}
+        maxPolarAngle={Math.PI / 1.8}
+        enableZoom={false}
+        enableRotate={false}
+      />
+
+      <Html fullscreen>
+        <ScoreContainer>
+          <ScoreDisplay>score: {score}</ScoreDisplay>
+          <HealthBar health={hitPoints} />
+        </ScoreContainer>
+      </Html>
     </>
   )
 }

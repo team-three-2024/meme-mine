@@ -1,9 +1,9 @@
-import React from 'react'
+import React, { StrictMode } from 'react'
 import ReactDOM from 'react-dom'
 import { createRoot } from 'react-dom/client'
 import { Toaster } from 'react-hot-toast'
 import styled from 'styled-components'
-import { StartScreen } from './lib/StartScreen'
+import { Flow } from './lib/Flow'
 
 import './styles.css'
 
@@ -43,7 +43,7 @@ const App = () => {
   return (
     <StyledApp>
       <Toaster />
-      <StartScreen />
+      <Flow />
       {ReactDOM.createPortal(
         <OverlayContainer>
           <Credits>powered by</Credits>
@@ -60,4 +60,8 @@ const App = () => {
 
 const rootElement = document.getElementById('root')
 const root = createRoot(rootElement)
-root.render(<App />)
+root.render(
+  <StrictMode>
+    <App />
+  </StrictMode>
+)

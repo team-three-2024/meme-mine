@@ -7,6 +7,13 @@ const CameraController = ({ mode }) => {
   const perspCamera = new THREE.PerspectiveCamera(50, 16 / 9, 0.1, 1000)
 
   useEffect(() => {
+    if (mode === 'over') {
+      perspCamera.position.set(3, 1, 0)
+      set({ camera: perspCamera })
+
+      return null
+    }
+
     if (mode === '2D') {
       perspCamera.position.set(-20, 0, 1)
       set({ camera: perspCamera })

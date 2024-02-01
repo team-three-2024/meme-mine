@@ -1,18 +1,14 @@
-import { OrbitControls } from '@react-three/drei'
-import { Canvas } from '@react-three/fiber'
+import { Html, OrbitControls } from '@react-three/drei'
 import * as faceapi from 'face-api.js'
-import React, { useState, useEffect, useRef, Suspense } from 'react'
-import ReactDOM from 'react-dom'
+import React, { useState, useEffect, useRef } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { Game } from './Game'
 import { Canary } from '../components/Canary'
 import { Lights } from '../components/Lights'
-import { ProgressBar } from '../components/ProgressBar'
-import { usePreloadedVideos } from '../components/Videos'
 import { canaryConfig as config } from '../config'
 import { prefix } from '../helpers/url'
 
-const StartScreen = () => {
+const StartScreen = ({ videos }) => {
   const [showStartScreen, setShowStartScreen] = useState(true)
   const [showSelectMode, setShowSelectedMode] = useState(true)
   const videoRef = useRef()
@@ -117,58 +113,47 @@ const StartScreen = () => {
     }, 100)
   }
 
-  const numberOfVideos = 32
-  const { videos, loadingProgress } = usePreloadedVideos(numberOfVideos)
-
-  if (videos.length < numberOfVideos) {
-    return (
-      <OverlayContainer>
-        <Title>loading...</Title>
-        <ProgressBar progress={loadingProgress} />
-      </OverlayContainer>
-    )
-  }
-
   return (
     <>
       {captureVideo && (
-        <div id="webcam_holder">
-          <video id="webcam" ref={videoRef} height={videoHeight} width={videoWidth} onPlay={handleVideoOnPlay} />
-          <p>
-            <span role="img" aria-label="angry face">
-              😬😠 (angry) to move left
-            </span>
-            <br />
-            <span role="img" aria-label="surprised face">
-              😲 (surprised) to move right
-            </span>
-            <br />
-            <span role="img" aria-label="happy face">
-              😆 (happy) to jump!
-            </span>
-          </p>
-        </div>
+        <Html fullscreen>
+          <div id="webcam_holder">
+            <video id="webcam" ref={videoRef} height={videoHeight} width={videoWidth} onPlay={handleVideoOnPlay} />
+            <p>
+              <span role="img" aria-label="angry face">
+                😬😠 (angry) to move left
+              </span>
+              <br />
+              <span role="img" aria-label="surprised face">
+                😲 (surprised) to move right
+              </span>
+              <br />
+              <span role="img" aria-label="happy face">
+                😆 (happy) to jump!
+              </span>
+            </p>
+          </div>
+        </Html>
       )}
 
       {showStartScreen ? (
         <>
-          <Canvas shadows dpr={[1, 2]} camera={{ position: [3, 1, 3], fov: 50 }} performance={{ min: 0.1 }}>
-            <Lights config={config} />
+          <Lights config={config} />
 
-            <Canary
-              animation={showSelectMode ? 'idle' : 'walk'}
-              speed={1}
-              position={[0, 0.2, 0]}
-              scale={config.model.scale}
-              meshColorIndex={config.meshColorIndex}
-              meshScale={config.meshScale}
-              model={config.model}
-            />
+          <Canary
+            animation={showSelectMode ? 'idle' : 'walk'}
+            speed={1}
+            position={[0, 0.2, 0]}
+            scale={config.model.scale}
+            meshColorIndex={config.meshColorIndex}
+            meshScale={config.meshScale}
+            model={config.model}
+          />
 
-            <OrbitControls minPolarAngle={Math.PI / 2.8} maxPolarAngle={Math.PI / 1.8} />
-          </Canvas>
-          {ReactDOM.createPortal(
-            showSelectMode ? (
+          <OrbitControls minPolarAngle={Math.PI / 2.8} maxPolarAngle={Math.PI / 1.8} />
+
+          <Html fullscreen>
+            {showSelectMode ? (
               <OverlayContainer>
                 <Title>canary in a meme mine</Title>
                 <Subtitle>select game mode:</Subtitle>
@@ -188,14 +173,11 @@ const StartScreen = () => {
                 <Title>canary in a meme mine</Title>
                 <AnimatedSubtitle>get ready and press enter to start</AnimatedSubtitle>
               </OverlayContainer>
-            ),
-            document.body
-          )}
+            )}
+          </Html>
         </>
       ) : (
-        <Suspense fallback={null}>
-          <Game videos={videos} />
-        </Suspense>
+        <Game videos={videos} />
       )}
     </>
   )
@@ -216,6 +198,8 @@ const OverlayContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  pointer-events: auto;
+  z-index: 100;
 `
 
 const Title = styled.h1`

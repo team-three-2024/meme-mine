@@ -1,13 +1,14 @@
-import { OrbitControls } from '@react-three/drei'
-import { Canvas } from '@react-three/fiber'
+import { Html, OrbitControls } from '@react-three/drei'
 import React, { useEffect } from 'react'
-import ReactDOM from 'react-dom'
 import styled, { keyframes } from 'styled-components'
+import { CameraController } from '../components/CameraController'
 import { Canary } from '../components/Canary'
 import { Lights } from '../components/Lights'
 import { canaryConfig as config } from '../config'
 
 const GameOverScreen = ({ score }) => {
+  const mode = 'over'
+
   useEffect(() => {
     const handleKeyPress = event => {
       if (event.key === 'Enter') {
@@ -24,30 +25,30 @@ const GameOverScreen = ({ score }) => {
 
   return (
     <>
-      <Canvas shadows dpr={[1, 2]} camera={{ position: [3, 1, 0], fov: 50 }} performance={{ min: 0.1 }}>
-        <Lights config={config} />
+      <CameraController mode={mode} />
 
-        <Canary
-          animation="dead"
-          canMove={false}
-          canJump={false}
-          position={[0, 0.2, 0]}
-          scale={config.model.scale}
-          meshColorIndex={config.meshColorIndex}
-          meshScale={config.meshScale}
-          model={config.model}
-        />
+      <Lights config={config} />
 
-        <OrbitControls minPolarAngle={Math.PI / 2.8} maxPolarAngle={Math.PI / 1.8} />
-      </Canvas>
-      {ReactDOM.createPortal(
+      <Canary
+        animation="dead"
+        canMove={false}
+        canJump={false}
+        position={[0, 0.2, 0]}
+        scale={config.model.scale}
+        meshColorIndex={config.meshColorIndex}
+        meshScale={config.meshScale}
+        model={config.model}
+      />
+
+      <OrbitControls minPolarAngle={Math.PI / 2.8} maxPolarAngle={Math.PI / 1.8} />
+
+      <Html fullscreen>
         <OverlayContainer>
           <Title>GAME OVER</Title>
           <Subtitle>press enter to restart</Subtitle>
           <FinalScore>final score: {score}</FinalScore>
-        </OverlayContainer>,
-        document.body
-      )}
+        </OverlayContainer>
+      </Html>
     </>
   )
 }
