@@ -120,6 +120,7 @@ const Game = ({ videos }) => {
           <Path ref={canaryRef} />
 
           <Obstacles
+            mode={mode}
             videos={videos}
             hitPoints={hitPoints}
             setHitPoints={setHitPoints}

@@ -7,7 +7,7 @@ import { cleanUp } from '../helpers/clean'
 
 const random = (min, max) => Math.floor(Math.random() * (max - min)) + min
 
-const Obstacle = ({ positionZ, side, videos, handleObstacleRef }) => {
+const Obstacle = ({ mode, positionZ, side, videos, handleObstacleRef }) => {
   const videoRef = useRef()
   const textureRef = useRef()
   const obstacleRef = useRef()
@@ -28,6 +28,16 @@ const Obstacle = ({ positionZ, side, videos, handleObstacleRef }) => {
     handleObstacleRef(positionZ, obstacleRef)
   }, [positionZ])
 
+  useEffect(() => {
+    if (obstacleRef.current) {
+      if (mode === '2D') {
+        obstacleRef.current.rotation.y = Math.PI / 2
+      } else {
+        obstacleRef.current.rotation.y = 0
+      }
+    }
+  }, [mode])
+
   useFrame(() => {
     if (textureRef.current) {
       textureRef.current.needsUpdate = true
@@ -42,7 +52,7 @@ const Obstacle = ({ positionZ, side, videos, handleObstacleRef }) => {
   )
 }
 
-const Obstacles = React.forwardRef(({ videos, setScore, hitPoints, setHitPoints, handleGameOver }, canaryRef) => {
+const Obstacles = React.forwardRef(({ mode, videos, setScore, hitPoints, setHitPoints, handleGameOver }, canaryRef) => {
   const [obstacles, setObstacles] = useState([])
   const [lastBonusToastId, setLastBonusToastId] = useState(null)
   const [lastDamageToastId, setLastDamageToastId] = useState(null)
@@ -213,7 +223,16 @@ const Obstacles = React.forwardRef(({ videos, setScore, hitPoints, setHitPoints,
   return (
     <>
       {obstacles.map(({ id, z, side }) => {
-        return <Obstacle key={id} positionZ={z} side={side} videos={videos} handleObstacleRef={handleObstacleRef} />
+        return (
+          <Obstacle
+            key={id}
+            mode={mode}
+            positionZ={z}
+            side={side}
+            videos={videos}
+            handleObstacleRef={handleObstacleRef}
+          />
+        )
       })}
     </>
   )
