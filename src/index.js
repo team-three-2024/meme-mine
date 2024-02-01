@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import { StartScreen } from './lib/StartScreen'
 
 import './styles.css'
+import { Toaster } from 'react-hot-toast'
 
 const StyledApp = styled.div`
   display: flex;
@@ -41,6 +42,7 @@ const OverlayContainer = styled.div`
 const App = () => {
   return (
     <StyledApp>
+      <Toaster position="top-left" />
       <StartScreen />
       {ReactDOM.createPortal(
         <OverlayContainer>

@@ -25,8 +25,6 @@ const Game = ({ videos }) => {
   const [isGlitching, setIsGlitching] = useState(false)
   const [mode, setMode] = useState('3D')
   const [hitPoints, setHitPoints] = useState(100)
-  const [damage, setDamage] = useState(0)
-  const [bonus, setBonus] = useState(0)
 
   const handleCanaryRef = ref => {
     if (ref.current) {
@@ -54,7 +52,6 @@ const Game = ({ videos }) => {
             randomDelay = 2000 + Math.random() * 3000
           }
 
-          // Schedule the next glitchOut after the calculated delay
           setTimeout(glitchOut, randomDelay)
 
           return newMode
@@ -127,8 +124,6 @@ const Game = ({ videos }) => {
           setHitPoints={setHitPoints}
           setScore={setScore}
           handleGameOver={handleGameOver}
-          setBonus={setBonus}
-          setDamage={setDamage}
           ref={canaryRef}
         />
 
@@ -168,13 +163,6 @@ const Game = ({ videos }) => {
         </ScoreContainer>,
         document.body
       )}
-      {ReactDOM.createPortal(
-        <StatusContainer>
-          <StatusDisplay>damage: {damage}</StatusDisplay>
-          <StatusDisplay>bonus: {bonus}</StatusDisplay>
-        </StatusContainer>,
-        document.body
-      )}
     </>
   )
 }
@@ -193,26 +181,6 @@ const ScoreContainer = styled.div`
 `
 
 const ScoreDisplay = styled.h1`
-  color: #fff;
-  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
-`
-
-const StatusContainer = styled.div`
-  padding: 20px;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: start;
-  align-items: end;
-  pointer-events: none;
-`
-
-const StatusDisplay = styled.h1`
-  margin: 0;
   color: #fff;
   text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 `
