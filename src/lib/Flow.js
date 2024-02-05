@@ -8,6 +8,32 @@ import { ProgressBar } from '../components/ProgressBar'
 import { usePreloadedVideos } from '../components/Videos'
 
 const Flow = () => {
+  useEffect(() => {
+    const canvas = document.querySelector('canvas')
+
+    const handleContextLost = event => {
+      event.preventDefault()
+      console.warn('WebGL context lost. Please reload the page or wait for restoration.')
+    }
+
+    const handleContextRestored = () => {
+      console.warn('WebGL context restored. Resuming application...')
+      window.location.reload()
+    }
+
+    if (canvas) {
+      canvas.addEventListener('webglcontextlost', handleContextLost, false)
+      canvas.addEventListener('webglcontextrestored', handleContextRestored, false)
+    }
+
+    return () => {
+      if (canvas) {
+        canvas.removeEventListener('webglcontextlost', handleContextLost)
+        canvas.removeEventListener('webglcontextrestored', handleContextRestored)
+      }
+    }
+  }, [])
+
   const numberOfModels = 3
   const numberOfVideos = 32
   const { models, modelsLoadingProgress } = usePreloadedModels(numberOfModels)
@@ -30,32 +56,6 @@ const Flow = () => {
       </OverlayContainer>
     )
   }
-
-  const handleContextLost = event => {
-    event.preventDefault() // Prevent the default browser action.
-    console.warn('WebGL context lost. Please reload the page or wait for restoration.')
-  }
-
-  const handleContextRestored = () => {
-    console.warn('WebGL context restored. Resuming application...')
-    window.location.reload()
-  }
-
-  useEffect(() => {
-    const canvas = document.querySelector('canvas')
-
-    if (canvas) {
-      canvas.addEventListener('webglcontextlost', handleContextLost, false)
-      canvas.addEventListener('webglcontextrestored', handleContextRestored, false)
-    }
-
-    return () => {
-      if (canvas) {
-        canvas.removeEventListener('webglcontextlost', handleContextLost)
-        canvas.removeEventListener('webglcontextrestored', handleContextRestored)
-      }
-    }
-  }, [])
 
   return (
     <Suspense fallback={null}>
