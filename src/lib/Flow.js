@@ -1,3 +1,4 @@
+import { Preload } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import React, { Suspense } from 'react'
 import styled from 'styled-components'
@@ -34,6 +35,7 @@ const Flow = () => {
   return (
     <Suspense fallback={null}>
       <Canvas shadows dpr={[1, 2]} camera={{ position: [3, 1, 3], fov: 50 }} performance={{ min: 0.1 }}>
+        <Preload all />
         <StartScreen videos={videos} />
       </Canvas>
     </Suspense>
