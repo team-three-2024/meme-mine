@@ -13,6 +13,7 @@ const Flow = () => {
 
     const handleContextLost = event => {
       event.preventDefault()
+      alert('WebGL context lost. Reloading the page or wait for restoration...')
       window.location.reload()
     }
 
