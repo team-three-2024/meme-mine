@@ -153,8 +153,6 @@ const Obstacles = React.forwardRef(({ mode, videos, setScore, hitPoints, setHitP
 
           setScore(prevScore => prevScore + bonusRateRef.current)
 
-          if (bonusRateRef.current < 256) bonusRateRef.current *= 2
-
           if (lastBonusToastId) {
             toast.dismiss(lastBonusToastId)
           }
@@ -170,6 +168,8 @@ const Obstacles = React.forwardRef(({ mode, videos, setScore, hitPoints, setHitP
             }
           })
           setLastBonusToastId(newToastId)
+
+          if (bonusRateRef.current < 256) bonusRateRef.current *= 2
         }
       })
 
