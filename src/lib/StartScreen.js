@@ -149,6 +149,7 @@ const StartScreen = ({ videos }) => {
             meshColorIndex={config.meshColorIndex}
             meshScale={config.meshScale}
             model={config.model}
+            muted={showSelectMode ? true : false}
           />
 
           <OrbitControls minPolarAngle={Math.PI / 2.8} maxPolarAngle={Math.PI / 1.8} />

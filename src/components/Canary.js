@@ -10,6 +10,7 @@ const Canary = props => {
   const initialPosition = props.position ? props.position : [0, 0, 0]
   const canJump = props.canJump !== undefined ? props.canJump : true
   const canMove = props.canMove !== undefined ? props.canMove : true
+  const muted = props.muted !== undefined ? props.muted : false
 
   const [position, setPosition] = useState(initialPosition)
   const [isJumping, setIsJumping] = useState(false)
@@ -104,8 +105,10 @@ const Canary = props => {
   }, [animations])
 
   useEffect(() => {
+    if (muted) return
+
     playTrack(audioTracks.move)
-  }, [position[0]])
+  }, [muted, position[0]])
 
   useEffect(() => {
     const handleKeyDown = event => {
