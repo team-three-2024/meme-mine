@@ -1,6 +1,6 @@
 import { Preload } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
-import React, { Suspense, useEffect } from 'react'
+import React, { Suspense } from 'react'
 import styled from 'styled-components'
 import { StartScreen } from './StartScreen'
 import { usePreloadedModels } from '../components/Models'
@@ -8,25 +8,21 @@ import { ProgressBar } from '../components/ProgressBar'
 import { usePreloadedVideos } from '../components/Videos'
 
 const Flow = () => {
-  useEffect(() => {
-    const canvas = document.querySelector('canvas')
-
+  const onCanvasCreated = ({ gl }) => {
     const handleContextLost = event => {
       event.preventDefault()
-      alert('WebGL context lost. Reloading the page or wait for restoration...')
+      alert('WebGL context lost. Reloading the page for restoration...')
       window.location.reload()
     }
 
-    if (canvas) {
-      canvas.addEventListener('webglcontextlost', handleContextLost, false)
-    }
+    const canvas = gl.domElement
+
+    canvas.addEventListener('webglcontextlost', handleContextLost, false)
 
     return () => {
-      if (canvas) {
-        canvas.removeEventListener('webglcontextlost', handleContextLost)
-      }
+      canvas.removeEventListener('webglcontextlost', handleContextLost)
     }
-  }, [])
+  }
 
   const numberOfModels = 3
   const numberOfVideos = 32
@@ -53,7 +49,13 @@ const Flow = () => {
 
   return (
     <Suspense fallback={null}>
-      <Canvas shadows dpr={[1, 2]} camera={{ position: [3, 1, 3], fov: 50 }} performance={{ min: 0.1 }}>
+      <Canvas
+        shadows
+        dpr={[1, 2]}
+        camera={{ position: [3, 1, 3], fov: 50 }}
+        performance={{ min: 0.1 }}
+        onCreated={onCanvasCreated}
+      >
         <Preload all />
         <StartScreen videos={videos} />
       </Canvas>
