@@ -2,18 +2,31 @@ import { Canvas } from '@react-three/fiber'
 import React, { Suspense } from 'react'
 import styled from 'styled-components'
 import { StartScreen } from './StartScreen'
+import { usePreloadedModels } from '../components/Models'
 import { ProgressBar } from '../components/ProgressBar'
 import { usePreloadedVideos } from '../components/Videos'
 
 const Flow = () => {
+  const numberOfModels = 3
   const numberOfVideos = 32
-  const { videos, loadingProgress } = usePreloadedVideos(numberOfVideos)
+  const { models, modelsLoadingProgress } = usePreloadedModels(numberOfModels)
+  const { videos, videosLoadingProgress } = usePreloadedVideos(numberOfVideos)
+  console.info(models)
+
+  if (models.length < numberOfModels) {
+    return (
+      <OverlayContainer>
+        <Title>loading 3D models ...</Title>
+        <ProgressBar progress={modelsLoadingProgress} />
+      </OverlayContainer>
+    )
+  }
 
   if (videos.length < numberOfVideos) {
     return (
       <OverlayContainer>
-        <Title>loading...</Title>
-        <ProgressBar progress={loadingProgress} />
+        <Title>loading memes...</Title>
+        <ProgressBar progress={videosLoadingProgress} />
       </OverlayContainer>
     )
   }
