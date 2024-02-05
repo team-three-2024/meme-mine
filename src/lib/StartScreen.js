@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { Game } from './Game'
 import { Canary } from '../components/Canary'
+import { Credits } from '../components/Credits'
 import { Lights } from '../components/Lights'
 import { canaryConfig as config } from '../config'
 import { prefix } from '../helpers/url'
@@ -180,6 +181,8 @@ const StartScreen = ({ videos }) => {
                 </fieldset>
               </OverlayContainer>
             )}
+
+            <Credits />
           </Html>
         </>
       ) : (

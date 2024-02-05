@@ -5,6 +5,7 @@ import { CameraController } from '../components/CameraController'
 import { Canary } from '../components/Canary'
 import { Lights } from '../components/Lights'
 import { canaryConfig as config } from '../config'
+import { Credits } from '../components/Credits'
 
 const GameOverScreen = ({ score }) => {
   const mode = 'over'
@@ -48,6 +49,8 @@ const GameOverScreen = ({ score }) => {
           <Subtitle>press enter to restart</Subtitle>
           <FinalScore>final score: {score}</FinalScore>
         </OverlayContainer>
+
+        <Credits />
       </Html>
     </>
   )
