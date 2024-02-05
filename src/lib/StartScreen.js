@@ -172,6 +172,12 @@ const StartScreen = ({ videos }) => {
               <OverlayContainer>
                 <Title>canary in a meme mine</Title>
                 <AnimatedSubtitle>get ready and press enter to start</AnimatedSubtitle>
+                <fieldset>
+                  <legend style={{ color: '#e6007a' }}>hint</legend>
+                  <Hint>the only way to score is by nearly avoiding collision with memes</Hint>
+                  <Hint>but be careful, you will lose health if you hit the memes</Hint>
+                  <Hint style={{ color: '#e6007a' }}>the closer you get, the more points you earn!</Hint>
+                </fieldset>
               </OverlayContainer>
             )}
           </Html>
@@ -212,10 +218,16 @@ const Subtitle = styled.h2`
   margin-bottom: 5px;
   text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 `
+const Hint = styled.p`
+  color: #fff;
+  margin: 1px;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+  text-align: center;
+`
 
 const AnimatedSubtitle = styled.h2`
   color: #fff;
-  margin-top: 125px;
+  margin-top: 300px;
   text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
   animation: ${blinkAnimation} 1500ms linear infinite;
 `
