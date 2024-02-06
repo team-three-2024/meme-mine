@@ -57,7 +57,7 @@ const Flow = () => {
         onCreated={onCanvasCreated}
       >
         <Preload all />
-        <StartScreen videos={videos} />
+        <StartScreen videos={videos} models={models} />
       </Canvas>
     </Suspense>
   )

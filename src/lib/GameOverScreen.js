@@ -3,11 +3,11 @@ import React, { useEffect } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { CameraController } from '../components/CameraController'
 import { Canary } from '../components/Canary'
+import { Credits } from '../components/Credits'
 import { Lights } from '../components/Lights'
 import { canaryConfig as config } from '../config'
-import { Credits } from '../components/Credits'
 
-const GameOverScreen = ({ score }) => {
+const GameOverScreen = ({ score, models }) => {
   const mode = 'over'
 
   useEffect(() => {
@@ -36,9 +36,7 @@ const GameOverScreen = ({ score }) => {
         canJump={false}
         position={[0, 0.2, 0]}
         scale={config.model.scale}
-        meshColorIndex={config.meshColorIndex}
-        meshScale={config.meshScale}
-        model={config.model}
+        models={models}
       />
 
       <OrbitControls minPolarAngle={Math.PI / 2.8} maxPolarAngle={Math.PI / 1.8} />

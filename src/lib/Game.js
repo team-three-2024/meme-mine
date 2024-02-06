@@ -16,7 +16,7 @@ import { canaryConfig as config } from '../config'
 import { playTrack } from '../helpers/track'
 import { assetURL, prefix } from '../helpers/url'
 
-const Game = ({ videos }) => {
+const Game = ({ videos, models }) => {
   const [canaryRef, setCanaryRef] = useState(null)
   const [isGameOver, setIsGameOver] = useState(false)
   const [score, setScore] = useState(0)
@@ -106,7 +106,7 @@ const Game = ({ videos }) => {
   const gameRef = useRef()
 
   return isGameOver ? (
-    <GameOverScreen score={score} />
+    <GameOverScreen score={score} models={models} />
   ) : (
     <>
       <CameraController mode={mode} />
@@ -125,15 +125,7 @@ const Game = ({ videos }) => {
         ref={canaryRef}
       />
 
-      <Canary
-        animation="walk"
-        speed={3}
-        scale={config.model.scale}
-        meshColorIndex={config.meshColorIndex}
-        meshScale={config.meshScale}
-        model={config.model}
-        handleCanaryRef={handleCanaryRef}
-      />
+      <Canary animation="walk" speed={3} scale={config.model.scale} models={models} handleCanaryRef={handleCanaryRef} />
 
       <Noise mode={mode} opacity={opacity} ref={gameRef} />
 

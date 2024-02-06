@@ -86,7 +86,7 @@ const Obstacles = React.forwardRef(({ mode, videos, setScore, hitPoints, setHitP
       const bonusBox = new Box3().setFromObject(canaryRef.current)
 
       // Transform the original bounding box to match the model inside
-      const scaleFactor = 0.23
+      const scaleFactor = 1
       const center = new THREE.Vector3()
       const size = new THREE.Vector3()
       playerBox.getCenter(center)
@@ -99,8 +99,8 @@ const Obstacles = React.forwardRef(({ mode, videos, setScore, hitPoints, setHitP
       scaledRotatedPlayerBox.setFromCenterAndSize(center, rotatedSize)
 
       // Near bonus box
-      const bonusScaleFator = 0.35
-      const bonusZScaleFator = 1.8
+      const bonusScaleFator = 1.35
+      const bonusZScaleFator = 1.75
       const bonusCenter = new THREE.Vector3()
       const bonusSize = new THREE.Vector3()
       bonusBox.getCenter(bonusCenter)

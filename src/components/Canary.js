@@ -1,8 +1,6 @@
-import { useGLTF } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
-import React, { useState, useRef, useEffect, useLayoutEffect } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import * as THREE from 'three'
-import { brandPalette, canaryConfig } from '../config'
 import { playTrack } from '../helpers/track'
 import { assetURL } from '../helpers/url'
 
@@ -34,8 +32,8 @@ const Canary = props => {
     reversed = true
   }
 
-  const glb = canaryConfig.objectUrl[animation]
-  const { scene, nodes, materials, animations } = useGLTF(assetURL(glb))
+  const glb = props.models.find(item => item.userData.name === animation)
+  const { scene, animations } = glb
 
   const animationRef = useRef()
   const meshRef = useRef()
@@ -181,26 +179,6 @@ const Canary = props => {
       })
     }
   })
-
-  useLayoutEffect(() => {
-    if (props.meshScale) {
-      if (nodes.canary) {
-        nodes.canary.scale.set(4, 4, 4)
-      }
-    }
-
-    scene.traverse(obj => {
-      obj.type === 'Mesh' && (obj.receiveShadow = obj.castShadow = true)
-    })
-
-    Object.assign(materials[props.model.material], {
-      wireframe: false,
-      metalness: props.model.metalness,
-      roughness: props.model.moughness,
-      opacity: props.model.opacity,
-      color: new THREE.Color(brandPalette[props.model.color])
-    })
-  }, [scene, nodes, materials])
 
   return (
     <mesh position={position} ref={meshRef}>

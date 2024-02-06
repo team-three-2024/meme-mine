@@ -9,15 +9,16 @@ function usePreloadedModels(numberOfModels) {
   useEffect(() => {
     const loader = new GLTFLoader()
     const cleanupFunctions = []
-    const selectedModels = ['canary_walk.glb', 'canary_idle.glb', 'canary_hop.glb']
+    const selectedModels = ['walk', 'idle', 'hop']
 
     let loadedModelsCount = 0
 
-    const modelObjects = selectedModels.map(filename => {
-      const modelObj = { src: assetURL(filename), loaded: false }
+    const modelObjects = selectedModels.map(name => {
+      const modelObj = { src: assetURL(`canary_${name}.glb`), loaded: false }
 
       const onLoad = gltf => {
         modelObj.gltf = gltf
+        modelObj.gltf.userData = { name }
         modelObj.loaded = true
         loadedModelsCount++
         setLoadingProgress((loadedModelsCount / numberOfModels) * 100)

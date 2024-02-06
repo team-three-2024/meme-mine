@@ -9,7 +9,7 @@ import { Lights } from '../components/Lights'
 import { canaryConfig as config } from '../config'
 import { prefix } from '../helpers/url'
 
-const StartScreen = ({ videos }) => {
+const StartScreen = ({ videos, models }) => {
   const [showStartScreen, setShowStartScreen] = useState(true)
   const [showSelectMode, setShowSelectedMode] = useState(true)
   const videoRef = useRef()
@@ -146,9 +146,7 @@ const StartScreen = ({ videos }) => {
             speed={1}
             position={[0, 0.2, 0]}
             scale={config.model.scale}
-            meshColorIndex={config.meshColorIndex}
-            meshScale={config.meshScale}
-            model={config.model}
+            models={models}
             muted={showSelectMode ? true : false}
           />
 
@@ -187,7 +185,7 @@ const StartScreen = ({ videos }) => {
           </Html>
         </>
       ) : (
-        <Game videos={videos} />
+        <Game videos={videos} models={models} />
       )}
     </>
   )
