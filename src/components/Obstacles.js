@@ -60,7 +60,7 @@ const Obstacles = React.forwardRef(({ mode, videos, setScore, hitPoints, setHitP
   const visibleObstacles = 5
   const clockRef = useRef({ elapsedTime: 0, delta: 0 })
 
-  const bonusRateRef = useRef(2)
+  const bonusRateRef = useRef(1)
   const nearBonusDetected = useRef(false)
   const collisionDetected = useRef(false)
 
@@ -100,7 +100,7 @@ const Obstacles = React.forwardRef(({ mode, videos, setScore, hitPoints, setHitP
 
       // Near bonus box
       const bonusScaleFator = 0.35
-      const bonusZScaleFator = 1.6
+      const bonusZScaleFator = 1.8
       const bonusCenter = new THREE.Vector3()
       const bonusSize = new THREE.Vector3()
       bonusBox.getCenter(bonusCenter)
@@ -151,6 +151,8 @@ const Obstacles = React.forwardRef(({ mode, videos, setScore, hitPoints, setHitP
         if (nearBonusDetected.current) {
           atLeastOneBonus = true
 
+          if (bonusRateRef.current < 256) bonusRateRef.current *= 2
+
           setScore(prevScore => prevScore + bonusRateRef.current)
 
           if (lastBonusToastId) {
@@ -168,13 +170,11 @@ const Obstacles = React.forwardRef(({ mode, videos, setScore, hitPoints, setHitP
             }
           })
           setLastBonusToastId(newToastId)
-
-          if (bonusRateRef.current < 256) bonusRateRef.current *= 2
         }
       })
 
       if (!atLeastOneBonus) {
-        bonusRateRef.current = 2
+        bonusRateRef.current = 1
       }
     }
   })

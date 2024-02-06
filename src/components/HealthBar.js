@@ -11,7 +11,7 @@ const HealthBarContainer = styled.div`
   width: 25vw;
   background-color: #ddd;
   border: 2px solid #666;
-  border-radius: 20px;
+  border-radius: 5px;
   overflow: hidden;
 `
 
