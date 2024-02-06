@@ -56,6 +56,7 @@ const Obstacles = React.forwardRef(({ mode, videos, setScore, hitPoints, setHitP
   const [obstacles, setObstacles] = useState([])
   const [lastBonusToastId, setLastBonusToastId] = useState(null)
   const [lastDamageToastId, setLastDamageToastId] = useState(null)
+  const [gameSpeed, setGameSpeed] = useState(0.1)
 
   const visibleObstacles = 5
   const clockRef = useRef({ elapsedTime: 0, delta: 0 })
@@ -100,7 +101,7 @@ const Obstacles = React.forwardRef(({ mode, videos, setScore, hitPoints, setHitP
 
       // Near bonus box
       const bonusScaleFator = 1.35
-      const bonusZScaleFator = 1.75
+      const bonusZScaleFator = 1.75 / (gameSpeed * 10)
       const bonusCenter = new THREE.Vector3()
       const bonusSize = new THREE.Vector3()
       bonusBox.getCenter(bonusCenter)
@@ -187,7 +188,7 @@ const Obstacles = React.forwardRef(({ mode, videos, setScore, hitPoints, setHitP
 
     if (canaryRef && canaryRef.current) {
       // Move obstacles and clean up old ones
-      if (clockRef.current.delta >= 0.1) {
+      if (clockRef.current.delta >= gameSpeed) {
         clockRef.current.elapsedTime = clock.getElapsedTime()
         setObstacles(
           prevObstacles =>
@@ -217,6 +218,9 @@ const Obstacles = React.forwardRef(({ mode, videos, setScore, hitPoints, setHitP
 
         setObstacles(prevObstacles => [...prevObstacles, newObstacle])
       }
+
+      // Increase game speed
+      setGameSpeed(gameSpeed => gameSpeed * 0.9992)
     }
   })
 
