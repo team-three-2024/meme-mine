@@ -4,8 +4,20 @@ import toast from 'react-hot-toast'
 import * as THREE from 'three'
 import { Box3, VideoTexture } from 'three'
 import { cleanUp } from '../helpers/clean'
+import { createFinishLineTexture } from '../helpers/texture'
 
 const random = (min, max) => Math.floor(Math.random() * (max - min)) + min
+
+const FinishLine = ({ positionZ }) => {
+  const texture = React.useMemo(() => createFinishLineTexture(), [])
+
+  return (
+    <mesh position={[0, 0, positionZ]}>
+      <planeGeometry args={[5, 1]} />
+      <meshBasicMaterial map={texture} color={0xffffff} side={THREE.DoubleSide} />
+    </mesh>
+  )
+}
 
 const Obstacle = ({ mode, positionZ, side, videos, handleObstacleRef }) => {
   const videoRef = useRef()
@@ -56,6 +68,16 @@ const Obstacles = React.forwardRef(({ mode, videos, setScore, hitPoints, setHitP
   const [obstacles, setObstacles] = useState([])
   const [lastBonusToastId, setLastBonusToastId] = useState(null)
   const [lastDamageToastId, setLastDamageToastId] = useState(null)
+  const [showFinishLine, setShowFinishLine] = useState(false)
+  const [finishLinePosition, setFinishLinePosition] = useState(60)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowFinishLine(true)
+    }, 60000)
+
+    return () => clearTimeout(timer)
+  }, [])
 
   const visibleObstacles = 5
   const clockRef = useRef({ elapsedTime: 0, delta: 0 })
@@ -186,8 +208,14 @@ const Obstacles = React.forwardRef(({ mode, videos, setScore, hitPoints, setHitP
     clockRef.current.delta = clock.getElapsedTime() - clockRef.current.elapsedTime
 
     if (canaryRef && canaryRef.current) {
-      // Move obstacles and clean up old ones
+      // Handle finish line, move obstacles and clean up old ones
       if (clockRef.current.delta >= 0.1) {
+        if (showFinishLine) {
+          setFinishLinePosition(prevPosition => prevPosition - 1)
+
+          if (finishLinePosition < 0) handleGameOver(true)
+        }
+
         clockRef.current.elapsedTime = clock.getElapsedTime()
         setObstacles(
           prevObstacles =>
@@ -205,12 +233,20 @@ const Obstacles = React.forwardRef(({ mode, videos, setScore, hitPoints, setHitP
       if (obstacles.length < visibleObstacles) {
         const lastObstacle = obstacles[obstacles.length - 1]
         const lastPosition = lastObstacle ? lastObstacle.z : 0
+
         const obstacleGap = random(10, 20)
         const obstacleSide = Math.floor(Math.random() * 3) - 1
 
+        const newObstaclePosition = lastPosition + obstacleGap
+
+        // Prevent obstacles from being created beyond the finish line
+        if (showFinishLine && newObstaclePosition > finishLinePosition - 1) {
+          return
+        }
+
         const newObstacle = {
           id: Date.now() + Math.random(),
-          z: lastPosition + obstacleGap,
+          z: newObstaclePosition,
           side: obstacleSide,
           ref: null
         }
@@ -234,6 +270,7 @@ const Obstacles = React.forwardRef(({ mode, videos, setScore, hitPoints, setHitP
           />
         )
       })}
+      {showFinishLine && <FinishLine positionZ={finishLinePosition} />}
     </>
   )
 })
