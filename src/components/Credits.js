@@ -22,8 +22,7 @@ const Credit = styled.a`
 const OverlayContainer = styled.div`
   position: absolute;
   bottom: 0;
-  left: 0;
-  width: 100%;
+  right: 0;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
