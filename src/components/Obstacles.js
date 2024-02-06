@@ -1,25 +1,42 @@
 import { useFrame, useThree } from '@react-three/fiber'
 import React, { useEffect, useState, useRef } from 'react'
+import toast from 'react-hot-toast'
 import * as THREE from 'three'
 import { Box3, VideoTexture } from 'three'
 import { cleanUp } from '../helpers/clean'
 
 const random = (min, max) => Math.floor(Math.random() * (max - min)) + min
 
-const Obstacle = ({ positionZ, side, video, handleObstacleRef }) => {
+const Obstacle = ({ mode, positionZ, side, videos, handleObstacleRef }) => {
   const videoRef = useRef()
   const textureRef = useRef()
   const obstacleRef = useRef()
+  const video = videos[Math.floor(Math.random() * videos.length)]
 
   useEffect(() => {
-    video.play()
     videoRef.current = video
     textureRef.current = new VideoTexture(video)
   }, [])
 
+  useFrame(() => {
+    if (!video.isPlaying) {
+      video.play()
+    }
+  })
+
   useEffect(() => {
     handleObstacleRef(positionZ, obstacleRef)
   }, [positionZ])
+
+  useEffect(() => {
+    if (obstacleRef.current) {
+      if (mode === '2D') {
+        obstacleRef.current.rotation.y = Math.PI / 2
+      } else {
+        obstacleRef.current.rotation.y = 0
+      }
+    }
+  }, [mode])
 
   useFrame(() => {
     if (textureRef.current) {
@@ -35,11 +52,17 @@ const Obstacle = ({ positionZ, side, video, handleObstacleRef }) => {
   )
 }
 
-const Obstacles = React.forwardRef(({ videos, handleGameOver }, canaryRef) => {
+const Obstacles = React.forwardRef(({ mode, videos, setScore, hitPoints, setHitPoints, handleGameOver }, canaryRef) => {
   const [obstacles, setObstacles] = useState([])
+  const [lastBonusToastId, setLastBonusToastId] = useState(null)
+  const [lastDamageToastId, setLastDamageToastId] = useState(null)
 
   const visibleObstacles = 5
   const clockRef = useRef({ elapsedTime: 0, delta: 0 })
+
+  const bonusRateRef = useRef(1)
+  const nearBonusDetected = useRef(false)
+  const collisionDetected = useRef(false)
 
   const handleObstacleRef = (obstacleIdentifier, ref) => {
     setObstacles(prevObstacles => {
@@ -60,9 +83,10 @@ const Obstacles = React.forwardRef(({ videos, handleGameOver }, canaryRef) => {
 
     if (canaryRef && canaryRef.current) {
       const playerBox = new Box3().setFromObject(canaryRef.current)
+      const bonusBox = new Box3().setFromObject(canaryRef.current)
 
       // Transform the original bounding box to match the model inside
-      const scaleFactor = 0.23
+      const scaleFactor = 1
       const center = new THREE.Vector3()
       const size = new THREE.Vector3()
       playerBox.getCenter(center)
@@ -74,18 +98,84 @@ const Obstacles = React.forwardRef(({ videos, handleGameOver }, canaryRef) => {
       const scaledRotatedPlayerBox = new THREE.Box3()
       scaledRotatedPlayerBox.setFromCenterAndSize(center, rotatedSize)
 
-      let collisionDetected = false
+      // Near bonus box
+      const bonusScaleFator = 1.35
+      const bonusZScaleFator = 1.75
+      const bonusCenter = new THREE.Vector3()
+      const bonusSize = new THREE.Vector3()
+      bonusBox.getCenter(bonusCenter)
+      bonusBox.getSize(bonusSize)
+      bonusSize.multiplyScalar(bonusScaleFator)
+      bonusSize.y *= bonusZScaleFator // y because it's rotated, but it's in fact z
+      const bonusRotatedSize = new THREE.Vector3(bonusSize.x, bonusSize.z, bonusSize.y)
+      const scaledRotatedBonusBox = new THREE.Box3()
+      scaledRotatedBonusBox.setFromCenterAndSize(bonusCenter, bonusRotatedSize)
+
+      let atLeastOneBonus = false
       obstacles.forEach(obstacle => {
         if (obstacle.ref && obstacle.ref.current) {
           const obstacleBox = new Box3().setFromObject(obstacle.ref.current)
           if (scaledRotatedPlayerBox && obstacleBox) {
-            collisionDetected = scaledRotatedPlayerBox.intersectsBox(obstacleBox)
+            collisionDetected.current = scaledRotatedPlayerBox.intersectsBox(obstacleBox)
+          }
+          if (scaledRotatedBonusBox && obstacleBox) {
+            nearBonusDetected.current = scaledRotatedBonusBox.intersectsBox(obstacleBox)
           }
         }
-        if (collisionDetected) {
-          handleGameOver(true)
+
+        if (collisionDetected.current) {
+          setHitPoints(prevHitPoints => prevHitPoints - 5)
+
+          if (lastDamageToastId) {
+            toast.dismiss(lastDamageToastId)
+          }
+          const newToastId = toast.error('DAMAGE TAKEN', {
+            duration: 2500,
+            icon: '💥',
+            position: 'bottom-center',
+            style: {
+              borderRadius: '10px',
+              background: 'transparent',
+              color: '#fff',
+              fontWeight: 'bold'
+            }
+          })
+          setLastDamageToastId(newToastId)
+
+          if (hitPoints < 1) {
+            handleGameOver(true)
+          }
+          return
+        }
+
+        if (nearBonusDetected.current) {
+          atLeastOneBonus = true
+
+          if (bonusRateRef.current < 256) bonusRateRef.current *= 2
+
+          setScore(prevScore => prevScore + bonusRateRef.current)
+
+          if (lastBonusToastId) {
+            toast.dismiss(lastBonusToastId)
+          }
+          const newToastId = toast.success(`BONUS +${bonusRateRef.current}`, {
+            duration: 2500,
+            icon: '⭐',
+            position: 'top-center',
+            style: {
+              borderRadius: '10px',
+              background: 'transparent',
+              color: '#fff',
+              fontWeight: 'bold'
+            }
+          })
+          setLastBonusToastId(newToastId)
         }
       })
+
+      if (!atLeastOneBonus) {
+        bonusRateRef.current = 1
+      }
     }
   })
 
@@ -113,13 +203,15 @@ const Obstacles = React.forwardRef(({ videos, handleGameOver }, canaryRef) => {
 
       // Create new obstacles
       if (obstacles.length < visibleObstacles) {
-        const initialPosition = 0
-        const obstacleGap = random(20, 120)
-        const obstacleside = Math.floor(Math.random() * 3) - 1
+        const lastObstacle = obstacles[obstacles.length - 1]
+        const lastPosition = lastObstacle ? lastObstacle.z : 0
+        const obstacleGap = random(10, 20)
+        const obstacleSide = Math.floor(Math.random() * 3) - 1
 
         const newObstacle = {
-          z: initialPosition + obstacleGap,
-          side: obstacleside,
+          id: Date.now() + Math.random(),
+          z: lastPosition + obstacleGap,
+          side: obstacleSide,
           ref: null
         }
 
@@ -130,13 +222,14 @@ const Obstacles = React.forwardRef(({ videos, handleGameOver }, canaryRef) => {
 
   return (
     <>
-      {obstacles.map(({ z, side }, index) => {
+      {obstacles.map(({ id, z, side }) => {
         return (
           <Obstacle
-            key={index}
+            key={id}
+            mode={mode}
             positionZ={z}
             side={side}
-            video={videos[Math.floor(Math.random() * videos.length)]}
+            videos={videos}
             handleObstacleRef={handleObstacleRef}
           />
         )

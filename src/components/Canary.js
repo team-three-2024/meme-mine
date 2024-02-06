@@ -1,17 +1,18 @@
-import { useGLTF } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
-import React, { useState, useRef, useEffect, useLayoutEffect } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import * as THREE from 'three'
-import { brandPalette, canaryConfig } from '../config'
+import { playTrack } from '../helpers/track'
 import { assetURL } from '../helpers/url'
 
 const Canary = props => {
   const initialPosition = props.position ? props.position : [0, 0, 0]
   const canJump = props.canJump !== undefined ? props.canJump : true
   const canMove = props.canMove !== undefined ? props.canMove : true
+  const muted = props.muted !== undefined ? props.muted : false
 
   const [position, setPosition] = useState(initialPosition)
   const [isJumping, setIsJumping] = useState(false)
+  const [hasSwitchedTrack, setHasSwitchedTrack] = useState(false)
 
   const audioTracks = {
     jump: useRef(null),
@@ -19,14 +20,6 @@ const Canary = props => {
     footstep1: useRef(null),
     footstep2: useRef(null),
     main: useRef(null)
-  }
-
-  const playTrack = track => {
-    if (track.current) {
-      track.current.pause()
-      track.current.currentTime = 0
-      track.current.play()
-    }
   }
 
   let animation = props.animation
@@ -39,8 +32,8 @@ const Canary = props => {
     reversed = true
   }
 
-  const glb = canaryConfig.objectUrl[animation]
-  const { scene, nodes, materials, animations } = useGLTF(assetURL(glb))
+  const glb = props.models.find(item => item.userData.name === animation)
+  const { scene, animations } = glb
 
   const animationRef = useRef()
   const meshRef = useRef()
@@ -97,19 +90,23 @@ const Canary = props => {
 
     // it means the game started
     if (props.speed === 3) {
+      audioTracks.main.current.loop = true
       playTrack(audioTracks.main)
     }
 
     return () => {
       if (animationRef.current) {
         animationRef.current.stopAllAction()
+        setHasSwitchedTrack(false)
       }
     }
   }, [animations])
 
   useEffect(() => {
+    if (muted) return
+
     playTrack(audioTracks.move)
-  }, [position[0]])
+  }, [muted, position[0]])
 
   useEffect(() => {
     const handleKeyDown = event => {
@@ -147,14 +144,29 @@ const Canary = props => {
   useFrame((_, delta) => {
     if (animationRef.current) {
       animationRef.current.update(delta)
+
+      if (props.animation === 'walk' && props.speed === 1) {
+        animations.forEach(clip => {
+          const action = animationRef.current.clipAction(clip)
+          action.timeScale = speed
+
+          if (action.time > clip.duration / 2 && !hasSwitchedTrack) {
+            playTrack(audioTracks.footstep2)
+            setHasSwitchedTrack(true)
+          } else if (action.time < clip.duration / 2 && hasSwitchedTrack) {
+            playTrack(audioTracks.footstep1)
+            setHasSwitchedTrack(false)
+          }
+        })
+      }
     }
 
     if (isJumping) {
       // Simple jump animation: move up then down
       setPosition(prevPosition => {
-        const newY = prevPosition[1] + delta * 5
+        const newY = prevPosition[1] + delta * 10
         // Check if the model has reached the peak of the jump
-        if (newY >= 2) {
+        if (newY >= 2.5) {
           setIsJumping(false) // Start falling
         }
         return [prevPosition[0], newY <= 0 ? 0 : newY, prevPosition[2]] // Reset Y position after jump
@@ -167,26 +179,6 @@ const Canary = props => {
       })
     }
   })
-
-  useLayoutEffect(() => {
-    if (props.meshScale) {
-      if (nodes.canary) {
-        nodes.canary.scale.set(4, 4, 4)
-      }
-    }
-
-    scene.traverse(obj => {
-      obj.type === 'Mesh' && (obj.receiveShadow = obj.castShadow = true)
-    })
-
-    Object.assign(materials[props.model.material], {
-      wireframe: false,
-      metalness: props.model.metalness,
-      roughness: props.model.moughness,
-      opacity: props.model.opacity,
-      color: new THREE.Color(brandPalette[props.model.color])
-    })
-  }, [scene, nodes, materials])
 
   return (
     <mesh position={position} ref={meshRef}>

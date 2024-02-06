@@ -8,7 +8,7 @@ const ProgressBar = ({ progress }) => (
 )
 
 const ProgressBarContainer = styled.div`
-  width: 15vw;
+  width: 25vw;
   background-color: #ddd;
   border: 2px solid #666;
   border-radius: 20px;
